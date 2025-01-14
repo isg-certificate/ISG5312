@@ -2,22 +2,44 @@ project:
   type: book
 
 book:
-  title: "ISG5312"
-  author: "Norah Jones"
-  date: "10/30/2024"
+  title: "ISG 5312 - Genomic Data Analysis in Practice II"
+  author: "Noah Reid"
+  date: "11/1/2024"
   chapters:
-    - index.qmd
-    - intro.qmd
-    - summary.qmd
-    - references.qmd
+  - index.qmd
+  - part: 01_0_IntroToGit.qmd
+    chapters:
+    - 01_1_git-ingStarted.qmd
+    - 01_2_moreGit.qmd
+  - part: 02_0_variantDetection.qmd
+   # chapters:
+   # - 02_1.qmd
+   # - 02_2.qmd
+   # - 02_3.qmd
+  - part: 03_0_genomeAssembly.qmd
+    # chapters:
+    # - 03_1.qmd
+    # - 03_2.qmd
+    # - 03_3.qmd
+  - part: 04_0_scRNAseq.qmd
+    # chapters:
+    # - 04_1.qmd
+    # - 04_2.qmd
+    # - 04_3.qmd
+    # - 04_4.qmd
+    # - 04_5.qmd
+  - part: 05_0_workflows.qmd
+    # chapters:
+    # - 04_1.qmd
+    # - 04_2.qmd
+    # - 04_3.qmd
 
 bibliography: references.bib
 
 format:
   html:
     theme: cosmo
-  pdf:
-    documentclass: scrreprt
+
 
 
 

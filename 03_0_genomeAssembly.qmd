@@ -1,0 +1,11 @@
+---
+title: "Genome Assembly"
+editor: source
+---
+
+# Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| FIRST OBJECTIVE   |

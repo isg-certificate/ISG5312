@@ -1,0 +1,20 @@
+---
+title: "Introduction to Git"
+editor: source
+---
+
+# Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| Create a code repository with git.   |
+| Set up a documented remote copy of the repository on github. |
+| Branch the repository to edit, and then merge changes. |
+| Work collaboratively. |
+
+In this module we will learn the basics of the version control software git, and how to set up a remote code repository on the web service [GitHub](https://github.com). 
+
+These chapters will be somewhat sparse, as you will be referred to existing training material in HuskyCT. 
+
+Many (perhaps most?) people find Git to be a bit confusing at times. You should prepare for that possibility, and know that you may need to refer to documentation or seek help. 

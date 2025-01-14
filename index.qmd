@@ -1,0 +1,16 @@
+# Preface {.unnumbered}
+
+This course is the second in a two part series on practical analysis of genomic data. [The first course](https://isg-certificate.github.io/ISG5311/) heavily emphasized Linux and HPC skills, the statistical computing language R, and the basics of high throughput sequencing data. It used a model workflow, bulk RNA-seq analysis, as a framework for developing basic competencies. 
+
+This course will broaden the focus to include higher level bioinformatics skills, such as using Git for version controlling code, an introduction to workflow languages through Nextflow, and introduces several more workflows (variant detection, genome assembly, and single-cell RNA-seq). The course comprises five modules, one for each of these topics. 
+
+In this semester students will also do independent projects where they pick a workflow and reanalyze a relevant public dataset. 
+
+There are five modules:
+
+1. Introduction to version control with Git/GitHub. 
+2. Variant Detection. 
+3. Genome Assembly. 
+4. scRNAseq
+5. Pipeline development with Nextflow
+

@@ -1,0 +1,11 @@
+---
+title: "Pipeline development with Nextflow"
+editor: source
+---
+
+# Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| FIRST OBJECTIVE   |

@@ -1,0 +1,11 @@
+---
+title: "Variant Detection and Genotyping"
+editor: source
+---
+
+# Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| FIRST OBJECTIVE   |

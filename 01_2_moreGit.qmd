@@ -1,0 +1,536 @@
+---
+title: "More Git"
+editor: source
+---
+
+# Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| Branch the repository to edit, and then merge changes. |
+| Work collaboratively. |
+
+
+In the second chapter, we're going to cover a few more topics. 
+
+- Restoring past versions.
+- Telling git to ignore files. 
+- Branching and merging. 
+- Managing remote branches. 
+- Forking and pull requests on Github. 
+
+Again, this will all be pretty short on explanation, make sure to refer to readings and videos in HuskyCT to understand better how things work. 
+
+## Restoring past versions
+
+
+Consider our `newproject` directory. It contains two files (and the hidden .git directory):
+
+```bash
+tree
+```
+
+```
+.
+├── hm.sh
+└── hw.sh
+
+0 directories, 2 files
+```
+
+They should both be committed at this point. 
+
+What happens if we make some modifications and we want to get rid of them? Like say, we overwrite the entire file. 
+
+```bash
+echo 'oops!' >hw.sh
+```
+
+`git status` will show us the file has been modified:
+
+```
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   hw.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+### When the changes are unstaged
+
+So we've made an edit, but haven't staged it. We can grab the most recent committed version with:
+
+```bash
+git restore hw.sh
+```
+
+Now `cat hw.sh`
+
+```
+#!/bin/bash
+
+echo "Hello World!"
+```
+
+Reveals the file has been restored. 
+
+### When the changes are staged
+
+If we have already *staged* the file however, this won't work directly, as it will simply check the file out from the *staging* area, not the most recent commit. 
+
+If you make the same mistake again, `echo 'oops!' >hw.sh`, but this time *stage the change* `git add hw.sh`, you will see with `git status`:
+
+```
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   hw.sh
+```
+Per the message, you can unstage with
+
+```bash
+git restore --staged hw.sh
+```
+And then go back to the last commit like before with `git restore hw.sh`. 
+
+### When the changes have been committed
+
+If we make an edit and commit it:
+
+```bash
+echo 'echo "Good day, world!"' >>hw.sh
+git add hw.sh
+git commit -m "good day"
+```
+
+We've now added a change to our repository. If we want to go back to a previous version (i.e without the "good day world" echo), we first need to identify the commit containing the file version we want. 
+We can run `git log` to see a list of commits. 
+
+```
+commit f8b8dcc6e75b325d4976f27d10c74f7154452d84 (HEAD -> master)
+Author: Noah Reid <noah@uconn.edu>
+Date:   Fri Jan 10 11:23:27 1999 -0500
+
+    good day
+
+commit ed8b357e46329f423101296fbba6b85b988972fc (origin/master)
+Author: Noah Reid <noah@uconn.edu>
+Date:   Fri Jan 10 10:44:00 1998 -0500
+
+    added hola mundo script
+
+commit 39fb28833d64c1176fc4fa8dc010d0dbdf8ff374
+Author: Noah Reid <noah@uconn.edu>
+Date:   Fri Jan 10 10:43:07 1997 -0500
+
+    first commit
+```
+
+Commits are uniquely identified by those long strings of letters and numbers. They are hashes of the snapshot (you can read more elsewhere!). 
+
+To get a version of the file from one of these commits:
+
+```bash
+git restore --source=ed8b357e hw.sh
+```
+
+We only need to provide enough of the hash that it is unique among commits. Now `git status`
+
+```
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   hw.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+We have restored our file, *but not staged or committed it*. We need to `git add` and then `git commit`. Now `git log`:
+
+```
+commit 3140e0d685f677c4ac2cc2123a8b53ef68eeee4a (HEAD -> master)
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 11:40:11 2025 -0500
+
+    restoring hw.sh
+
+commit f8b8dcc6e75b325d4976f27d10c74f7154452d84
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 11:23:27 2025 -0500
+
+    good day
+
+commit ed8b357e46329f423101296fbba6b85b988972fc (origin/master)
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 10:44:00 2025 -0500
+
+    added hola mundo script
+
+commit 39fb28833d64c1176fc4fa8dc010d0dbdf8ff374
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 10:43:07 2025 -0500
+
+    first commit
+```
+
+We can see we have added a new commit. We didn't go backwards in our history so much as reached back to a previous file version and pulled it forward into a new change. 
+
+### Examining differences between file versions
+
+What if we're not sure which commit to restore from? We can use `git diff` to examine differences between files: 
+
+We can compare file versions with `git diff`. 
+
+```bash
+git diff f8b8dcc hw.sh
+```
+
+This tells git to compare the file `hw.sh` between the current working space and the commit hash beginning with `f8b8dcc`. The output:
+
+```
+diff --git a/hw.sh b/hw.sh
+index 22b4300..cd16289 100644
+--- a/hw.sh
++++ b/hw.sh
+@@ -1,4 +1,3 @@
+ #!/bin/bash
+ 
+ echo "Hello World!"
+-echo "Good day, world!"
+```
+
+There's a lot here (nicely colored in the terminal), but you can see, essentially, that the line `echo "Good day, world!"` has been removed (signified by `-`) from our current version, relative to the commit we're examining. 
+
+If you're working on a local machine, you can use something else to view the `diff` results. For Visual Studio Code, you can configure the `difftool` command like this:
+
+```bash
+git config --global diff.tool vscode
+git config --global difftool.vscode.cmd 'code --wait --diff $LOCAL $REMOTE'
+```
+
+As mentioned in the previous chapter, `code` will have to be in your PATH (linked instructions are there). 
+
+Now 
+
+```bash
+git difftool ed8b357e46329f4 hw.sh
+```
+
+And after a prompt you should get a nicely formatted window with side-by-side files that makes it easy to see differences. 
+
+
+## Branching and merging
+
+This is one of the pillars of git and can get a little confusing, especially when remotes are brought into the equation. 
+
+When working with an established code repository, you may have an idea you want to test out, but you are unsure of whether it will be any good, or it may take some time to implement and you don't want to unsettle the existing code. 
+
+### Branching
+
+In these cases you can create a new `branch` (again, see materials in huskyCT for more conceptual details). A branch is an independent line of commits. Repositories can have dozens of branches. Check the GitHub repository for the [NF-Core pipeline `rnaseq`](https://github.com/nf-core/rnaseq). Click the button with the branching icon that says `master`. 
+
+After you have worked out your idea, if you decide it should become a part of the repository, you can `merge` it back into the main branch. 
+
+With our `newproject` repository, we can see existing branches like this:
+
+```
+git branch -vv
+```
+
+```
+* master 3140e0d [origin/master: ahead 2] restoring hw.sh
+```
+
+There's only one branch currently. The `*` means this branch is currently what we see in the working directory. `master` is the name of the branch (the arbitrary default). `3140e0d` is the beginning of the commit hash. `[origin/master: ahead 2]` indicates this branch is tracking a branch `master` at our remote `origin` and that it is two commits ahead of `origin/master` as of the last time we communicated with the remote. `restoring hw.sh` is the commit message from the last commit. 
+
+Let's make a new branch. 
+
+```bash
+git branch goodbye
+```
+
+Now `git branch -vv`
+
+```
+  goodbye 3140e0d restoring hw.sh
+* master  3140e0d [origin/master: ahead 2] restoring hw.sh
+```
+
+We have a new branch `goodbye`. We didn't switch to that branch, however (`*` is still on master), and importantly *this branch is not on our remote* (or any remote). 
+
+To switch to the branch:
+
+```bash
+git checkout goodbye
+```
+
+Now `git branch -vv`
+
+```
+* goodbye 3140e0d restoring hw.sh
+  master  3140e0d [origin/master: ahead 2] restoring hw.sh
+```
+
+Let's add some new files:
+
+```bash
+cat <<EOF >gw.sh
+#!/bin/bash
+
+echo "Goodbye World!"
+EOF
+
+cat <<EOF >am.sh
+#!/bin/bash
+
+echo "Adios Mundo!"
+EOF
+```
+
+Add `git add --all` and commit `git commit -m "goodbye"`
+
+Now we've added two brand new files that should only be present on branch `goodbye`. 
+
+See `ls`
+
+```
+am.sh  gw.sh  hm.sh  hw.sh
+```
+
+Now switch branches `git checkout master` and `ls`
+
+```
+hm.sh  hw.sh
+```
+
+Now back to `goodbye` with `git checkout goodbye`. 
+
+Let's look at our history another way `git log --decorate`. The `--decorate` option will write the names of any `references`. References very simply point at commits. While conceptually a branch is much like the branch of a tree, when you create a branch, git creates one of these pointers with the name of your branch and attaches it to a commit. The last few commits with references added:
+
+```bash
+git log --decorate
+```
+
+```
+commit 45f76a809cc3b03c53d7fe1e91ab23944438f5a2 (HEAD, goodbye)
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 14:44:40 2001 -0500
+
+    goodbye
+
+commit 3140e0d685f677c4ac2cc2123a8b53ef68eeee4a (master)
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 11:40:11 2000 -0500
+
+    restoring hw.sh
+
+commit f8b8dcc6e75b325d4976f27d10c74f7154452d84
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 11:23:27 1999 -0500
+
+    good day
+
+commit ed8b357e46329f423101296fbba6b85b988972fc (origin/master)
+Author: Noah Reid <noah.reid@uconn.edu>
+Date:   Fri Jan 10 10:44:00 1998 -0500
+
+    added hola mundo script
+```
+
+We have references `HEAD`, `goodbye`, `master` and `origin/master`. 
+
+`HEAD` is a special pointer telling us which commit is currently checked out in our working directory (uncommitted changes notwithstanding). `goodbye` is the reference for our current branch. `origin/master` is a remote tracking branch (more shortly) telling us which commit the remote was one when we last checked in with it. 
+
+We can put `HEAD` on a commit *without* a branch, but this isn't a great state of affairs:
+
+```bash
+git checkout f8b8dcc6e75b325d4976f27d10c74f7154452d84
+```
+
+```
+Note: checking out 'f8b8dcc6e75b325d4976f27d10c74f7154452d84'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -b with the checkout command again. Example:
+
+  git checkout -b new_branch_name
+
+HEAD is now at f8b8dcc... good day
+```
+
+`detached HEAD state` means the HEAD pointer is on a commit but has no branch. As the message says, you can create a new branch from this point, or just `git checkout goodbye` to get back to your original commit. 
+
+See `git log --decorate` to validate that `HEAD` is all by its lonesome. 
+
+`master` is currently directly upstream of `goodbye`, but branches can diverge down independent paths. Lets make a couple changes to `master`. First `git checkout master`. 
+
+```bash
+echo 'echo Hiya World!' >>hw.sh
+
+cat <<EOF >bl.sh
+#!/bin/bash
+
+echo 'Bonjour le Monde!'
+EOF
+```
+
+We've added a file and altered one. Now `git add --all` and `git commit -m "more hi"`
+
+If you do `git log --decorate` now, you'll see the pointer for `goodbye` has disappeared. It's not gone, but it's not part of the commit history for `master` at this point. The changes we made to `goodbye` and `master` are on diverging branches. 
+
+### Merging
+
+Now at this point we may be happy with changes we've made to both branches and want to incorporate them. For this we use `git merge`. If we assume `master` is going to be our main branch, we probably want to incorporate our changes there. 
+
+So `git checkout master` to ensure we're there, and `git merge goodbye`. This should drop you into whatever text editor you've specified (if it's vim, see last chapter) to write a message about the merge. 
+
+Git is smart enough that it can figure out our changes don't conflict with each other at the level of text, so it brings them all together. This doesn't rule out a merge breaking functionality at some higher level. 
+
+When changes cannot be trivially merged, git will ask you to edit the conflicting files. 
+
+If you've merged a branch and you're done with it, you can delete it (not the commit history, just the pointer). 
+
+`git branch -d goodbye`
+
+## Branching and Remotes
+
+With remotes, things get a little more complicated. In the above example, we created a branch `goodbye`, made edits and then deleted the branch pointer without ever pushing the changes to the remote repository. `goodbye` never existed on the remote. If we push the changes now, the commit history will be recorded on the remote, but there hasn't been and will not be a `goodbye` branch there. 
+
+If we want a branch to be represented on the remote (because we want collaborators to see it or work on it or we want to back it up), we need to add it there. When we do that, *two* things happen. 
+
+1. We create the branch on the remote (and push our commit history there). 
+2. We create *another* branch locally, called a `remote tracking branch`. 
+
+Let's see how this goes. 
+
+Create a new branch and check it out. 
+
+```bash
+git branch congratulations
+git checkout congratulations
+```
+
+Make an edit. 
+
+```bash
+cat <<EOF >cw.sh
+#!/bin/bash
+
+echo 'Congratulations World!'
+EOF
+```
+
+Now `git add` and `git commit`. If we simply try to push the branch, git will push our changes on master, but not those on `congratulations`. Try it and check out your remote (on GitHub, ideally, at this point). 
+
+```bash
+git push
+```
+
+To create the branch on the remote and the remote tracking branch locally:
+
+```bash
+git push -u origin congratulations
+```
+With output:
+
+```
+Counting objects: 4, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 306 bytes | 0 bytes/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+remote: 
+remote: Create a pull request for 'congratulations' on GitHub by visiting:
+remote:      https://github.com/isg-certificate/newproject/pull/new/congratulations
+remote: 
+To git@github.com:isg-certificate/newproject.git
+ * [new branch]      congratulations -> congratulations
+Branch congratulations set up to track remote branch congratulations from origin.
+```
+
+The remote tracking branch keeps track of where in our commit history the remote was the last time we communicated with the remote. Above in the `git log --decorate` output we saw the branch (or reference, or pointer) `origin/master` indicating the commit associated with the remote tracking branch. We can see remote tracking branches with the `-a` flag in `git branch`
+
+```bash
+git branch -a -vv
+```
+
+```
+* congratulations                c6f675f [origin/congratulations] congratulations
+  master                         1c735ce [origin/master] Merge branch 'goodbye'
+  remotes/origin/congratulations c6f675f congratulations
+  remotes/origin/master          1c735ce Merge branch 'goodbye'
+```
+
+Now that we're tracking a branch that exists on our remote `origin`, it's possible for the remote tracking branch and our local `congratulations` branch to diverge just like `master` and `goodbye` did above. 
+
+This can happen if work happens on the branches in two different places without pushing and pulling changes to and from the remote (such as when you work at two workstations, or a collaborator contributes). 
+If the remote branch gets ahead of your tracking branch, git will not allow you to push new changes from your version of the branch before you get the changes from the remote and merge them. 
+
+You can update the tracking branch with `git fetch` and then you can do `git merge` to merge the tracking and local branches (fixing any conflicts as necessary) or you can do `git pull`, which updates the remote tracking branch and merges in one command (which will still require you to fix conflicts). 
+
+## Forking and pull requests on GitHub
+
+We aren't going to demo forking and pull requests here, because the key parts of that occur on the GitHub web site. But to put this in context: a single git repository can have branches that diverge and then merge again. When working with remotes, the complexity increases, especially when you have collaborators. Branches can exist in local repositories, but not the remote, and then be added to the remote (creating remote tracking branches in the local repository), and all these different branches can diverge and then be merged in various sequences. 
+
+`Forking` adds *another* layer of complexity. On GitHub you can *fork* someone else's public repository. This is a bit like cloning it, except you are creating a mostly independent copy of it under your own account. You might create forks for a couple reasons:
+
+- You want to mess around with the repository and possibly adapt it to your own needs. 
+- You found something you don't like about the repository and you want to improve it, potentially sending your improvements back to the original developers for incorporation. 
+
+In both these cases, you probably don't have permission to modify the original repository, or maybe your modifications would not be appropriate to its original purpose. You are likely not a close collaborator or co-worker if you are forking a repository, otherwise you would probably be able to simply clone the original and create branches to incorporate your work. 
+
+On your fork, you can do whatever you want. It's your copy. You can't accidentally push bad changes to the origina. 
+
+If you *want* to alter the original, however, you can create a *pull request*. This is a GitHub feature that allows you to notify the repository's owner that you've made a change you think should be incorporated into the original. The pull request creates a discussion thread that allows the owner to see what you've proposed and talk about the changes, possibly asking you to tweak them. 
+
+In the end, the owner can merge the changes proposed from your fork in the original repository. Instead of doing this here, we'll have an assignment where students fork each other's repositories and make pull requests. 
+
+## Assorted Git Topics
+
+## Visualizing the commit history
+
+This has all been fairly abstract. If you think it might be helpful to be able to quickly visualize the history of a repository and the changes made to files, check out [`Sourcetree`](https://www.sourcetreeapp.com). You don't have to connect it to your GitHub account, but you can if you want. To have a look at how it works, try cloning [NF-Core's rnaseq repository](https://github.com/nf-core/rnaseq). This is a big repository with a lot of collaborators. If you want, you can make some arbitrary commits, branches, etc and see how they show up in the visualization of the history. Even though the GitHub repository is still the remote, you won't have permission to push any changes. 
+
+### Ignoring files
+
+You may want to `git add --all` sometimes when you have many changes to incorporate into a repository. However, it's often the case in data analysis that as you develop your set of scripts and run them that you generate files you don't want to commit, such as results and log files. You may also want to organize your project so that your data (or a symlink to your data) are inside the project directory to keep everything self-contained, and large raw data sets definitely don't belong in a git repository. 
+
+For cases like these, you can create a file in the root of your working directory, `.gitignore` and write out file names and patterns there that you want git to ignore. 
+
+Check out the [`.gitignore` file for this repository](https://github.com/CBC-UCONN/RNA-seq-with-reference-genome-and-annotation/blob/master/.gitignore) containing scripts for a bulk RNA-seq/differential expression tutorial. 
+
+It's got a lot in it because these scripts all write results together, but briefly:
+
+-`**/results` matches any directory or file named `results` anywhere (and thus also ignores the contents of the directory)
+-`*.fa` matches any file ending in `.fa`
+
+The [documentation](https://git-scm.com/docs/gitignore) contains more details on pattern matching in `.gitignore`. 
+
+You can commit the `.gitignore` file to keep it as part of the repository. 
+
+### Removing and renaming
+
+You can `rm` and `mv` just like you normally do, but it makes more work with Git. If you remove with `git rm` and rename (or move) with `git mv` Git will handle it better and stage the changes for you. 
+
+### Git is kind of hard
+
+While the basic ideas behind the Git workflow are not that challenging, when getting more involved in collaborations, working with remotes, and actually navigating the complexity of the command-line tools, things can get difficult. Depending on how and how much you use git, you should expect there to be a somewhat long learning curve. Don't get discouraged, it's a useful and widespread tool and great to have some experience with. 
+
+[![](https://imgs.xkcd.com/comics/git.png){fig-align="center"}](https://xkcd.com/1597/)
+

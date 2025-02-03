@@ -170,8 +170,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
-      <span class="sidebar-item-text sidebar-link text-start">
- <span class="menu-text">Variant Detection and Genotyping</span></span>
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+      </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <span class="sidebar-item-text sidebar-link text-start">
@@ -195,32 +208,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">2</span> Learning Objectives</a>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">1.1</span> Learning Objectives</a></li>
+  <li><a href="#installing-git" id="toc-installing-git" class="nav-link" data-scroll-target="#installing-git"><span class="header-section-number">1.2</span> Installing Git</a></li>
+  <li><a href="#a-brief-pause" id="toc-a-brief-pause" class="nav-link" data-scroll-target="#a-brief-pause"><span class="header-section-number">1.3</span> A brief pause…</a></li>
+  <li><a href="#configuring-git" id="toc-configuring-git" class="nav-link" data-scroll-target="#configuring-git"><span class="header-section-number">1.4</span> Configuring Git</a>
   <ul class="collapse">
-  <li><a href="#installing-git" id="toc-installing-git" class="nav-link" data-scroll-target="#installing-git"><span class="header-section-number">2.1</span> Installing Git</a></li>
-  <li><a href="#a-brief-pause" id="toc-a-brief-pause" class="nav-link" data-scroll-target="#a-brief-pause"><span class="header-section-number">2.2</span> A brief pause…</a></li>
-  <li><a href="#configuring-git" id="toc-configuring-git" class="nav-link" data-scroll-target="#configuring-git"><span class="header-section-number">2.3</span> Configuring Git</a>
+  <li><a href="#gits-text-editor" id="toc-gits-text-editor" class="nav-link" data-scroll-target="#gits-text-editor"><span class="header-section-number">1.4.1</span> Git’s text editor</a></li>
+  </ul></li>
+  <li><a href="#git-basics" id="toc-git-basics" class="nav-link" data-scroll-target="#git-basics"><span class="header-section-number">1.5</span> Git Basics</a>
   <ul class="collapse">
-  <li><a href="#gits-text-editor" id="toc-gits-text-editor" class="nav-link" data-scroll-target="#gits-text-editor"><span class="header-section-number">2.3.1</span> Git’s text editor</a></li>
+  <li><a href="#starting-a-new-repository" id="toc-starting-a-new-repository" class="nav-link" data-scroll-target="#starting-a-new-repository"><span class="header-section-number">1.5.1</span> Starting a new repository:</a></li>
+  <li><a href="#cloning-a-repository" id="toc-cloning-a-repository" class="nav-link" data-scroll-target="#cloning-a-repository"><span class="header-section-number">1.5.2</span> Cloning a repository</a></li>
+  <li><a href="#adding-files-to-the-repository" id="toc-adding-files-to-the-repository" class="nav-link" data-scroll-target="#adding-files-to-the-repository"><span class="header-section-number">1.5.3</span> Adding files to the repository</a></li>
   </ul></li>
-  <li><a href="#git-basics" id="toc-git-basics" class="nav-link" data-scroll-target="#git-basics"><span class="header-section-number">2.4</span> Git Basics</a>
+  <li><a href="#remote-repositories" id="toc-remote-repositories" class="nav-link" data-scroll-target="#remote-repositories"><span class="header-section-number">1.6</span> Remote repositories</a>
   <ul class="collapse">
-  <li><a href="#starting-a-new-repository" id="toc-starting-a-new-repository" class="nav-link" data-scroll-target="#starting-a-new-repository"><span class="header-section-number">2.4.1</span> Starting a new repository:</a></li>
-  <li><a href="#cloning-a-repository" id="toc-cloning-a-repository" class="nav-link" data-scroll-target="#cloning-a-repository"><span class="header-section-number">2.4.2</span> Cloning a repository</a></li>
-  <li><a href="#adding-files-to-the-repository" id="toc-adding-files-to-the-repository" class="nav-link" data-scroll-target="#adding-files-to-the-repository"><span class="header-section-number">2.4.3</span> Adding files to the repository</a></li>
+  <li><a href="#adding-a-remote-repository" id="toc-adding-a-remote-repository" class="nav-link" data-scroll-target="#adding-a-remote-repository"><span class="header-section-number">1.6.1</span> Adding a remote repository</a></li>
+  <li><a href="#pushing-and-pulling-from-remotes." id="toc-pushing-and-pulling-from-remotes." class="nav-link" data-scroll-target="#pushing-and-pulling-from-remotes."><span class="header-section-number">1.6.2</span> Pushing and pulling from remotes.</a></li>
   </ul></li>
-  <li><a href="#remote-repositories" id="toc-remote-repositories" class="nav-link" data-scroll-target="#remote-repositories"><span class="header-section-number">2.5</span> Remote repositories</a>
+  <li><a href="#github" id="toc-github" class="nav-link" data-scroll-target="#github"><span class="header-section-number">1.7</span> GitHub</a>
   <ul class="collapse">
-  <li><a href="#adding-a-remote-repository" id="toc-adding-a-remote-repository" class="nav-link" data-scroll-target="#adding-a-remote-repository"><span class="header-section-number">2.5.1</span> Adding a remote repository</a></li>
-  <li><a href="#pushing-and-pulling-from-remotes." id="toc-pushing-and-pulling-from-remotes." class="nav-link" data-scroll-target="#pushing-and-pulling-from-remotes."><span class="header-section-number">2.5.2</span> Pushing and pulling from remotes.</a></li>
+  <li><a href="#setting-up-github-as-a-remote-repository" id="toc-setting-up-github-as-a-remote-repository" class="nav-link" data-scroll-target="#setting-up-github-as-a-remote-repository"><span class="header-section-number">1.7.1</span> Setting up GitHub as a remote repository</a></li>
+  <li><a href="#readme.md" id="toc-readme.md" class="nav-link" data-scroll-target="#readme.md"><span class="header-section-number">1.7.2</span> README.md</a></li>
   </ul></li>
-  <li><a href="#github" id="toc-github" class="nav-link" data-scroll-target="#github"><span class="header-section-number">2.6</span> GitHub</a>
-  <ul class="collapse">
-  <li><a href="#setting-up-github-as-a-remote-repository" id="toc-setting-up-github-as-a-remote-repository" class="nav-link" data-scroll-target="#setting-up-github-as-a-remote-repository"><span class="header-section-number">2.6.1</span> Setting up GitHub as a remote repository</a></li>
-  <li><a href="#readme.md" id="toc-readme.md" class="nav-link" data-scroll-target="#readme.md"><span class="header-section-number">2.6.2</span> README.md</a></li>
-  </ul></li>
-  <li><a href="#summing-up" id="toc-summing-up" class="nav-link" data-scroll-target="#summing-up"><span class="header-section-number">2.7</span> Summing up</a></li>
-  </ul></li>
+  <li><a href="#summing-up" id="toc-summing-up" class="nav-link" data-scroll-target="#summing-up"><span class="header-section-number">1.8</span> Summing up</a></li>
   </ul>
 </nav>
     </div>
@@ -246,8 +257,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="learning-objectives" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Learning Objectives</h1>
+<section id="learning-objectives" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">1.1</span> Learning Objectives</h2>
 <table class="caption-top table">
 <tbody>
 <tr class="odd">
@@ -264,29 +275,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In the first chapter of this module, you will learn the very basics of Git and learn how to set up a remote repository on <a href="https://github.com">GitHub</a>.</p>
 <p>There are GUI tools for using Git, but we’re going to focus on the command-line here (except when we get to GitHub).</p>
 <p>Note that explanation will be sparse here, as you will be expected to do some assigned reading and watch some videos.</p>
-<section id="installing-git" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="installing-git"><span class="header-section-number">2.1</span> Installing Git</h2>
+</section>
+<section id="installing-git" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="installing-git"><span class="header-section-number">1.2</span> Installing Git</h2>
 <p>You’re going to want git to be installed on your local machine. There are instructions <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">here</a></p>
 <p>If you’re using a <strong>Mac</strong>, you’ve probably already got it. If not, you can install <a href="https://developer.apple.com/xcode/resources/">Xcode developer tools</a>, which will include it.</p>
 <p>If you’re using <strong>Windows</strong> (and thus probably also WSL2) you may want it installed for <em>both</em> systems. See the Linux and Windows instructions <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">here</a>.</p>
 <p>Note that on Xanadu, the base installation of Git is <em>waaay</em> out of date. In most cases things will still work fine. Do <code>git --version</code> to see what version is currently running (💀). You can <code>module load git/2.30.0</code>, however, if you run into problems.</p>
+<p>If you did the chapter on <a href="https://isg-certificate.github.io/ISG5311/02_5_bonus_bashrc.html">customizing your shell</a> in ISG5311, you can add <code>module load git/2.30.0</code> to your <code>.bashrc</code> file in your home directory so that the module will be loaded every time you log in.</p>
 </section>
-<section id="a-brief-pause" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="a-brief-pause"><span class="header-section-number">2.2</span> A brief pause…</h2>
+<section id="a-brief-pause" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="a-brief-pause"><span class="header-section-number">1.3</span> A brief pause…</h2>
 <p>Before going further here, please do the readings and watch the videos in HuskyCT.</p>
 </section>
-<section id="configuring-git" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="configuring-git"><span class="header-section-number">2.3</span> Configuring Git</h2>
+<section id="configuring-git" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="configuring-git"><span class="header-section-number">1.4</span> Configuring Git</h2>
 <p>Before we do much with Git, we want to make sure that your instances are configured correctly. Anywhere you’ve got it installed, you want to set it up to say who you are. Run these commands everywhere you might use it (Mac, Windows, WSL, and don’t forget Xanadu!), but obviously, please edit them first.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">"Bob Loblaw"</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.mail <span class="st">"Bob.Loblaw@BobLoblawsLawBlog.com"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>config</code> subcommand edits git’s configuration file. <code>--global</code> applies settings to <em>all</em> the current user’s repositories on this computer (you can change these settings for individual repositories). You can see your configuration with</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<section id="gits-text-editor" class="level3" data-number="2.3.1">
-<h3 data-number="2.3.1" class="anchored" data-anchor-id="gits-text-editor"><span class="header-section-number">2.3.1</span> Git’s text editor</h3>
+<section id="gits-text-editor" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="gits-text-editor"><span class="header-section-number">1.4.1</span> Git’s text editor</h3>
 <p>Git is meant to hide in the background. You don’t use it to write or edit code, but to track it as it develops. Nevertheless, there are a times when Git will demand that you explain something, or reconcile conflicting edits. When that happens it will drop you into a text editor.</p>
-<section id="vim" class="level4" data-number="2.3.1.1">
-<h4 data-number="2.3.1.1" class="anchored" data-anchor-id="vim"><span class="header-section-number">2.3.1.1</span> vim</h4>
+<section id="vim" class="level4" data-number="1.4.1.1">
+<h4 data-number="1.4.1.1" class="anchored" data-anchor-id="vim"><span class="header-section-number">1.4.1.1</span> vim</h4>
 <p>By default that text editor is <code>vi</code>, a powerful and widely used command line editor that comes with, shall we say, a steep learning curve.</p>
 <p>You can change this. First let’s quickly cover the absolute barest of details for <code>vi</code> (more likely an updated version <code>vim</code>), as you will sooner or later run into it.</p>
 <p>Let’s create a dummy file with some text.</p>
@@ -305,8 +318,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="./images/exit_vim.png" title="a joke about it being difficult to exit vim" class="img-fluid"></p>
 <p>If you want the bragging rights (and efficiency) that come with being proficient at using a powerful command-line editor, there are lots of ways to learn. One is through this game, <a href="https://vim-adventures.com">vim adventures</a>.</p>
 </section>
-<section id="changing-the-text-editor-if-you-want" class="level4" data-number="2.3.1.2">
-<h4 data-number="2.3.1.2" class="anchored" data-anchor-id="changing-the-text-editor-if-you-want"><span class="header-section-number">2.3.1.2</span> Changing the text editor (if you want)</h4>
+<section id="changing-the-text-editor-if-you-want" class="level4" data-number="1.4.1.2">
+<h4 data-number="1.4.1.2" class="anchored" data-anchor-id="changing-the-text-editor-if-you-want"><span class="header-section-number">1.4.1.2</span> Changing the text editor (if you want)</h4>
 <p>If you thought, “vim is fine”, then fantastic, you can keep using it. If you thought, “yuck”, and want to change the editor, you can use <code>git config</code>.</p>
 <p>If you wanted to use <code>nano</code> for instance, you could do:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> core.editor nano</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -317,15 +330,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 </section>
-<section id="git-basics" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="git-basics"><span class="header-section-number">2.4</span> Git Basics</h2>
+<section id="git-basics" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="git-basics"><span class="header-section-number">1.5</span> Git Basics</h2>
 <p>Ok, hopefully git is all set up now. We can run through the basics. There are two ways you might get started with a Git repository.</p>
 <ul>
 <li>You create a new one in a brand new directory as you would with a new project.</li>
 <li>You can clone a copy of an existing repository to alter or contribute to it. Perhaps one from GitHub (or GitLab, or BitBucket).</li>
 </ul>
-<section id="starting-a-new-repository" class="level3" data-number="2.4.1">
-<h3 data-number="2.4.1" class="anchored" data-anchor-id="starting-a-new-repository"><span class="header-section-number">2.4.1</span> Starting a new repository:</h3>
+<section id="starting-a-new-repository" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="starting-a-new-repository"><span class="header-section-number">1.5.1</span> Starting a new repository:</h3>
 <p>To start a git repository:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> newproject</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> newproject</span>
@@ -344,8 +357,8 @@ hint:   git branch -m &lt;name&gt;
 Initialized empty Git repository in /home/FCAM/blah/blah/blah/newproject/.git/</code></pre>
 <p>You can see (with <code>ls -a</code>) that a hidden directory <code>newproject/.git/</code> has been created. This <code>.git</code> directory is where Git will store the whole version control history. You should never muck around in <code>.git</code>. If for some reason you wanted to destroy the whole version history, you could delete <code>.git</code> and do <code>git init</code> to start anew.</p>
 </section>
-<section id="cloning-a-repository" class="level3" data-number="2.4.2">
-<h3 data-number="2.4.2" class="anchored" data-anchor-id="cloning-a-repository"><span class="header-section-number">2.4.2</span> Cloning a repository</h3>
+<section id="cloning-a-repository" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="cloning-a-repository"><span class="header-section-number">1.5.2</span> Cloning a repository</h3>
 <p>We saw this last semester with our RNAseq example, but you can clone a git repository like this:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/isg-certificate/rnaseq.git</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> rnaseq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -367,8 +380,8 @@ drwxr-xr-x 2 nreid cbc  512 Jan  6 17:05 metadata
 drwxr-xr-x 7 nreid cbc 2560 Jan  6 17:05 scripts</code></pre>
 <p>You can see we grab all the contents of the repository, but <em>also</em> we have a <code>.git</code> directory.</p>
 </section>
-<section id="adding-files-to-the-repository" class="level3" data-number="2.4.3">
-<h3 data-number="2.4.3" class="anchored" data-anchor-id="adding-files-to-the-repository"><span class="header-section-number">2.4.3</span> Adding files to the repository</h3>
+<section id="adding-files-to-the-repository" class="level3" data-number="1.5.3">
+<h3 data-number="1.5.3" class="anchored" data-anchor-id="adding-files-to-the-repository"><span class="header-section-number">1.5.3</span> Adding files to the repository</h3>
 <p>Adding a file (or a change to a file) to the repository happens in three steps.</p>
 <ol type="1">
 <li>You create (or alter) a file.</li>
@@ -423,8 +436,8 @@ nothing added to commit but untracked files present (use "git add" to track)</co
 <p>There is lots more to learn, including branching, merging, inspecting the history… we’ll get to that in the next chapter. For the last part of this chapter we’ll introduce <a href="https://github.com">GitHub</a>,</p>
 </section>
 </section>
-<section id="remote-repositories" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="remote-repositories"><span class="header-section-number">2.5</span> Remote repositories</h2>
+<section id="remote-repositories" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="remote-repositories"><span class="header-section-number">1.6</span> Remote repositories</h2>
 <p>Git is a <em>distributed</em> version control system, so it naturally allows us (and collaborators) to maintain and interact with <em>remote</em> copies of our repositories.</p>
 <p>Assuming you cloned <code>rnaseq</code> above, if you enter the working directory and type</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -433,8 +446,8 @@ nothing added to commit but untracked files present (use "git add" to track)</co
 origin  https://github.com/isg-certificate/rnaseq.git (push)</code></pre>
 <p>This indicates the cloned repository is using a repository at the URL <code>https://github.com/isg-certificate/rnaseq.git</code> as a <em>remote</em>. <code>rnaseq.git</code> is a Git repository in the same sense that the <code>.git</code> directory in <code>newproject</code> is a Git repository. The remote is named <code>origin</code>. This is arbitrary and the default choice in git. You can name remotes anything you want. <code>(fetch)</code> and <code>(push)</code> mean that pulling down changes from the remote and pushing them up uses the same URL. The repository is hosted at GitHub (more in the next section), which controls access, so you won’t have permission to push any changes you might make.</p>
 <p>If you <code>cd</code> to our brand new directory <code>newproject</code> and do <code>git remote -v</code> You should see no output.</p>
-<section id="adding-a-remote-repository" class="level3" data-number="2.5.1">
-<h3 data-number="2.5.1" class="anchored" data-anchor-id="adding-a-remote-repository"><span class="header-section-number">2.5.1</span> Adding a remote repository</h3>
+<section id="adding-a-remote-repository" class="level3" data-number="1.6.1">
+<h3 data-number="1.6.1" class="anchored" data-anchor-id="adding-a-remote-repository"><span class="header-section-number">1.6.1</span> Adding a remote repository</h3>
 <p>Most people host remote repositories, well, <em>remotely</em>, but to make things clear (hopefully) we’ll create a remote repository for <code>newproject</code> locally.</p>
 <p><code>cd</code> into the directory containing <code>newproject</code> (not <code>newproject</code> itself) and do</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init <span class="at">--bare</span> remotenewproject.git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -463,8 +476,8 @@ Branch master set up to track remote branch master from origin.</code></pre>
 <pre><code>* master bf15b43 [origin/master] initial commit</code></pre>
 <p>In the future we can just do <code>git push</code> to push changes to the remote.</p>
 </section>
-<section id="pushing-and-pulling-from-remotes." class="level3" data-number="2.5.2">
-<h3 data-number="2.5.2" class="anchored" data-anchor-id="pushing-and-pulling-from-remotes."><span class="header-section-number">2.5.2</span> Pushing and pulling from remotes.</h3>
+<section id="pushing-and-pulling-from-remotes." class="level3" data-number="1.6.2">
+<h3 data-number="1.6.2" class="anchored" data-anchor-id="pushing-and-pulling-from-remotes."><span class="header-section-number">1.6.2</span> Pushing and pulling from remotes.</h3>
 <p>There are many cases, such as collaboration, or a single person using multiple workstations, where you will have a single central remote repository and clones in multiple locations. You may update the code in one place, push it to the remote, and then need to pull it down in another place. This can get complicated (more in the next chapter) but we’ll do a simple version of that now.</p>
 <p>First, clone a new copy of the remote:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone remotenewproject.git newproject_copy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -530,8 +543,8 @@ Date:   Wed Dec 31 11:59:59 1999 -0500
 <p>This process can get complicated, and conflicts can arise. We’ll deal with that in the next chapter.</p>
 </section>
 </section>
-<section id="github" class="level2" data-number="2.6">
-<h2 data-number="2.6" class="anchored" data-anchor-id="github"><span class="header-section-number">2.6</span> GitHub</h2>
+<section id="github" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="github"><span class="header-section-number">1.7</span> GitHub</h2>
 <p>GitHub is a web service (among others, such as GitLab and Bitbucket) that can host Git repositories. GitHub is a natural place to store a remote repository. It allows you to control who can access or contribute to the repository, and is a great way to share (and find) open code.</p>
 <p>We are going to use GitHub in this course in several exercises and the final project. You may wish to keep your final project from this semester in a public repository as a sort of portfolio project.</p>
 <div class="callout callout-style-default callout-caution callout-titled">
@@ -553,8 +566,8 @@ GitHub Copilot and privacy
 <p>Before moving forward, please <a href="https://github.com">create an account</a>.</p>
 <p>After you’ve created an account, you will need to set up SSH key authentication so that Git can access your remote repositories hosted at GitHub. GitHub no longer allows password authentication with command-line Git. You may have some experience with SSH keys already if you set them up for <a href="https://isg-certificate.github.io/ISG5311/02_4_bonus_ssh.html">access to Xanadu</a>. GitHub’s documentation for this is <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">here</a>.</p>
 <p>You should set up ssh key access from both your local machine and Xanadu. If you have trouble with this, please reach out for help.</p>
-<section id="setting-up-github-as-a-remote-repository" class="level3" data-number="2.6.1">
-<h3 data-number="2.6.1" class="anchored" data-anchor-id="setting-up-github-as-a-remote-repository"><span class="header-section-number">2.6.1</span> Setting up GitHub as a remote repository</h3>
+<section id="setting-up-github-as-a-remote-repository" class="level3" data-number="1.7.1">
+<h3 data-number="1.7.1" class="anchored" data-anchor-id="setting-up-github-as-a-remote-repository"><span class="header-section-number">1.7.1</span> Setting up GitHub as a remote repository</h3>
 <p>The easiest way to approach setting up GitHub as a remote with a new project is to start a new empty repository on GitHub (from your home page) and then clone it locally.</p>
 <p>If you’ve already got a repository started, you can more or less follow the same approach we did above. First go to your GitHub profile and click on the <code>Repositories</code> tab (e.g.&nbsp;user <code>isg-certificate</code> would go to the page <code>https://github.com/isg-certificate?tab=repositories</code>) and click the green <code>New</code> button.</p>
 <p>Enter the name <code>newproject</code>, select “public” or “private” as you prefer and then click <code>Create repository</code>.</p>
@@ -573,8 +586,8 @@ GitHub Copilot and privacy
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin master</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If you go to the repository page on GitHub you should see your files <code>hm.sh</code> and <code>hw.sh</code> have been pushed there.</p>
 </section>
-<section id="readme.md" class="level3" data-number="2.6.2">
-<h3 data-number="2.6.2" class="anchored" data-anchor-id="readme.md"><span class="header-section-number">2.6.2</span> README.md</h3>
+<section id="readme.md" class="level3" data-number="1.7.2">
+<h3 data-number="1.7.2" class="anchored" data-anchor-id="readme.md"><span class="header-section-number">1.7.2</span> README.md</h3>
 <p>It’s always advisable to include documentation. GitHub encourages this through the inclusion of a <a href="https://github.github.com/gfm/">(GitHub flavored) markdown</a> formatted document titled <code>README.md</code>. GitHub will format this document into HTML and include its contents on the splash page for the GitHub hosted repository.</p>
 <p>Let’s create a file locally in <code>newproject</code> now and push it to GitHub:</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"This is a dummy project to demo Git/GitHub"</span> <span class="op">&gt;</span>README.md</span>
@@ -584,8 +597,8 @@ GitHub Copilot and privacy
 <p>Now visit the GitHub repository page and you should see the contents of <code>README.md</code>.</p>
 </section>
 </section>
-<section id="summing-up" class="level2" data-number="2.7">
-<h2 data-number="2.7" class="anchored" data-anchor-id="summing-up"><span class="header-section-number">2.7</span> Summing up</h2>
+<section id="summing-up" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="summing-up"><span class="header-section-number">1.8</span> Summing up</h2>
 <p>Git has many commands (type <code>git</code> to see them all). We have used the following:</p>
 <ul>
 <li><p><code>git init</code> to initialize a new repository.</p></li>
@@ -601,7 +614,6 @@ GitHub Copilot and privacy
 </ul>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

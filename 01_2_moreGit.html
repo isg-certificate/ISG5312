@@ -170,8 +170,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
-      <span class="sidebar-item-text sidebar-link text-start">
- <span class="menu-text">Variant Detection and Genotyping</span></span>
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+      </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <span class="sidebar-item-text sidebar-link text-start">
@@ -195,29 +208,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">3</span> Learning Objectives</a>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">2.1</span> Learning Objectives</a></li>
+  <li><a href="#restoring-past-versions" id="toc-restoring-past-versions" class="nav-link" data-scroll-target="#restoring-past-versions"><span class="header-section-number">2.2</span> Restoring past versions</a>
   <ul class="collapse">
-  <li><a href="#restoring-past-versions" id="toc-restoring-past-versions" class="nav-link" data-scroll-target="#restoring-past-versions"><span class="header-section-number">3.1</span> Restoring past versions</a>
-  <ul class="collapse">
-  <li><a href="#when-the-changes-are-unstaged" id="toc-when-the-changes-are-unstaged" class="nav-link" data-scroll-target="#when-the-changes-are-unstaged"><span class="header-section-number">3.1.1</span> When the changes are unstaged</a></li>
-  <li><a href="#when-the-changes-are-staged" id="toc-when-the-changes-are-staged" class="nav-link" data-scroll-target="#when-the-changes-are-staged"><span class="header-section-number">3.1.2</span> When the changes are staged</a></li>
-  <li><a href="#when-the-changes-have-been-committed" id="toc-when-the-changes-have-been-committed" class="nav-link" data-scroll-target="#when-the-changes-have-been-committed"><span class="header-section-number">3.1.3</span> When the changes have been committed</a></li>
-  <li><a href="#examining-differences-between-file-versions" id="toc-examining-differences-between-file-versions" class="nav-link" data-scroll-target="#examining-differences-between-file-versions"><span class="header-section-number">3.1.4</span> Examining differences between file versions</a></li>
+  <li><a href="#when-the-changes-are-unstaged" id="toc-when-the-changes-are-unstaged" class="nav-link" data-scroll-target="#when-the-changes-are-unstaged"><span class="header-section-number">2.2.1</span> When the changes are unstaged</a></li>
+  <li><a href="#when-the-changes-are-staged" id="toc-when-the-changes-are-staged" class="nav-link" data-scroll-target="#when-the-changes-are-staged"><span class="header-section-number">2.2.2</span> When the changes are staged</a></li>
+  <li><a href="#when-the-changes-have-been-committed" id="toc-when-the-changes-have-been-committed" class="nav-link" data-scroll-target="#when-the-changes-have-been-committed"><span class="header-section-number">2.2.3</span> When the changes have been committed</a></li>
+  <li><a href="#examining-differences-between-file-versions" id="toc-examining-differences-between-file-versions" class="nav-link" data-scroll-target="#examining-differences-between-file-versions"><span class="header-section-number">2.2.4</span> Examining differences between file versions</a></li>
   </ul></li>
-  <li><a href="#branching-and-merging" id="toc-branching-and-merging" class="nav-link" data-scroll-target="#branching-and-merging"><span class="header-section-number">3.2</span> Branching and merging</a>
+  <li><a href="#branching-and-merging" id="toc-branching-and-merging" class="nav-link" data-scroll-target="#branching-and-merging"><span class="header-section-number">2.3</span> Branching and merging</a>
   <ul class="collapse">
-  <li><a href="#branching" id="toc-branching" class="nav-link" data-scroll-target="#branching"><span class="header-section-number">3.2.1</span> Branching</a></li>
-  <li><a href="#merging" id="toc-merging" class="nav-link" data-scroll-target="#merging"><span class="header-section-number">3.2.2</span> Merging</a></li>
+  <li><a href="#branching" id="toc-branching" class="nav-link" data-scroll-target="#branching"><span class="header-section-number">2.3.1</span> Branching</a></li>
+  <li><a href="#merging" id="toc-merging" class="nav-link" data-scroll-target="#merging"><span class="header-section-number">2.3.2</span> Merging</a></li>
   </ul></li>
-  <li><a href="#branching-and-remotes" id="toc-branching-and-remotes" class="nav-link" data-scroll-target="#branching-and-remotes"><span class="header-section-number">3.3</span> Branching and Remotes</a></li>
-  <li><a href="#forking-and-pull-requests-on-github" id="toc-forking-and-pull-requests-on-github" class="nav-link" data-scroll-target="#forking-and-pull-requests-on-github"><span class="header-section-number">3.4</span> Forking and pull requests on GitHub</a></li>
-  <li><a href="#assorted-git-topics" id="toc-assorted-git-topics" class="nav-link" data-scroll-target="#assorted-git-topics"><span class="header-section-number">3.5</span> Assorted Git Topics</a></li>
-  <li><a href="#visualizing-the-commit-history" id="toc-visualizing-the-commit-history" class="nav-link" data-scroll-target="#visualizing-the-commit-history"><span class="header-section-number">3.6</span> Visualizing the commit history</a>
+  <li><a href="#branching-and-remotes" id="toc-branching-and-remotes" class="nav-link" data-scroll-target="#branching-and-remotes"><span class="header-section-number">2.4</span> Branching and Remotes</a></li>
+  <li><a href="#forking-and-pull-requests-on-github" id="toc-forking-and-pull-requests-on-github" class="nav-link" data-scroll-target="#forking-and-pull-requests-on-github"><span class="header-section-number">2.5</span> Forking and pull requests on GitHub</a></li>
+  <li><a href="#assorted-git-topics" id="toc-assorted-git-topics" class="nav-link" data-scroll-target="#assorted-git-topics"><span class="header-section-number">2.6</span> Assorted Git Topics</a></li>
+  <li><a href="#visualizing-the-commit-history" id="toc-visualizing-the-commit-history" class="nav-link" data-scroll-target="#visualizing-the-commit-history"><span class="header-section-number">2.7</span> Visualizing the commit history</a>
   <ul class="collapse">
-  <li><a href="#ignoring-files" id="toc-ignoring-files" class="nav-link" data-scroll-target="#ignoring-files"><span class="header-section-number">3.6.1</span> Ignoring files</a></li>
-  <li><a href="#removing-and-renaming" id="toc-removing-and-renaming" class="nav-link" data-scroll-target="#removing-and-renaming"><span class="header-section-number">3.6.2</span> Removing and renaming</a></li>
-  <li><a href="#git-is-kind-of-hard" id="toc-git-is-kind-of-hard" class="nav-link" data-scroll-target="#git-is-kind-of-hard"><span class="header-section-number">3.6.3</span> Git is kind of hard</a></li>
+  <li><a href="#ignoring-files" id="toc-ignoring-files" class="nav-link" data-scroll-target="#ignoring-files"><span class="header-section-number">2.7.1</span> Ignoring files</a></li>
+  <li><a href="#removing-and-renaming" id="toc-removing-and-renaming" class="nav-link" data-scroll-target="#removing-and-renaming"><span class="header-section-number">2.7.2</span> Removing and renaming</a></li>
   </ul></li>
+  <li><a href="#getting-help" id="toc-getting-help" class="nav-link" data-scroll-target="#getting-help"><span class="header-section-number">2.8</span> Getting help</a>
+  <ul class="collapse">
+  <li><a href="#git-is-kind-of-hard" id="toc-git-is-kind-of-hard" class="nav-link" data-scroll-target="#git-is-kind-of-hard"><span class="header-section-number">2.8.1</span> Git is kind of hard</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -244,8 +258,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="learning-objectives" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Learning Objectives</h1>
+<section id="learning-objectives" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">2.1</span> Learning Objectives</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
@@ -271,8 +285,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Forking and pull requests on Github.</li>
 </ul>
 <p>Again, this will all be pretty short on explanation, make sure to refer to readings and videos in HuskyCT to understand better how things work.</p>
-<section id="restoring-past-versions" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="restoring-past-versions"><span class="header-section-number">3.1</span> Restoring past versions</h2>
+</section>
+<section id="restoring-past-versions" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="restoring-past-versions"><span class="header-section-number">2.2</span> Restoring past versions</h2>
 <p>Consider our <code>newproject</code> directory. It contains two files (and the hidden .git directory):</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tree</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>.
@@ -293,8 +308,8 @@ Changes not staged for commit:
     modified:   hw.sh
 
 no changes added to commit (use "git add" and/or "git commit -a")</code></pre>
-<section id="when-the-changes-are-unstaged" class="level3" data-number="3.1.1">
-<h3 data-number="3.1.1" class="anchored" data-anchor-id="when-the-changes-are-unstaged"><span class="header-section-number">3.1.1</span> When the changes are unstaged</h3>
+<section id="when-the-changes-are-unstaged" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="when-the-changes-are-unstaged"><span class="header-section-number">2.2.1</span> When the changes are unstaged</h3>
 <p>So we’ve made an edit, but haven’t staged it. We can grab the most recent committed version with:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> restore hw.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now <code>cat hw.sh</code></p>
@@ -303,8 +318,8 @@ no changes added to commit (use "git add" and/or "git commit -a")</code></pre>
 echo "Hello World!"</code></pre>
 <p>Reveals the file has been restored.</p>
 </section>
-<section id="when-the-changes-are-staged" class="level3" data-number="3.1.2">
-<h3 data-number="3.1.2" class="anchored" data-anchor-id="when-the-changes-are-staged"><span class="header-section-number">3.1.2</span> When the changes are staged</h3>
+<section id="when-the-changes-are-staged" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="when-the-changes-are-staged"><span class="header-section-number">2.2.2</span> When the changes are staged</h3>
 <p>If we have already <em>staged</em> the file however, this won’t work directly, as it will simply check the file out from the <em>staging</em> area, not the most recent commit.</p>
 <p>If you make the same mistake again, <code>echo 'oops!' &gt;hw.sh</code>, but this time <em>stage the change</em> <code>git add hw.sh</code>, you will see with <code>git status</code>:</p>
 <pre><code>On branch master
@@ -317,8 +332,8 @@ Changes to be committed:
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> restore <span class="at">--staged</span> hw.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>And then go back to the last commit like before with <code>git restore hw.sh</code>.</p>
 </section>
-<section id="when-the-changes-have-been-committed" class="level3" data-number="3.1.3">
-<h3 data-number="3.1.3" class="anchored" data-anchor-id="when-the-changes-have-been-committed"><span class="header-section-number">3.1.3</span> When the changes have been committed</h3>
+<section id="when-the-changes-have-been-committed" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="when-the-changes-have-been-committed"><span class="header-section-number">2.2.3</span> When the changes have been committed</h3>
 <p>If we make an edit and commit it:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'echo "Good day, world!"'</span> <span class="op">&gt;&gt;</span>hw.sh</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add hw.sh</span>
@@ -381,8 +396,8 @@ Date:   Fri Jan 10 10:43:07 2025 -0500
     first commit</code></pre>
 <p>We can see we have added a new commit. We didn’t go backwards in our history so much as reached back to a previous file version and pulled it forward into a new change.</p>
 </section>
-<section id="examining-differences-between-file-versions" class="level3" data-number="3.1.4">
-<h3 data-number="3.1.4" class="anchored" data-anchor-id="examining-differences-between-file-versions"><span class="header-section-number">3.1.4</span> Examining differences between file versions</h3>
+<section id="examining-differences-between-file-versions" class="level3" data-number="2.2.4">
+<h3 data-number="2.2.4" class="anchored" data-anchor-id="examining-differences-between-file-versions"><span class="header-section-number">2.2.4</span> Examining differences between file versions</h3>
 <p>What if we’re not sure which commit to restore from? We can use <code>git diff</code> to examine differences between files:</p>
 <p>We can compare file versions with <code>git diff</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff f8b8dcc hw.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -406,12 +421,12 @@ index 22b4300..cd16289 100644
 <p>And after a prompt you should get a nicely formatted window with side-by-side files that makes it easy to see differences.</p>
 </section>
 </section>
-<section id="branching-and-merging" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="branching-and-merging"><span class="header-section-number">3.2</span> Branching and merging</h2>
+<section id="branching-and-merging" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="branching-and-merging"><span class="header-section-number">2.3</span> Branching and merging</h2>
 <p>This is one of the pillars of git and can get a little confusing, especially when remotes are brought into the equation.</p>
 <p>When working with an established code repository, you may have an idea you want to test out, but you are unsure of whether it will be any good, or it may take some time to implement and you don’t want to unsettle the existing code.</p>
-<section id="branching" class="level3" data-number="3.2.1">
-<h3 data-number="3.2.1" class="anchored" data-anchor-id="branching"><span class="header-section-number">3.2.1</span> Branching</h3>
+<section id="branching" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="branching"><span class="header-section-number">2.3.1</span> Branching</h3>
 <p>In these cases you can create a new <code>branch</code> (again, see materials in huskyCT for more conceptual details). A branch is an independent line of commits. Repositories can have dozens of branches. Check the GitHub repository for the <a href="https://github.com/nf-core/rnaseq">NF-Core pipeline <code>rnaseq</code></a>. Click the button with the branching icon that says <code>master</code>.</p>
 <p>After you have worked out your idea, if you decide it should become a part of the repository, you can <code>merge</code> it back into the main branch.</p>
 <p>With our <code>newproject</code> repository, we can see existing branches like this:</p>
@@ -502,8 +517,8 @@ HEAD is now at f8b8dcc... good day</code></pre>
 <p>We’ve added a file and altered one. Now <code>git add --all</code> and <code>git commit -m "more hi"</code></p>
 <p>If you do <code>git log --decorate</code> now, you’ll see the pointer for <code>goodbye</code> has disappeared. It’s not gone, but it’s not part of the commit history for <code>master</code> at this point. The changes we made to <code>goodbye</code> and <code>master</code> are on diverging branches.</p>
 </section>
-<section id="merging" class="level3" data-number="3.2.2">
-<h3 data-number="3.2.2" class="anchored" data-anchor-id="merging"><span class="header-section-number">3.2.2</span> Merging</h3>
+<section id="merging" class="level3" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="merging"><span class="header-section-number">2.3.2</span> Merging</h3>
 <p>Now at this point we may be happy with changes we’ve made to both branches and want to incorporate them. For this we use <code>git merge</code>. If we assume <code>master</code> is going to be our main branch, we probably want to incorporate our changes there.</p>
 <p>So <code>git checkout master</code> to ensure we’re there, and <code>git merge goodbye</code>. This should drop you into whatever text editor you’ve specified (if it’s vim, see last chapter) to write a message about the merge.</p>
 <p>Git is smart enough that it can figure out our changes don’t conflict with each other at the level of text, so it brings them all together. This doesn’t rule out a merge breaking functionality at some higher level.</p>
@@ -512,8 +527,8 @@ HEAD is now at f8b8dcc... good day</code></pre>
 <p><code>git branch -d goodbye</code></p>
 </section>
 </section>
-<section id="branching-and-remotes" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="branching-and-remotes"><span class="header-section-number">3.3</span> Branching and Remotes</h2>
+<section id="branching-and-remotes" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="branching-and-remotes"><span class="header-section-number">2.4</span> Branching and Remotes</h2>
 <p>With remotes, things get a little more complicated. In the above example, we created a branch <code>goodbye</code>, made edits and then deleted the branch pointer without ever pushing the changes to the remote repository. <code>goodbye</code> never existed on the remote. If we push the changes now, the commit history will be recorded on the remote, but there hasn’t been and will not be a <code>goodbye</code> branch there.</p>
 <p>If we want a branch to be represented on the remote (because we want collaborators to see it or work on it or we want to back it up), we need to add it there. When we do that, <em>two</em> things happen.</p>
 <ol type="1">
@@ -558,8 +573,8 @@ Branch congratulations set up to track remote branch congratulations from origin
 <p>This can happen if work happens on the branches in two different places without pushing and pulling changes to and from the remote (such as when you work at two workstations, or a collaborator contributes). If the remote branch gets ahead of your tracking branch, git will not allow you to push new changes from your version of the branch before you get the changes from the remote and merge them.</p>
 <p>You can update the tracking branch with <code>git fetch</code> and then you can do <code>git merge</code> to merge the tracking and local branches (fixing any conflicts as necessary) or you can do <code>git pull</code>, which updates the remote tracking branch and merges in one command (which will still require you to fix conflicts).</p>
 </section>
-<section id="forking-and-pull-requests-on-github" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="forking-and-pull-requests-on-github"><span class="header-section-number">3.4</span> Forking and pull requests on GitHub</h2>
+<section id="forking-and-pull-requests-on-github" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="forking-and-pull-requests-on-github"><span class="header-section-number">2.5</span> Forking and pull requests on GitHub</h2>
 <p>We aren’t going to demo forking and pull requests here, because the key parts of that occur on the GitHub web site. But to put this in context: a single git repository can have branches that diverge and then merge again. When working with remotes, the complexity increases, especially when you have collaborators. Branches can exist in local repositories, but not the remote, and then be added to the remote (creating remote tracking branches in the local repository), and all these different branches can diverge and then be merged in various sequences.</p>
 <p><code>Forking</code> adds <em>another</em> layer of complexity. On GitHub you can <em>fork</em> someone else’s public repository. This is a bit like cloning it, except you are creating a mostly independent copy of it under your own account. You might create forks for a couple reasons:</p>
 <ul>
@@ -571,14 +586,14 @@ Branch congratulations set up to track remote branch congratulations from origin
 <p>If you <em>want</em> to alter the original, however, you can create a <em>pull request</em>. This is a GitHub feature that allows you to notify the repository’s owner that you’ve made a change you think should be incorporated into the original. The pull request creates a discussion thread that allows the owner to see what you’ve proposed and talk about the changes, possibly asking you to tweak them.</p>
 <p>In the end, the owner can merge the changes proposed from your fork in the original repository. Instead of doing this here, we’ll have an assignment where students fork each other’s repositories and make pull requests.</p>
 </section>
-<section id="assorted-git-topics" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="assorted-git-topics"><span class="header-section-number">3.5</span> Assorted Git Topics</h2>
+<section id="assorted-git-topics" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="assorted-git-topics"><span class="header-section-number">2.6</span> Assorted Git Topics</h2>
 </section>
-<section id="visualizing-the-commit-history" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="visualizing-the-commit-history"><span class="header-section-number">3.6</span> Visualizing the commit history</h2>
+<section id="visualizing-the-commit-history" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="visualizing-the-commit-history"><span class="header-section-number">2.7</span> Visualizing the commit history</h2>
 <p>This has all been fairly abstract. If you think it might be helpful to be able to quickly visualize the history of a repository and the changes made to files, check out <a href="https://www.sourcetreeapp.com"><code>Sourcetree</code></a>. You don’t have to connect it to your GitHub account, but you can if you want. To have a look at how it works, try cloning <a href="https://github.com/nf-core/rnaseq">NF-Core’s rnaseq repository</a>. This is a big repository with a lot of collaborators. If you want, you can make some arbitrary commits, branches, etc and see how they show up in the visualization of the history. Even though the GitHub repository is still the remote, you won’t have permission to push any changes.</p>
-<section id="ignoring-files" class="level3" data-number="3.6.1">
-<h3 data-number="3.6.1" class="anchored" data-anchor-id="ignoring-files"><span class="header-section-number">3.6.1</span> Ignoring files</h3>
+<section id="ignoring-files" class="level3" data-number="2.7.1">
+<h3 data-number="2.7.1" class="anchored" data-anchor-id="ignoring-files"><span class="header-section-number">2.7.1</span> Ignoring files</h3>
 <p>You may want to <code>git add --all</code> sometimes when you have many changes to incorporate into a repository. However, it’s often the case in data analysis that as you develop your set of scripts and run them that you generate files you don’t want to commit, such as results and log files. You may also want to organize your project so that your data (or a symlink to your data) are inside the project directory to keep everything self-contained, and large raw data sets definitely don’t belong in a git repository.</p>
 <p>For cases like these, you can create a file in the root of your working directory, <code>.gitignore</code> and write out file names and patterns there that you want git to ignore.</p>
 <p>Check out the <a href="https://github.com/CBC-UCONN/RNA-seq-with-reference-genome-and-annotation/blob/master/.gitignore"><code>.gitignore</code> file for this repository</a> containing scripts for a bulk RNA-seq/differential expression tutorial.</p>
@@ -587,12 +602,17 @@ Branch congratulations set up to track remote branch congratulations from origin
 <p>The <a href="https://git-scm.com/docs/gitignore">documentation</a> contains more details on pattern matching in <code>.gitignore</code>.</p>
 <p>You can commit the <code>.gitignore</code> file to keep it as part of the repository.</p>
 </section>
-<section id="removing-and-renaming" class="level3" data-number="3.6.2">
-<h3 data-number="3.6.2" class="anchored" data-anchor-id="removing-and-renaming"><span class="header-section-number">3.6.2</span> Removing and renaming</h3>
+<section id="removing-and-renaming" class="level3" data-number="2.7.2">
+<h3 data-number="2.7.2" class="anchored" data-anchor-id="removing-and-renaming"><span class="header-section-number">2.7.2</span> Removing and renaming</h3>
 <p>You can <code>rm</code> and <code>mv</code> just like you normally do, but it makes more work with Git. If you remove with <code>git rm</code> and rename (or move) with <code>git mv</code> Git will handle it better and stage the changes for you.</p>
 </section>
-<section id="git-is-kind-of-hard" class="level3" data-number="3.6.3">
-<h3 data-number="3.6.3" class="anchored" data-anchor-id="git-is-kind-of-hard"><span class="header-section-number">3.6.3</span> Git is kind of hard</h3>
+</section>
+<section id="getting-help" class="level2" data-number="2.8">
+<h2 data-number="2.8" class="anchored" data-anchor-id="getting-help"><span class="header-section-number">2.8</span> Getting help</h2>
+<p>Please reach out through the teams channel if you need help. The <a href="https://git-scm.com/book/en/v2">Pro Git</a> book is really nicely written as well. Re-reading sections of it as you get your feet under you will be helpful.</p>
+<p>Getting help with Git is also an ideal use case for LLMs like chatGPT. If you’ve run into an issue that you don’t understand, an LLM can give you suggestions (with an explanation) about how to fix it that you can implement and then immediately check for correctness. It’s much less risky than relying on an LLM for something conceptually more complicated and harder to validate the output for, like choosing a parameter in a statistical model that is appropriate for your data.</p>
+<section id="git-is-kind-of-hard" class="level3" data-number="2.8.1">
+<h3 data-number="2.8.1" class="anchored" data-anchor-id="git-is-kind-of-hard"><span class="header-section-number">2.8.1</span> Git is kind of hard</h3>
 <p>While the basic ideas behind the Git workflow are not that challenging, when getting more involved in collaborations, working with remotes, and actually navigating the complexity of the command-line tools, things can get difficult. Depending on how and how much you use git, you should expect there to be a somewhat long learning curve. Don’t get discouraged, it’s a useful and widespread tool and great to have some experience with.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -601,7 +621,6 @@ Branch congratulations set up to track remote branch congratulations from origin
 </div>
 
 
-</section>
 </section>
 </section>
 

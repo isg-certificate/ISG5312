@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Variant calling - First Steps – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./03_0_genomeAssembly.html" rel="next">
+<link href="./02_0_variantDetection.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02_0_variantDetection.html">Variant Detection and Genotyping</a></li><li class="breadcrumb-item"><a href="./02_1_qc.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Genome Assembly</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-cell RNAseq</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">3.1</span> Learning Objectives</a></li>
+  <li><a href="#the-basic-workflow" id="toc-the-basic-workflow" class="nav-link" data-scroll-target="#the-basic-workflow"><span class="header-section-number">3.2</span> The basic workflow</a></li>
+  <li><a href="#our-example-data" id="toc-our-example-data" class="nav-link" data-scroll-target="#our-example-data"><span class="header-section-number">3.3</span> Our example data</a></li>
+  <li><a href="#getting-set-up" id="toc-getting-set-up" class="nav-link" data-scroll-target="#getting-set-up"><span class="header-section-number">3.4</span> Getting set up</a></li>
+  <li><a href="#getting-the-data" id="toc-getting-the-data" class="nav-link" data-scroll-target="#getting-the-data"><span class="header-section-number">3.5</span> Getting the data</a>
+  <ul class="collapse">
+  <li><a href="#the-read-data" id="toc-the-read-data" class="nav-link" data-scroll-target="#the-read-data"><span class="header-section-number">3.5.1</span> The read data</a></li>
+  <li><a href="#the-reference-genome" id="toc-the-reference-genome" class="nav-link" data-scroll-target="#the-reference-genome"><span class="header-section-number">3.5.2</span> The reference genome</a></li>
+  </ul></li>
+  <li><a href="#initial-qc" id="toc-initial-qc" class="nav-link" data-scroll-target="#initial-qc"><span class="header-section-number">3.6</span> Initial QC</a>
+  <ul class="collapse">
+  <li><a href="#fastqcmultiqc-on-raw-data" id="toc-fastqcmultiqc-on-raw-data" class="nav-link" data-scroll-target="#fastqcmultiqc-on-raw-data"><span class="header-section-number">3.6.1</span> fastqc/multiqc on raw data</a></li>
+  <li><a href="#trimmomatic" id="toc-trimmomatic" class="nav-link" data-scroll-target="#trimmomatic"><span class="header-section-number">3.6.2</span> Trimmomatic</a></li>
+  <li><a href="#fastqcmultiqc-on-trimmed-data" id="toc-fastqcmultiqc-on-trimmed-data" class="nav-link" data-scroll-target="#fastqcmultiqc-on-trimmed-data"><span class="header-section-number">3.6.3</span> fastqc/multiqc on trimmed data</a></li>
+  </ul></li>
+  <li><a href="#alignment" id="toc-alignment" class="nav-link" data-scroll-target="#alignment"><span class="header-section-number">3.7</span> Alignment</a>
+  <ul class="collapse">
+  <li><a href="#indexing" id="toc-indexing" class="nav-link" data-scroll-target="#indexing"><span class="header-section-number">3.7.1</span> Indexing</a></li>
+  <li><a href="#alignment-1" id="toc-alignment-1" class="nav-link" data-scroll-target="#alignment-1"><span class="header-section-number">3.7.2</span> Alignment</a></li>
+  <li><a href="#alignment-indexing" id="toc-alignment-indexing" class="nav-link" data-scroll-target="#alignment-indexing"><span class="header-section-number">3.7.3</span> Alignment indexing</a></li>
+  <li><a href="#samtools-stats" id="toc-samtools-stats" class="nav-link" data-scroll-target="#samtools-stats"><span class="header-section-number">3.7.4</span> <code>samtools stats</code></a></li>
+  <li><a href="#looking-at-coverage" id="toc-looking-at-coverage" class="nav-link" data-scroll-target="#looking-at-coverage"><span class="header-section-number">3.7.5</span> Looking at coverage</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02_0_variantDetection.html">Variant Detection and Genotyping</a></li><li class="breadcrumb-item"><a href="./02_1_qc.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">3.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Conduct quality control analysis of raw and mapped data specific to variant detection.</td>
+</tr>
+</tbody>
+</table>
+<p>In this chapter, we’re going to introduce a basic outline of a variant detection workflow, and then work through the initial QC and mapping stages of the analysis. In the following chapters we’ll cover actually calling variants and genotyping, filtering variants and evaluating quality, comparing variant call sets, and functional annotation.</p>
+</section>
+<section id="the-basic-workflow" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="the-basic-workflow"><span class="header-section-number">3.2</span> The basic workflow</h2>
+<p>Our workflow is going to be focused on calling short variants (SNPs/indels) for multiple samples against a single linear reference genome using short-read data. We’re not going to cover multiple whole genome alignment pan-genome graphs, or structural variant detection here, though those are really fun and interesting topics in bioinformatics.</p>
+<p>A typical reference-based variant detection workflow consists of the following steps:</p>
+<ol type="1">
+<li>Organizing your data resources and setting up your project structure (always the first step!).</li>
+<li>Doing basic QC on your input sequence data (and perhaps also your reference genome).</li>
+<li>Indexing your reference genome and aligning your sequence data to it.</li>
+<li>Doing QC on the alignments.</li>
+<li>Calling variants and genotyping.</li>
+<li>Filtering and evaluating the variant callset.</li>
+</ol>
+<p>In this module, we will additionally look at ways to compare multiple variant callsets and functionally annotate them given a structural annotation of the genome.</p>
+</section>
+<section id="our-example-data" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="our-example-data"><span class="header-section-number">3.3</span> Our example data</h2>
+<p>For this module, we’re going to use data from the <a href="https://www.nist.gov/programs-projects/genome-bottle">Genome-in-a-Bottle</a> project which is created and housed in the US <a href="https://www.nist.gov">National Institute of Standards and Technology</a>, a part of the Department of Commerce. NIST is devoted to the science of measurement and the development and use of standards. The GIAB data is created as part of an initiative to create benchmarking data to test methods of measuring genetic variation in humans.</p>
+<p>GIAB has a set of human samples they subject to every sequencing technology imaginable. They publish the data, along with products such as alignments and variant call sets for others to use. We’re going to use one set of three samples, a trio (mother, father, son) of Ashkenazi ancestry. For each sample, we’re going to download Illumina 2x250bp paired end sequence at about 50x coverage. In our scripts in this chapter, to make things run quickly, we’re going to cut the dataset down to look at only 5mb of chromosome 20. To make the QC steps interesting, this region overlaps a bit of messy sequence adjacent to the centromere.</p>
+<p>Links to the data (and all the other sequencing data for these and other GIAB samples) can be found <a href="https://github.com/genome-in-a-bottle/giab_data_indexes">here</a>.</p>
+</section>
+<section id="getting-set-up" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="getting-set-up"><span class="header-section-number">3.4</span> Getting set up</h2>
+<p>Assuming you’re working on UConn’s Xanadu (or Mantis) cluster, you should clone <a href="https://github.com/isg-certificate/variants">this github repository</a>. It contains all the scripts that will be covered here. Each of them can be run in sequence to reproduce the results you’ll see in this chapter. Please follow along, submitting them as you go. In the exercises for this module, you will be asked to modify and re-run the scripts and answer questions about what you find.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:isg-certificate/variants.git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You’ll see initially that there is only a README.md file and a <code>scripts</code> directory containing scripts for the analysis. The scripts will build up more subdirectories as we go.</p>
+</section>
+<section id="getting-the-data" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="getting-the-data"><span class="header-section-number">3.5</span> Getting the data</h2>
+<p>In the directory <code>scripts/01_downloadData</code> we have two scripts for downloading data. <code>cd</code> there now.</p>
+<section id="the-read-data" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="the-read-data"><span class="header-section-number">3.5.1</span> The read data</h3>
+<p>Let’s look at <code>01_getSequences.sh</code>.</p>
+<p>To make these examples run quickly, we’re going to grab only a subset of data from a small region of the genome. As you know at this point, fastq files straight off the sequencer are not ordered with respect to location in the genome, so doing this with truly raw data would be a challenge. GIAB provides genome-aligned BAM files, however, so we can do this relatively easily.</p>
+<p>Load up our software modules:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load samtools/1.12 </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load bedtools/2.29.0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We worked with <code>samtools</code> in ISG5311, so we won’t cover it again here. <code>bedtools</code> is new however. It’s a toolkit that allows the creation and manipulation of data in genomic windows. We’re going to elide the details in this section and cover it more depth shortly.</p>
+<p>To grab the data (for one sample):</p>
+<pre><code>SON='https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/novoalign_bams/HG002.GRCh38.2x250.bam'
+
+samtools view -uh $SON chr20:29400000-34400000 | \
+samtools sort -n - | \
+bedtools bamtofastq -i /dev/stdin/ -fq $OUTDIR/son.1.fq -fq2 $OUTDIR/son.2.fq</code></pre>
+<p>We first set a variable pointing to the bam file for the son. Then we use samtools to extract region <code>chr20:29400000-34400000</code> directly from the file on the server. This is a pretty nice feature of samtools. As along as the .bai index is also on the server, this approach will work great.</p>
+<p>Next we pipe the data to <code>samtools sort -n</code> to sort the reads by <em>name</em> instead of position.</p>
+<p>Finally, we’re sending the name-sorted output to <code>bedtools bamtofastq</code>, which will split the paired-end reads into separate files, reconstituting something like our raw data file, with a bunch of caveats. We could equally well have used <a href="http://www.htslib.org/doc/samtools-fasta.html"><code>samtools fastq</code></a> to accomplish this.</p>
+<p>We do this for all three samples (we could have done it in parallel, or used an array job as well). The last step of the script gzip compresses all the fastq files. So if we check out output directory:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ll ../../data/</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">total</span> 765M</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 114M Feb  2 10:56 dad.1.fq.gz</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 125M Feb  2 10:56 dad.2.fq.gz</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 123M Feb  2 10:55 mom.1.fq.gz</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 134M Feb  2 10:55 mom.2.fq.gz</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 131M Feb  2 10:53 son.1.fq.gz</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 141M Feb  2 10:53 son.2.fq.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should always check the <code>.err.</code> and <code>.out</code> files to make sure you script ran successfully. In this case you’re going to see a lot of warnings produced by <code>bedtools</code> that look like this:</p>
+<pre><code>*****WARNING: Query D00360:94:H2YT5BCXX:1:1102:3248:71588 is marked as paired, but its mate does not occur next to it in your BAM file.  Skipping. </code></pre>
+<p>Can you guess why these warnings occur?</p>
+</section>
+<section id="the-reference-genome" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="the-reference-genome"><span class="header-section-number">3.5.2</span> The reference genome</h3>
+<p>Now let’s look at <code>02_getGenome.sh</code>. This is very straightforward:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># this is modified version of GRCh38 that corrects some errors. GIAB uses this for their benchmarking work. </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># "with masked false duplications and contaminations, as well as decoy sequences from CHM13, which we are now using for GIAB analyses"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  https://genomebiology.biomedcentral.com/articles/10.1186/s13059-023-02863-7</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">gunzip</span> <span class="pp">*</span>gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The human genome is 3.1 <em>giga</em>bases. That’s decently large (though it’s no <a href="https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_002915635.3/">axolotl</a>). You could run something like <a href="https://quast.sourceforge.net"><code>QUAST</code></a> on it to get some basic stats. When it’s your first time working with a given genome, it’s good to get to know it a bit. We won’t do that here though, we’ll cover evaluating genome quality in the next module.</p>
+<p>There are lots of human reference genome versions out there. GRCh38 was the state of the art until the <a href="https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_009914755.1/">telomere-to-telomere (CHM13) genome</a> was released. Within GRCh38 there are multiple versions as well. We’re using GRCh38, and this very particular version, because GIAB has made some corrections to it (they do not alter the coordinate system, so GRCh38 annotations should work fine with it) and because it’s the one they use in their analyses. T2T is more complete and correct, however. Problems with a multiplicity of confusing genome versions are typically only a problem in model systems, and most of all in human.</p>
+</section>
+</section>
+<section id="initial-qc" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="initial-qc"><span class="header-section-number">3.6</span> Initial QC</h2>
+<p>We’ve finished downloading our data, so let’s move to the directory <code>scripts/02_qc</code>.</p>
+<section id="fastqcmultiqc-on-raw-data" class="level3" data-number="3.6.1">
+<h3 data-number="3.6.1" class="anchored" data-anchor-id="fastqcmultiqc-on-raw-data"><span class="header-section-number">3.6.1</span> fastqc/multiqc on raw data</h3>
+<p>We have seen <code>fastqc</code> and <code>multiqc</code> used with RNA-seq data, so we won’t belabor this. But we’re going to run them on all our fastq files. Look at the script <code>01_fastqcRaw.sh</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run fastqc. "*fq" tells it to run on the illumina fastq files in directory "data/"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-t</span> 6 <span class="at">-o</span> <span class="va">$OUTDIR</span> ../../data/<span class="pp">*</span>1.fq.gz</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-t</span> 6 <span class="at">-o</span> <span class="va">$OUTDIR</span> ../../data/<span class="pp">*</span>2.fq.gz</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># run on fastqc output</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">multiqc</span> <span class="at">-f</span> <span class="at">-o</span> <span class="va">$OUTDIR</span>/multiqc <span class="va">$OUTDIR</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Check your outputs! There are some notable things here:</p>
+<ol type="1">
+<li>The sequence quality drops considerably at the end of these 250bp PE reads. It’s normal for sequence quality to drop. We’re going to trim a bit so it will increase.</li>
+<li>We have a super-weird per-sequence GC content distribution! The bimodal shape is because we have deliberately pulled down reads from a region that is part run-of-the-mill genome sequence, and part really messy sequence next to the centromere. These two subregions of our 5mb window apparently have substantially different GC content.</li>
+<li>We have a little bit of adapter contamination. It’s not so much that you would be super worried, but we’re going to trim it out anyway.</li>
+</ol>
+</section>
+<section id="trimmomatic" class="level3" data-number="3.6.2">
+<h3 data-number="3.6.2" class="anchored" data-anchor-id="trimmomatic"><span class="header-section-number">3.6.2</span> Trimmomatic</h3>
+<p>We’ve seen Trimmomatic before, but here’s the call, from a SLURM array script <code>02_trimmomatic.sh</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># adapters to trim out</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="va">ADAPTERS</span><span class="op">=</span>/isg/shared/apps/Trimmomatic/0.39/adapters/TruSeq3-PE-2.fa</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># sample bash array</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="va">SAMPLELIST</span><span class="op">=</span><span class="va">(</span>son mom dad<span class="va">)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># run trimmomatic</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="va">SAMPLE</span><span class="op">=</span><span class="va">${SAMPLELIST</span><span class="op">[</span><span class="va">$SLURM_ARRAY_TASK_ID</span><span class="op">]</span><span class="va">}</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-jar</span> <span class="va">$Trimmomatic</span> PE <span class="at">-threads</span> 4 <span class="dt">\</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">${INDIR}</span>/<span class="va">${SAMPLE}</span>.1.fq.gz <span class="dt">\</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">${INDIR}</span>/<span class="va">${SAMPLE}</span>.2.fq.gz <span class="dt">\</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">${TRIMDIR}</span>/<span class="va">${SAMPLE}</span>_trim.1.fq.gz <span class="va">${TRIMDIR}</span>/<span class="va">${SAMPLE}</span>_trim_orphans.1.fq.gz <span class="dt">\</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">${TRIMDIR}</span>/<span class="va">${SAMPLE}</span>_trim.2.fq.gz <span class="va">${TRIMDIR}</span>/<span class="va">${SAMPLE}</span>_trim_orphans.2.fq.gz <span class="dt">\</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        ILLUMINACLIP:<span class="st">"</span><span class="va">${ADAPTERS}</span><span class="st">"</span>:2:30:10 <span class="dt">\</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        SLIDINGWINDOW:4:15 MINLEN:45</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Should be pretty standard at this point. In the <code>.err</code> files we should see trimming didn’t have a huge impact, e.g.:</p>
+<pre><code>Input Read Pairs: 719326 Both Surviving: 708775 (98.53%) Forward Only Surviving: 9828 (1.37%) Reverse Only Surviving: 692 (0.10%) Dropped: 31 (0.00%)</code></pre>
+<p>If we look at our output directory:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ll</span> ../../results/02_qc/trimmed_fastq/</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">total</span> 706M</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 108M Feb  2 11:19 dad_trim.1.fq.gz</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 111M Feb  2 11:19 dad_trim.2.fq.gz</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.3M Feb  2 11:19 dad_trim_orphans.1.fq.gz</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 117K Feb  2 11:19 dad_trim_orphans.2.fq.gz</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 116M Feb  2 11:20 mom_trim.1.fq.gz</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 120M Feb  2 11:20 mom_trim.2.fq.gz</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.5M Feb  2 11:20 mom_trim_orphans.1.fq.gz</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 122K Feb  2 11:20 mom_trim_orphans.2.fq.gz</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 123M Feb  2 11:20 son_trim.1.fq.gz</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 126M Feb  2 11:20 son_trim.2.fq.gz</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.5M Feb  2 11:20 son_trim_orphans.1.fq.gz</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 131K Feb  2 11:20 son_trim_orphans.2.fq.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note that trimmomatic does produce “orphans” files with singletons whose mate pairs did not survive trimming. We’re going to ignore those going forward.</p>
+</section>
+<section id="fastqcmultiqc-on-trimmed-data" class="level3" data-number="3.6.3">
+<h3 data-number="3.6.3" class="anchored" data-anchor-id="fastqcmultiqc-on-trimmed-data"><span class="header-section-number">3.6.3</span> fastqc/multiqc on trimmed data</h3>
+<p>The script <code>03_fastqcTrimmed.sh</code> is essentially the same as above, but pointed at the trimmmed fastq files. We see improved overall sequence quality, and our minor residual adapter contamination is gone. We still very much have the bimodal GC distribution though!</p>
+</section>
+</section>
+<section id="alignment" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="alignment"><span class="header-section-number">3.7</span> Alignment</h2>
+<p>In ISG5311 we used a spliced aligner, <code>HISAT2</code> to align our RNA-seq reads to a reference genome. Here we’re going to use <code>bwa-mem2</code>, an extremely popular alignment program for aligning DNA. It is perfectly happy to do “split-read” alignments, where chunks of a read are aligned non-contiguously. These are in principle quite similar to spliced alignments, but instead of having a large splice in the CIGAR string of the SAM record (e.g.&nbsp;<code>21M1552N80M</code> with <code>552N</code> indicating a 552bp intron), if bwa-mem2 determines a read should be split-aligned, it will output <strong>multiple</strong> alignment records, one for each aligned chunk. The first will be the primary alignment, and the rest will be flagged as secondary in the FLAG column of the SAM file.</p>
+<p>Our alignment scripts are located in <code>scripts/03_Alignment</code>. <code>cd</code> over there right now.</p>
+<section id="indexing" class="level3" data-number="3.7.1">
+<h3 data-number="3.7.1" class="anchored" data-anchor-id="indexing"><span class="header-section-number">3.7.1</span> Indexing</h3>
+<p>As always, when using a short-read aligner, the first step is to index the reference genome. We do this with the script <code>01_bwaIndex.sh</code>. It’s very straightforward:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa-mem2</span> index <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">-p</span> <span class="va">$INDEXDIR</span>/GRCh38 <span class="dt">\</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>   <span class="va">$GENOME</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We assign a prefix <code>GRCh38</code> to be used for our index files, and that’s what we use to invoke the index later. The index files can be found in the results directory:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ll ../../results/03_Alignment/bwa_index/</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">total</span> 16G</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 5.8G Feb  2 11:46 GRCh38.0123</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc  18K Feb  2 11:44 GRCh38.amb</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 9.9K Feb  2 11:44 GRCh38.ann</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 9.4G Feb  2 12:34 GRCh38.bwt.2bit.64</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 740M Feb  2 11:44 GRCh38.pac</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note that indexing can use significant amounts of memory (depending on the size of the genome) and take some time. For this job the SLURM <code>seff</code> output looks like this:</p>
+<pre><code>Job ID: 8839080
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+CPU Utilized: 00:50:12
+CPU Efficiency: 12.45% of 06:43:12 core-walltime
+Job Wall-clock time: 00:50:24
+Memory Utilized: 69.31 GB
+Memory Efficiency: 86.64% of 80.00 GB</code></pre>
+<p>So this human genome required around 70G of memory and 50 minutes to run. In the script it was allowed 8 cpus, but only used one of them, and apparently has no options to specify number of cpus/threads. So we over-requested resources on this. Not a big in this case.</p>
+</section>
+<section id="alignment-1" class="level3" data-number="3.7.2">
+<h3 data-number="3.7.2" class="anchored" data-anchor-id="alignment-1"><span class="header-section-number">3.7.2</span> Alignment</h3>
+<p>Now that we’ve got our data all QC’ed and our genome indexed, we’re ready to align. At this stage the workflow starts to diverge a little bit more from the RNA-seq of last semester. We have a couple new points to cover here.</p>
+<p>Let’s look at our script <code>02_bwaAlign.sh</code>. It is another array script.</p>
+<section id="read-group-id" class="level4" data-number="3.7.2.1">
+<h4 data-number="3.7.2.1" class="anchored" data-anchor-id="read-group-id"><span class="header-section-number">3.7.2.1</span> Read group ID</h4>
+<p>The beginning is pretty standard stuff. The first weird thing we notice is the creation of the variable <code>RG</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample ID list</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="va">SAMPLELIST</span><span class="op">=</span><span class="va">(</span>son dad mom<span class="va">)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># extract one sample ID</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="va">SAMPLE</span><span class="op">=</span><span class="va">${SAMPLELIST</span><span class="op">[</span><span class="va">$SLURM_ARRAY_TASK_ID</span><span class="op">]</span><span class="va">}</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create read group string</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="va">RG</span><span class="op">=</span><span class="va">$(</span><span class="bu">echo</span> <span class="dt">\@</span>RG<span class="dt">\\</span>tID:<span class="va">$SAMPLE</span><span class="dt">\\</span>tSM:<span class="va">$SAMPLE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In that line we populate the variable with, for the son, <code>@RG\tID:son\tSM:son</code>. This will ultimately be parsed as <code>@RG     ID:son  SM:son</code>.</p>
+<p>We’re going to provide one of these strings to our aligner for each sample. It’s known as the <strong>read group</strong> string. This allows <em>every read</em> in a file to be tagged with some metadata. Different groups of reads can be kept in the same SAM/BAM file and keep a distinguishing identifier. There are a few bits of metadata that can be attached, most importantly for our use-case here is the <strong>sample</strong> tag <code>SM</code>, which is <code>son</code> in this case.</p>
+<p>Read group IDs must be attached for variant callers to correctly process the reads downstream. If you fail to attach them during the alignment step, you can add them later (e.g.&nbsp;using PICARD), but you’ll create a whole new BAM file and have to delete the old one. Very inefficient.</p>
+<p>The line <code>@RG     ID:son  SM:son</code> will be added the the SAM header, and then for each alignment record (line in the SAM/BAM file), a tag is added: <code>RG:Z:son</code>. The <code>ID</code> tag is a short identifier for the whole read group.</p>
+</section>
+<section id="the-alignment-pipe" class="level4" data-number="3.7.2.2">
+<h4 data-number="3.7.2.2" class="anchored" data-anchor-id="the-alignment-pipe"><span class="header-section-number">3.7.2.2</span> The alignment pipe</h4>
+<p>Now we arrive at the actual alignment, which should be mostly familiar:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa-mem2</span> mem <span class="at">-t</span> 7 <span class="at">-R</span> <span class="va">${RG}</span> <span class="va">${INDEX}</span> <span class="va">${SAMPDIR}</span>/<span class="va">${SAMPLE}</span>_trim.1.fq.gz <span class="va">$SAMPDIR</span>/<span class="va">${SAMPLE}</span>_trim.2.fq.gz <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samblaster</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samtools</span> view <span class="at">-S</span> <span class="at">-h</span> <span class="at">-u</span> <span class="at">-</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samtools</span> sort <span class="at">-T</span> <span class="va">${OUTDIR}</span>/<span class="va">${SAMPLE}</span>.temp <span class="at">-O</span> BAM <span class="op">&gt;</span><span class="va">$OUTDIR</span>/<span class="va">${SAMPLE}</span>.bam </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We provide our reads, the index, the read group string and sort and compress the output, just as we did with RNA-seq reads.</p>
+</section>
+<section id="marking-duplicates" class="level4" data-number="3.7.2.3">
+<h4 data-number="3.7.2.3" class="anchored" data-anchor-id="marking-duplicates"><span class="header-section-number">3.7.2.3</span> Marking duplicates</h4>
+<p>There is one new step in there: <code>samblaster</code>. We are using this program to <em>mark duplicate read pairs</em>. In variant calling (and many other applications) we want to assume that each fragment of sequenced DNA derives from an independent original biological molecule. When we sequence reads covering a heterozygous site, our variant calling model assumes the alleles are sampled in proportion to their true frequency in the pool of DNA extracted from the organism.</p>
+<p>Many library preparation protocols, however, involve the use of the polymerase chain reaction, which creates copies of molecules. These copies can distort the apparent frequencies of alleles. It’s also possible for there to be “optical” duplicates, which are artifacts of the sequencer, not the library preparation.</p>
+<p><code>samblaster</code> identifies putative duplicates and marks them in the <a href="https://broadinstitute.github.io/picard/explain-flags.html">FLAG column of their SAM records</a>. Downstream tools will (typically by default) ignore these duplicate reads.</p>
+<p>Read pairs are identified as duplicates when both members of the pair share the same alignment as another pair.</p>
+</section>
+</section>
+<section id="alignment-indexing" class="level3" data-number="3.7.3">
+<h3 data-number="3.7.3" class="anchored" data-anchor-id="alignment-indexing"><span class="header-section-number">3.7.3</span> Alignment indexing</h3>
+<p>Finally, we’re going to align the sorted, compressed BAM file:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> index <span class="va">${OUTDIR}</span>/<span class="va">${SAMPLE}</span>.bam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This index allows fast access to reads from any part of the reference genome.</p>
+<p>And Finally we’ve got this in our results directory:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ll</span> ../../results/03_Alignment/bwa_align/</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">total</span> 612M</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 190M Feb  2 12:49 dad.bam</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.6M Feb  2 12:50 dad.bam.bai</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 202M Feb  2 12:49 mom.bam</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.6M Feb  2 12:49 mom.bam.bai</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 216M Feb  2 12:49 son.bam</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.6M Feb  2 12:49 son.bam.bai</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>##Alignment QC</p>
+<p>At this point it’s good practice to learn a bit about your alignment files. There are a few scripts in <code>scripts/04_alignQC</code>.</p>
+</section>
+<section id="samtools-stats" class="level3" data-number="3.7.4">
+<h3 data-number="3.7.4" class="anchored" data-anchor-id="samtools-stats"><span class="header-section-number">3.7.4</span> <code>samtools stats</code></h3>
+<p>A straightforward first step is to summarize some aspects of the alignment. We can do that with <code>samtools stats</code>. It’s easy to run and can be summarized across samples using MultiQC. The script <code>01_samstats.sh</code> does this. It also includes some bash code for pulling out the “summary numbers” table from the output for each sample and putting it into a table. That looks like this:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 60%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>dad</th>
+<th>mom</th>
+<th>son</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Raw total sequences</td>
+<td>1308084</td>
+<td>1417550</td>
+<td>1505512</td>
+</tr>
+<tr class="even">
+<td>Filtered sequences</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Sequences</td>
+<td>1308084</td>
+<td>1417550</td>
+<td>1505512</td>
+</tr>
+<tr class="even">
+<td>Is sorted</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>1st fragments</td>
+<td>654042</td>
+<td>708775</td>
+<td>752756</td>
+</tr>
+<tr class="even">
+<td>Last fragments</td>
+<td>654042</td>
+<td>708775</td>
+<td>752756</td>
+</tr>
+<tr class="odd">
+<td>Reads mapped</td>
+<td>1307653</td>
+<td>1417146</td>
+<td>1505108</td>
+</tr>
+<tr class="even">
+<td>Reads mapped and paired</td>
+<td>1307222</td>
+<td>1416742</td>
+<td>1504704</td>
+</tr>
+<tr class="odd">
+<td>Reads unmapped</td>
+<td>431</td>
+<td>404</td>
+<td>404</td>
+</tr>
+<tr class="even">
+<td>Reads properly paired</td>
+<td>1281272</td>
+<td>1392498</td>
+<td>1470964</td>
+</tr>
+<tr class="odd">
+<td>Reads paired</td>
+<td>1308084</td>
+<td>1417550</td>
+<td>1505512</td>
+</tr>
+<tr class="even">
+<td>Reads duplicated</td>
+<td>19212</td>
+<td>39831</td>
+<td>39867</td>
+</tr>
+<tr class="odd">
+<td>Reads MQ0</td>
+<td>18822</td>
+<td>19495</td>
+<td>22938</td>
+</tr>
+<tr class="even">
+<td>Reads QC failed</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Non-primary alignments</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Supplementary alignments</td>
+<td>11446</td>
+<td>10429</td>
+<td>14171</td>
+</tr>
+<tr class="odd">
+<td>Total length</td>
+<td>304366705</td>
+<td>332326447</td>
+<td>353260305</td>
+</tr>
+<tr class="even">
+<td>Total first fragment length</td>
+<td>156799604</td>
+<td>170401850</td>
+<td>180976062</td>
+</tr>
+<tr class="odd">
+<td>Total last fragment length</td>
+<td>147567101</td>
+<td>161924597</td>
+<td>172284243</td>
+</tr>
+<tr class="even">
+<td>Bases mapped</td>
+<td>304320288</td>
+<td>332284625</td>
+<td>353218188</td>
+</tr>
+<tr class="odd">
+<td>Bases mapped (cigar)</td>
+<td>303309452</td>
+<td>331333643</td>
+<td>352041382</td>
+</tr>
+<tr class="even">
+<td>Bases trimmed</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Bases duplicated</td>
+<td>4487160</td>
+<td>9392133</td>
+<td>9387993</td>
+</tr>
+<tr class="even">
+<td>Mismatches</td>
+<td>2968410</td>
+<td>2783598</td>
+<td>3624412</td>
+</tr>
+<tr class="odd">
+<td>Error rate</td>
+<td>9.79e-03</td>
+<td>8.40e-03</td>
+<td>1.03e-02</td>
+</tr>
+<tr class="even">
+<td>Average length</td>
+<td>232</td>
+<td>234</td>
+<td>234</td>
+</tr>
+<tr class="odd">
+<td>Average first fragment length</td>
+<td>240</td>
+<td>240</td>
+<td>240</td>
+</tr>
+<tr class="even">
+<td>Average last fragment length</td>
+<td>226</td>
+<td>228</td>
+<td>229</td>
+</tr>
+<tr class="odd">
+<td>Maximum length</td>
+<td>250</td>
+<td>250</td>
+<td>250</td>
+</tr>
+<tr class="even">
+<td>Maximum first fragment length</td>
+<td>250</td>
+<td>250</td>
+<td>250</td>
+</tr>
+<tr class="odd">
+<td>Maximum last fragment length</td>
+<td>250</td>
+<td>250</td>
+<td>250</td>
+</tr>
+<tr class="even">
+<td>Average quality</td>
+<td>36.7</td>
+<td>36.8</td>
+<td>36.8</td>
+</tr>
+<tr class="odd">
+<td>Insert size average</td>
+<td>404.2</td>
+<td>409.4</td>
+<td>419.2</td>
+</tr>
+<tr class="even">
+<td>Insert size standard deviation</td>
+<td>117.1</td>
+<td>88.5</td>
+<td>187.1</td>
+</tr>
+<tr class="odd">
+<td>Inward oriented pairs</td>
+<td>633663</td>
+<td>690440</td>
+<td>730889</td>
+</tr>
+<tr class="even">
+<td>Outward oriented pairs</td>
+<td>14307</td>
+<td>11466</td>
+<td>14481</td>
+</tr>
+<tr class="odd">
+<td>Pairs with other orientation</td>
+<td>659</td>
+<td>760</td>
+<td>754</td>
+</tr>
+<tr class="even">
+<td>Pairs on different chromosomes</td>
+<td>4982</td>
+<td>5705</td>
+<td>6228</td>
+</tr>
+<tr class="odd">
+<td>Percentage of properly paired reads (%)</td>
+<td>98.0</td>
+<td>98.2</td>
+<td>97.7</td>
+</tr>
+</tbody>
+</table>
+<p>That’s a lot of data, especially when you’ve got many samples, so it’s often a good idea to read this information into R and make some plots that can help you understand what’s going.</p>
+<p>There are a few bits that are important to pay attention to:</p>
+<ol type="1">
+<li>The mapping rate “reads mapped” / “Raw total sequences”: This tells you how many of your reads actually mapped to the reference genome! In this case the rate should be extremely high because we only grabbed mapped reads in the first place. Unmapped reads may be attributable to GIAB’s alignment having been produced by a different aligner.</li>
+<li>Reads MQ0: These are reads that have been mapped, but assigned a mapping quality of 0, indicating the mapper has no confidence the alignment location is correct.</li>
+<li>Reads duplicated: This is the number of duplicate reads mentioned above. Ideally this will be very low, but there is no “correct” percentage. Observed duplication rates depend heavily on library prep, input DNA, and sequencing depth.</li>
+<li>Percentage of properly paired reads: This is the number of read pairs with the expected relative orientation and that are not too far apart / on separate reference sequences. This number tends to be larger when divergence between sample and reference is high and there is structural variation.</li>
+<li>Error rate: this is the number of mismatches in mapped reads divided by the number of bases mapped. This encompasses both sequencing errors and true variation. When you have lots of samples you can get a sense of what this value should be in your study, and outliers with high error rates can indicate problematic samples.</li>
+</ol>
+</section>
+<section id="looking-at-coverage" class="level3" data-number="3.7.5">
+<h3 data-number="3.7.5" class="anchored" data-anchor-id="looking-at-coverage"><span class="header-section-number">3.7.5</span> Looking at coverage</h3>
+<p>Another really important thing to do at this stage is to look at the distribution of depth of coverage across your genome. As you are learning in ISG5302, strong deviations from expected coverage can point to genomic regions with alignment issues. In those regions, variant calls are likely to be highly unreliable. You will want to know about those regions so that you can filter them out later (or even during variant calling) or at least treat them with a lot of caution.</p>
+<p>There are lots of ways you can do this. We are going to write our own little pipe to calculate per-base coverage summed across all three samples in 1kb windows (see <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6030888/"><code>mosdepth</code></a> for a fast alternative. This will be a helpful introduction to <code>bedtools</code> as well.</p>
+<p>To give a brief overview: We will first use <code>bedtools</code> to create a BED file defining the genomic windows over which we want to calculate coverage. Then, in a single pipe, we’re going to merge our three BAM files into a single stream, filter it a little bit, and pass it to <code>samtools depth</code>, which will output the depth of coverage at each base in the genome. We will pipe that stream to <code>awk</code> to reformat it into BED format, and then pipe that stream to <code>bedtools map</code>, also passing in our 1kb window file. This tool will allow us to summarize (mean and median) the per-base coverage in 1kb windows. We use 1kb windows because the resulting file is a lot smaller and easier to manage (3.1 million lines) than the raw per-base coverage (3.1 <em>billion</em> lines).</p>
+<p>To create the window file we do the following:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create faidx genome index file</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENOME</span><span class="op">=</span>../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="va">FAI</span><span class="op">=</span>../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.fai</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> faidx <span class="va">${GENOME}</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># make a "genome" file, required by bedtools makewindows command, set variable for location</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="va">GFILE</span><span class="op">=</span><span class="va">${OUTDIR}</span>/GRCh38.genome</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cut</span> <span class="at">-f</span> 1-2 <span class="va">$FAI</span> <span class="op">&gt;</span> <span class="va">$GFILE</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># make 1kb window bed file, set variable for location</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="va">WIN1KB</span><span class="op">=</span><span class="va">${OUTDIR}</span>/GRCh38_1kb.bed</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> makewindows <span class="at">-g</span> <span class="va">${GFILE}</span> <span class="at">-w</span> 1000 <span class="op">&gt;</span><span class="va">${WIN1KB}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>bedtools makewindows</code> wants a “genome” file, which is just a table with each sequence in the reference and its length, in order to create the window BED file.</p>
+<p><code>bedtools makewindows</code> is then pretty straightforward <code>-w</code> is the window size. If you want the windows to be overlapping you can specify a “slide” smaller than the window size with <code>-s</code>.</p>
+<p>To refresh your memory about BED files: <code>BED</code> has only 3 required columns: the sequence identifier, the start position and the end position. The trick here is that whereas GTF is 1-based and fully closed, BED is 0-based and half-open. This means that in a GTF file, an interval of 1-1000 refers to the first 1000 bases, including the start and end point of the interval. In BED format, however, the first base in a sequence is numbered 0, and the end base in an interval is not included as part of the interval, making the comparable BED interval 0-1000. See this <a href="https://genome-blog.gi.ucsc.edu/blog/2016/12/12/the-ucsc-genome-browser-coordinate-counting-systems/">blog</a> for a discussion about intervals in genomics.</p>
+<p>Ok, so after creating our window file, we can now run our pipe:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bamtools</span> merge <span class="at">-list</span> <span class="va">${OUTDIR}</span>/bam.list <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bamtools</span> filter <span class="at">-in</span> <span class="at">-</span> <span class="at">-mapQuality</span> <span class="st">"&gt;30"</span> <span class="at">-isDuplicate</span> false <span class="at">-isProperPair</span> true <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> depth <span class="at">-a</span> /dev/stdin <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'{OFS="\t"}{print $1,$2-1,$2,$3}'</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> map <span class="dt">\</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>-a <span class="va">${WIN1KB}</span> <span class="dt">\</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>-b stdin <span class="dt">\</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>-c 4 <span class="at">-o</span> mean,median,count <span class="dt">\</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>-g <span class="va">${GFILE}</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="ex">bgzip</span> <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/coverage_1kb.bed.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We use <code>bamtools</code> here to merge and filter our 3 samples (provided in a list). <code>bamtools</code> is older software at this point and no longer being updated, so this pipeline could use a refresh with <code>samtools merge</code>, but it will work for now.</p>
+<p>We pipe the output to <code>samtools depth -a</code>. <code>-a</code> simply means output all sites, even if they are zero.</p>
+<p>The output looks like this:</p>
+<pre><code>chr20   29858643        83
+chr20   29858644        82
+chr20   29858645        83
+chr20   29858646        82
+chr20   29858647        84</code></pre>
+<p>The <code>awk</code> line reformats <code>samtools depth</code> output to BED format, putting the depth column in column 4:</p>
+<pre><code>chr20   29858642   29858643        83
+chr20   29858643   29858644        82
+chr20   29858644   29858645        83
+chr20   29858645   29858646        82
+chr20   29858646   29858647        84</code></pre>
+<p>Finally, we’ve got <code>bedtools map</code>. This tool takes in intervals in BED format with argument <code>-a</code>, and <em>maps</em> the intervals provided using argument <code>-b</code>. You can do all kinds of operations on the mapped intervals. Here we are telling <code>bedtools map</code> to grab column 4 of argument <code>-b</code> (<code>-c 4</code>) and calculate the mean, median, and total number of records (<code>-o mean,median,count</code>) for column 4 in each <code>-b</code> interval overlapping a given interval from <code>-a</code>. The output looks like this:</p>
+<pre><code>chr20   34387000        34388000        155.231 156     1000
+chr20   34388000        34389000        174.651 179     1000
+chr20   34389000        34390000        203.441 202     1000
+chr20   34390000        34391000        133.606 136     1000
+chr20   34391000        34392000        234.953 236     1000</code></pre>
+<p>What can we do with this table? Let’s make some plots in R:</p>
+<p>First load up the tidyverse:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Read in the table and filter down to just our target region:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>cov <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"variants/results/04_alignQC/coverage/coverage_1kb.bed.gz"</span>, <span class="at">header=</span><span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(V1<span class="sc">==</span><span class="st">"chr20"</span>, V2 <span class="sc">&gt;=</span> <span class="dv">29400000</span> <span class="sc">&amp;</span> V3 <span class="sc">&lt;=</span> <span class="dv">34400000</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cov) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"chromosome"</span>, <span class="st">"start"</span>, <span class="st">"end"</span>, <span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"count"</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># some stats read in as character data, fix that:</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>cov[, <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(cov[,<span class="dv">4</span>])</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>cov[, <span class="dv">5</span>] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(cov[,<span class="dv">5</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>First, let’s ask what the median (of medians, of course) coverage is across windows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(cov<span class="sc">$</span>median)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 185</code></pre>
+</div>
+</div>
+<p>Now let’s plot coverage over the region:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cov, <span class="fu">aes</span>(<span class="at">x=</span>start, <span class="at">y=</span>mean)) <span class="sc">+</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_1_qc_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Well, we’ve got some serious outliers here. We expect in the neighborhood of 50x coverage for each sample, so around 150x for all three. This plot goes up past <strong>6000x</strong> coverage for a few points. That extreme of a coverage spike is guarantee there is mismapping in that spot.</p>
+<p>Let’s truncate the y-axis to get a closer look at the rest of the points:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cov, <span class="fu">aes</span>(<span class="at">x=</span>start, <span class="at">y=</span>mean)) <span class="sc">+</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.2</span>) <span class="sc">+</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">500</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_1_qc_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>At a smaller scale we can see a little better the problematic coverage in left 30-40% of this region. This region is centromeric (or at least centromere-adjacent), and there are problems with the assembly because of the repetitiveness and low complexity of the sequence.</p>
+<p>You can see spots where the coverage drops to zero. Some of those are actually gaps, others may be locations where no reads map with MAPQ &gt; 30. You can also see other spikes in coverage. You can explore this region of genome with the <a href="https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&amp;lastVirtModeType=default&amp;lastVirtModeExtraState=&amp;virtModeType=default&amp;virtMode=0&amp;nonVirtPosition=&amp;position=chr20%3A29400000%2D34400000&amp;hgsid=2445643563_64QaSZ0QOEOkicUTU0OqLzJn9AIy">UCSC genome browser</a>.</p>
+<p>Later on we’re going to want to either exclude some of these regions from variant calling, or filter them out afterward.</p>
+<p>There aren’t really great ways of setting coverage thresholds for filtering. We usually just eyeball a graph and set some thresholds. Let’s say 90 and 260.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cov, <span class="fu">aes</span>(<span class="at">x=</span>mean)) <span class="sc">+</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth=</span><span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>,<span class="dv">500</span>) <span class="sc">+</span> </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">260</span>), <span class="at">color=</span><span class="st">"red"</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">size=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_1_qc_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>How many windows would we lose out of our 5000?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(cov<span class="sc">$</span>mean <span class="sc">&lt;</span> <span class="dv">90</span> <span class="sc">|</span> cov<span class="sc">$</span>mean <span class="sc">&gt;</span> <span class="dv">260</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 645</code></pre>
+</div>
+</div>
+<p>Ordinarily that would seem like a lot, but we’ve deliberately chosen a problematic genomic region here.</p>
+<p>Let’s replot:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>cov <span class="ot">&lt;-</span> <span class="fu">mutate</span>(cov, </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">exclude =</span> cov<span class="sc">$</span>mean <span class="sc">&lt;</span> <span class="dv">90</span> <span class="sc">|</span> cov<span class="sc">$</span>mean <span class="sc">&gt;</span> <span class="dv">260</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cov, <span class="fu">aes</span>(<span class="at">x=</span>start, <span class="at">y=</span>mean, <span class="at">color=</span>exclude)) <span class="sc">+</span> </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.2</span>) <span class="sc">+</span> </span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">500</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_1_qc_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It’s pretty clear we will be able to exclude some of the most aberrant regions with these thresholds. We could either use these thresholds to filter individual variants after the fact, or use them to identify regions to filter out either during or after variant calling by creating a bed file that merged together windows to include or exclude. We will cover that in the next chapter.</p>
+<p>Just for fun, we’ve got a script <code>03_bedtoolsNuc.sh</code> that uses bedtools to calculate the base content in windows. It’s a simple script, so we won’t review it here, but have a look and run it. We can load up the output:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the table and filter down the output to focal region</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>nuc <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"variants/results/04_alignQC/bedtoolsnuc/nuc.bed.gz"</span>, <span class="at">header=</span><span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(V1<span class="sc">==</span><span class="st">"chr20"</span>, V2 <span class="sc">&gt;=</span> <span class="dv">29400000</span> <span class="sc">&amp;</span> V3 <span class="sc">&lt;=</span> <span class="dv">34400000</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(nuc) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"chromosome"</span>, <span class="st">"start"</span>, <span class="st">"end"</span>, <span class="st">"ATpct"</span>, <span class="st">"GCpct"</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"G"</span>, <span class="st">"T"</span>, <span class="st">"N"</span>, <span class="st">"other"</span>, <span class="st">"length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s look at the GC percentage:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nuc, <span class="fu">aes</span>(<span class="at">x=</span>start, <span class="at">y=</span>GCpct)) <span class="sc">+</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_1_qc_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We certainly have some wacky things going on with the GC content, especially in the left-most part of the plot and they are associated with aberrations in coverage. The spots where GC content plunges to zero are gaps in the assembly (you will see this if you plot the number of N’s in each window–column 10).</p>
+<p>We will leave off here for now. In the next chapter we’ll tackle variant calling itself.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./02_0_variantDetection.html" class="pagination-link" aria-label="Variant Detection and Genotyping">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Variant Detection and Genotyping</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./03_0_genomeAssembly.html" class="pagination-link" aria-label="Genome Assembly">
+        <span class="nav-page-text">Genome Assembly</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

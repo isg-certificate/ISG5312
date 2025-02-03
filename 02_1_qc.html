@@ -228,8 +228,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#indexing" id="toc-indexing" class="nav-link" data-scroll-target="#indexing"><span class="header-section-number">3.7.1</span> Indexing</a></li>
   <li><a href="#alignment-1" id="toc-alignment-1" class="nav-link" data-scroll-target="#alignment-1"><span class="header-section-number">3.7.2</span> Alignment</a></li>
   <li><a href="#alignment-indexing" id="toc-alignment-indexing" class="nav-link" data-scroll-target="#alignment-indexing"><span class="header-section-number">3.7.3</span> Alignment indexing</a></li>
-  <li><a href="#samtools-stats" id="toc-samtools-stats" class="nav-link" data-scroll-target="#samtools-stats"><span class="header-section-number">3.7.4</span> <code>samtools stats</code></a></li>
-  <li><a href="#looking-at-coverage" id="toc-looking-at-coverage" class="nav-link" data-scroll-target="#looking-at-coverage"><span class="header-section-number">3.7.5</span> Looking at coverage</a></li>
+  </ul></li>
+  <li><a href="#alignment-qc" id="toc-alignment-qc" class="nav-link" data-scroll-target="#alignment-qc"><span class="header-section-number">3.8</span> Alignment QC</a>
+  <ul class="collapse">
+  <li><a href="#samtools-stats" id="toc-samtools-stats" class="nav-link" data-scroll-target="#samtools-stats"><span class="header-section-number">3.8.1</span> <code>samtools stats</code></a></li>
+  <li><a href="#looking-at-coverage" id="toc-looking-at-coverage" class="nav-link" data-scroll-target="#looking-at-coverage"><span class="header-section-number">3.8.2</span> Looking at coverage</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -490,11 +493,13 @@ Memory Efficiency: 86.64% of 80.00 GB</code></pre>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.6M Feb  2 12:49 mom.bam.bai</span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 216M Feb  2 12:49 son.bam</span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="ex">-rw-r--r--</span> 1 nreid cbc 1.6M Feb  2 12:49 son.bam.bai</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>##Alignment QC</p>
-<p>At this point it’s good practice to learn a bit about your alignment files. There are a few scripts in <code>scripts/04_alignQC</code>.</p>
 </section>
-<section id="samtools-stats" class="level3" data-number="3.7.4">
-<h3 data-number="3.7.4" class="anchored" data-anchor-id="samtools-stats"><span class="header-section-number">3.7.4</span> <code>samtools stats</code></h3>
+</section>
+<section id="alignment-qc" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="alignment-qc"><span class="header-section-number">3.8</span> Alignment QC</h2>
+<p>At this point it’s good practice to learn a bit about your alignment files. There are a few scripts in <code>scripts/04_alignQC</code>.</p>
+<section id="samtools-stats" class="level3" data-number="3.8.1">
+<h3 data-number="3.8.1" class="anchored" data-anchor-id="samtools-stats"><span class="header-section-number">3.8.1</span> <code>samtools stats</code></h3>
 <p>A straightforward first step is to summarize some aspects of the alignment. We can do that with <code>samtools stats</code>. It’s easy to run and can be summarized across samples using MultiQC. The script <code>01_samstats.sh</code> does this. It also includes some bash code for pulling out the “summary numbers” table from the output for each sample and putting it into a table. That looks like this:</p>
 <table class="caption-top table">
 <colgroup>
@@ -758,8 +763,8 @@ Memory Efficiency: 86.64% of 80.00 GB</code></pre>
 <li>Error rate: this is the number of mismatches in mapped reads divided by the number of bases mapped. This encompasses both sequencing errors and true variation. When you have lots of samples you can get a sense of what this value should be in your study, and outliers with high error rates can indicate problematic samples.</li>
 </ol>
 </section>
-<section id="looking-at-coverage" class="level3" data-number="3.7.5">
-<h3 data-number="3.7.5" class="anchored" data-anchor-id="looking-at-coverage"><span class="header-section-number">3.7.5</span> Looking at coverage</h3>
+<section id="looking-at-coverage" class="level3" data-number="3.8.2">
+<h3 data-number="3.8.2" class="anchored" data-anchor-id="looking-at-coverage"><span class="header-section-number">3.8.2</span> Looking at coverage</h3>
 <p>Another really important thing to do at this stage is to look at the distribution of depth of coverage across your genome. As you are learning in ISG5302, strong deviations from expected coverage can point to genomic regions with alignment issues. In those regions, variant calls are likely to be highly unreliable. You will want to know about those regions so that you can filter them out later (or even during variant calling) or at least treat them with a lot of caution.</p>
 <p>There are lots of ways you can do this. We are going to write our own little pipe to calculate per-base coverage summed across all three samples in 1kb windows (see <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6030888/"><code>mosdepth</code></a> for a fast alternative. This will be a helpful introduction to <code>bedtools</code> as well.</p>
 <p>To give a brief overview: We will first use <code>bedtools</code> to create a BED file defining the genomic windows over which we want to calculate coverage. Then, in a single pipe, we’re going to merge our three BAM files into a single stream, filter it a little bit, and pass it to <code>samtools depth</code>, which will output the depth of coverage at each base in the genome. We will pipe that stream to <code>awk</code> to reformat it into BED format, and then pipe that stream to <code>bedtools map</code>, also passing in our 1kb window file. This tool will allow us to summarize (mean and median) the per-base coverage in 1kb windows. We use 1kb windows because the resulting file is a lot smaller and easier to manage (3.1 million lines) than the raw per-base coverage (3.1 <em>billion</em> lines).</p>

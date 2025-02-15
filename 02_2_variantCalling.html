@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./03_0_genomeAssembly.html" rel="next">
+<link href="./02_3_filteringVariants.html" rel="next">
 <link href="./02_1_qc.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -188,6 +188,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
   </div>
 </li>
       </ul>
@@ -618,8 +630,8 @@ Memory Efficiency: 3.20% of 5.00 GB</code></pre>
 ##FORMAT=&lt;ID=AO,Number=A,Type=Integer,Description="Alternate allele observation count"&gt;
 ##FORMAT=&lt;ID=QA,Number=A,Type=Integer,Description="Sum of quality of the alternate observations"&gt;
 ##FORMAT=&lt;ID=MIN_DP,Number=1,Type=Integer,Description="Minimum depth in gVCF output block."&gt;
-##bcftools_viewVersion=1.19+htslib-1.19.1
-##bcftools_viewCommand=view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz; Date=Fri Feb  7 11:31:22 2025
+##bcftools_viewVersion=1.21+htslib-1.21
+##bcftools_viewCommand=view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz; Date=Fri Feb 14 19:08:24 2025
 #CHROM  POS ID  REF ALT QUAL    FILTER  INFO    FORMAT  son dad mom</code></pre>
 </div>
 </div>
@@ -1289,8 +1301,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./03_0_genomeAssembly.html" class="pagination-link" aria-label="Genome Assembly">
-        <span class="nav-page-text">Genome Assembly</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./02_3_filteringVariants.html" class="pagination-link" aria-label="Filtering and Assessing Variants">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

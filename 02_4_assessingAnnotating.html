@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Comparing and Annotating Variants – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./03_0_genomeAssembly.html" rel="next">
+<link href="./02_3_filteringVariants.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02_0_variantDetection.html">Variant Detection and Genotyping</a></li><li class="breadcrumb-item"><a href="./02_4_assessingAnnotating.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Genome Assembly</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-cell RNAseq</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">6.1</span> Learning Objectives</a></li>
+  <li><a href="#comparing-variant-call-sets" id="toc-comparing-variant-call-sets" class="nav-link" data-scroll-target="#comparing-variant-call-sets"><span class="header-section-number">6.2</span> Comparing variant call sets</a>
+  <ul class="collapse">
+  <li><a href="#normalization-of-variants" id="toc-normalization-of-variants" class="nav-link" data-scroll-target="#normalization-of-variants"><span class="header-section-number">6.2.1</span> Normalization of variants</a></li>
+  <li><a href="#decomposition-of-haplotype-variants" id="toc-decomposition-of-haplotype-variants" class="nav-link" data-scroll-target="#decomposition-of-haplotype-variants"><span class="header-section-number">6.2.2</span> Decomposition of haplotype variants</a></li>
+  <li><a href="#splitting-multi-allelic-records" id="toc-splitting-multi-allelic-records" class="nav-link" data-scroll-target="#splitting-multi-allelic-records"><span class="header-section-number">6.2.3</span> Splitting multi-allelic records</a></li>
+  <li><a href="#comparisons" id="toc-comparisons" class="nav-link" data-scroll-target="#comparisons"><span class="header-section-number">6.2.4</span> Comparisons</a></li>
+  </ul></li>
+  <li><a href="#annotating-variants" id="toc-annotating-variants" class="nav-link" data-scroll-target="#annotating-variants"><span class="header-section-number">6.3</span> Annotating variants</a>
+  <ul class="collapse">
+  <li><a href="#adding-database-ids" id="toc-adding-database-ids" class="nav-link" data-scroll-target="#adding-database-ids"><span class="header-section-number">6.3.1</span> Adding database IDs</a></li>
+  <li><a href="#variant-effect-annotations" id="toc-variant-effect-annotations" class="nav-link" data-scroll-target="#variant-effect-annotations"><span class="header-section-number">6.3.2</span> Variant effect annotations</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02_0_variantDetection.html">Variant Detection and Genotyping</a></li><li class="breadcrumb-item"><a href="./02_4_assessingAnnotating.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">6.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Comparing variants.</td>
+</tr>
+<tr class="odd">
+<td>Annotating variants.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="comparing-variant-call-sets" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="comparing-variant-call-sets"><span class="header-section-number">6.2</span> Comparing variant call sets</h2>
+<p>Sometimes we want to compare sets of variants. It may be because we are trying to evaluate two different approaches to calling variants on our data, we may have two different datasets and we want to see how they differ, or we may want to check our variants against an existing database containing annotations (see below the section on adding database IDs). These all have similar mechanics, and require us to match identical variants across sets. This is conceptually pretty simple, but there are some complications:</p>
+<ul>
+<li><p>Variant callers often represent identical variants in different ways. There may be even be fundamental ambiguity about how they should be represented.</p>
+<p>See freebayes vs gatk for one site where representation diverges:</p>
+<pre><code># freebayes
+chr20 29402036    .   TATAGATATATGTACA    TA
+
+# gatk
+chr20 29402036    .   TATAGATATATGTAC   T </code></pre></li>
+<li><p>Variant callers may output short haplotypes or single records.</p>
+<p>See again, freebayes vs gatk</p>
+<pre><code># freebayes
+chr20 34025687    .   AA  TT
+
+#gatk
+chr20 34025687    .   A   T   
+chr20 34025688    .   A   T   </code></pre></li>
+<li><p>Multi-allelic records need to be accounted for. Variant:</p>
+<pre><code>chr20 34091776    .   T   TTTG</code></pre>
+<p>Is a subset of</p>
+<pre><code>chr20 34091776    .   T   TTTG,TTTGG</code></pre></li>
+</ul>
+<p>The examples above is are easy ones. They can be dealt with through normalization and decomposition as we will see below. Other cases are more difficult, particularly in cases where ambiguous alleles at multiple sites are emitted without phase information. Specialized software such as <a href="https://github.com/Illumina/hap.py"><code>hap.py</code></a> and <a href="https://github.com/RealTimeGenomics/rtg-tools"><code>RTG vcfeval</code></a> have been developed to do this with the greatest rigor for benchmarking studies. See <a href="https://www.nature.com/articles/s41587-019-0054-x">this paper</a> for a discussion of strategies for rigorous variant call comparisons.</p>
+<p>We’re going to apply some simpler approaches below to demonstrate the impacts.</p>
+<section id="normalization-of-variants" class="level3" data-number="6.2.1">
+<h3 data-number="6.2.1" class="anchored" data-anchor-id="normalization-of-variants"><span class="header-section-number">6.2.1</span> Normalization of variants</h3>
+<p>The first thing we’ll do is <em>normalize</em> variants. <a href="https://genome.sph.umich.edu/wiki/Variant_Normalization">This site</a> has a nice explanation of the details, but in short, we want to <em>left align</em> ambiguous variants (push them as far left as is consistent with the data), and we want the variants to be parsimonious (we don’t want the REF and ALT alleles to have extra bases in them).</p>
+<p>We can do this with <code>bcftools norm</code>. Let’s first have a look at some variants annotated by freebayes as “complex”:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-r</span> chr20:29416672-29535934 <span class="at">-H</span> <span class="at">-i</span> <span class="st">'INFO/TYPE="complex"'</span> <span class="va">${VCFIN}</span> <span class="kw">|</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cut</span> <span class="at">-f</span> 1-5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>chr20   29416682    .   ATCCCTG GTCTG
+chr20   29422132    .   TTCTC   CTCTT
+chr20   29427951    .   CCAC    GTGG
+chr20   29447781    .   GGAGG   TGAGT
+chr20   29481154    .   GAATT   TAATC
+chr20   29501683    .   GT  AC
+chr20   29505266    .   TTTTCAC CTTTCAT
+chr20   29531934    .   CAAAATC CAAAAAAC
+chr20   29535161    .   CAT AAC
+chr20   29535924    .   TGGGAT  TGGAC</code></pre>
+</div>
+</div>
+<p>Now what happens to them when we apply <code>bcftools norm</code>? Note that we need to give it the reference genome so it can see the context of the variants to be normalized.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENOME</span><span class="op">=</span>variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-r</span> chr20:29416672-29535934 <span class="at">-i</span> <span class="st">'INFO/TYPE="complex"'</span>  <span class="va">${VCFIN}</span> <span class="kw">|</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> norm <span class="at">-f</span> <span class="va">${GENOME}</span> <span class="kw">|</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> view <span class="at">-H</span> <span class="at">-</span> <span class="kw">|</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cut</span> <span class="at">-f</span> 1-5 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Lines   total/split/joined/realigned/removed/skipped:   10/0/0/3/0/0
+chr20   29416682    .   ATCC    GT
+chr20   29422132    .   TTCTC   CTCTT
+chr20   29427951    .   CCAC    GTGG
+chr20   29447781    .   GGAGG   TGAGT
+chr20   29481154    .   GAATT   TAATC
+chr20   29501683    .   GT  AC
+chr20   29505266    .   TTTTCAC CTTTCAT
+chr20   29531939    .   T   AA
+chr20   29535161    .   CAT AAC
+chr20   29535927    .   GAT AC</code></pre>
+</div>
+</div>
+<p>We can see that this set of 10 variants was already largely left-aligned, but often not parsimonious, so several were trimmed.</p>
+</section>
+<section id="decomposition-of-haplotype-variants" class="level3" data-number="6.2.2">
+<h3 data-number="6.2.2" class="anchored" data-anchor-id="decomposition-of-haplotype-variants"><span class="header-section-number">6.2.2</span> Decomposition of haplotype variants</h3>
+<p>Haplotype variants can sometimes be broken down into their constituent parts. This can make some kinds of analysis easier, and for the simple approach to comparing variant call sets we use below, it’s necessary for us to do, otherwise concordance will look very low. This mostly applies to <code>freebayes</code>, which outputs tons of small haplotypes, though we can run it later on the GATK output to see if it does anything significant.</p>
+<p>After normalization, we can pipe our VCF to <code>vcfallelicprimitives</code>, a part of the package <a href="https://github.com/vcflib/vcflib?tab=readme-ov-file"><code>vcflib</code></a>. Like other packages we’ve mentioned or worked with, it has many useful tools and the documentation is worth perusing.</p>
+<p><code>vcfallelicprimitives</code> will break down our complex variants into multiple VCF records. Note that it cannot update the annotations in the INFO or FORMAT fields (aside from the genotype) so those are discarded by default. So only use this tool when you think you won’t need that information anymore.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENOME</span><span class="op">=</span>variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-r</span> chr20:29416672-29535934 <span class="at">-i</span> <span class="st">'INFO/TYPE="complex"'</span>  <span class="va">${VCFIN}</span> <span class="kw">|</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> norm <span class="at">-f</span> <span class="va">${GENOME}</span> <span class="kw">|</span> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">vcfallelicprimitives</span> <span class="kw">|</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> view <span class="at">-H</span> <span class="at">-</span> <span class="kw">|</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cut</span> <span class="at">-f</span> 1-5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Lines   total/split/realigned/skipped:  10/0/3/0
+chr20   29416682    .   A   G
+chr20   29416683    .   TCC T
+chr20   29422132    .   T   C
+chr20   29422136    .   C   T
+chr20   29427951    .   C   G
+chr20   29427952    .   C   T
+chr20   29427953    .   A   G
+chr20   29427954    .   C   G
+chr20   29447781    .   G   T
+chr20   29447785    .   G   T
+chr20   29481154    .   G   T
+chr20   29481158    .   T   C
+chr20   29501683    .   G   A
+chr20   29501684    .   T   C
+chr20   29505266    .   T   C
+chr20   29505272    .   C   T
+chr20   29531939    .   T   AA
+chr20   29535161    .   C   A
+chr20   29535163    .   T   C
+chr20   29535927    .   GA  A
+chr20   29535929    .   T   C</code></pre>
+<p>Here we can see our 10 variants above decomposed into 21 constituents.</p>
+</section>
+<section id="splitting-multi-allelic-records" class="level3" data-number="6.2.3">
+<h3 data-number="6.2.3" class="anchored" data-anchor-id="splitting-multi-allelic-records"><span class="header-section-number">6.2.3</span> Splitting multi-allelic records</h3>
+<p>If we want to have each alternate allele represented by a single VCF record, we can do that with <code>bcftools norm</code> as well. This helps with database matching, where database records represent single alternate alleles, not all the variation known from a site.</p>
+<p>Some multi-allelic records (some of these may be artifacts that remain after filtering):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENOME</span><span class="op">=</span>variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-i</span> <span class="st">'N_ALT&gt;1'</span> <span class="at">-r</span> chr20:32014243-32129138 <span class="va">${VCFIN}</span> <span class="kw">|</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> norm <span class="at">-f</span> <span class="va">${GENOME}</span> <span class="kw">|</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> view <span class="at">-H</span> <span class="kw">|</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cut</span> <span class="at">-f</span> 1-5 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Lines   total/split/joined/realigned/removed/skipped:   10/0/0/10/0/0
+chr20   32014263    .   TTT ATATATATT,ATATATTT,ATATATA,ATTT
+chr20   32025056    .   CTTCT   CTTCTTTCT,C
+chr20   32038021    .   ACG GCACACA,GCACACACACA
+chr20   32044401    .   TCACACA TCA,T,TCACACACACACA
+chr20   32058605    .   AAC A,AACACACAC
+chr20   32059293    .   T   TTCCTTCCTTCCC,TTCCTTCCT
+chr20   32118625    .   TTATTTATTTATT   TTATTTATG,T
+chr20   32121221    .   T   TT,A
+chr20   32128790    .   CTGTGTG C,CTGTGTGTGTGTGTGTG
+chr20   32129118    .   TA  TT,T</code></pre>
+</div>
+</div>
+<p>Now to give each allele its own record and normalize we can use the argument <code>-m -any</code> to <code>bcftools norm</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENOME</span><span class="op">=</span>variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-i</span> <span class="st">'N_ALT&gt;1'</span> <span class="at">-r</span> chr20:32014243-32129138 <span class="va">${VCFIN}</span> <span class="kw">|</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> norm <span class="at">-m</span> <span class="at">-any</span> <span class="at">-f</span> <span class="va">${GENOME}</span> <span class="kw">|</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">bcftools</span> view <span class="at">-H</span> <span class="kw">|</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cut</span> <span class="at">-f</span> 1-5 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Lines   total/split/joined/realigned/removed/skipped:   10/10/0/23/0/0
+chr20   32014262    .   T   TATATA
+chr20   32014262    .   T   TA
+chr20   32014263    .   T   ATATATA
+chr20   32014263    .   TTT ATATATA
+chr20   32025056    .   C   CTTCT
+chr20   32025056    .   CTTCT   C
+chr20   32038021    .   ACG GCACACA
+chr20   32038021    .   ACG GCACACACACA
+chr20   32044401    .   TCACA   T
+chr20   32044401    .   TCACACA T
+chr20   32044401    .   T   TCACACA
+chr20   32058605    .   AAC A
+chr20   32058605    .   A   AACACAC
+chr20   32059279    .   T   TCTTCCTTC
+chr20   32059293    .   T   TTCCTTCCTTCCC
+chr20   32118601    .   GTATTTATTTATT   G
+chr20   32118633    .   TTATT   G
+chr20   32121209    .   C   CT
+chr20   32121221    .   T   A
+chr20   32128790    .   CTGTGTG C
+chr20   32128790    .   C   CTGTGTGTGTG
+chr20   32129118    .   TA  T
+chr20   32129119    .   A   T</code></pre>
+</div>
+</div>
+</section>
+<section id="comparisons" class="level3" data-number="6.2.4">
+<h3 data-number="6.2.4" class="anchored" data-anchor-id="comparisons"><span class="header-section-number">6.2.4</span> Comparisons</h3>
+<p>We’re almost ready to do some comparisons. Let’s run the script <code>scripts/06_filteringAnnotating/02_normalizeVariants.sh</code> to generate some files we can use to filter our variants. This script will create two more VCF files for each variant caller. One where the variants have been just normalized (<code>*norm.vcf.gz</code>), and one where the haplotypic variants have been broken down into their constituent parts with <code>vcfallelicprimitives</code> (<code>*normAP.vcf.gz</code>).</p>
+<section id="summaries" class="level4" data-number="6.2.4.1">
+<h4 data-number="6.2.4.1" class="anchored" data-anchor-id="summaries"><span class="header-section-number">6.2.4.1</span> Summaries</h4>
+<p>To compare VCF files, we can use a couple tools. To get a quick summary, we will use <code>vt partition</code> (mentioned above). <code>vcftools</code> produces a quick summary as well with the <code>diff</code> options, but this one has a nicer format. Let’s compare GATK to freebayes:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="va">VCF1</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_normAP.vcf.gz</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="va">VCF2</span><span class="op">=</span>variants/results/05_variantCalling/gatk/gatk_normAP.vcf.gz</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">vt</span> partition <span class="va">${VCF1}</span> <span class="va">${VCF2}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>partition v0.5
+
+Options:     input VCF file a   ../../results/05_variantCalling/freebayes/freebayes_normAP.vcf.gz
+             input VCF file b   ../../results/05_variantCalling/gatk/gatk_normAP.vcf.gz
+         [w] write_partition    false
+
+    A:        8074 variants
+    B:       11867 variants
+
+                   ts/tv  ins/del
+    A-B        392 [0.68] [0.73]
+    A&amp;B       7682 [2.03] [0.94]
+    B-A       4185 [1.32] [1.12]
+    of A     95.1%
+    of B     64.7%
+
+Time elapsed: 0.16s</code></pre>
+<p>Now we notice here that GATK has far more variants than freebayes, but note that the variants unique to GATK have a much lower ts/tv ratio, suggesting something may be amiss with them. Now, we didn’t filter these the <em>exact</em> same way. Particularly, we used the allele balance annotation provided by freebayes, and that is likely to have flagged a decent number of problematic variants, particularly in the centromere region. We’d probably see much higher concordance in general if we restricted to the more accessible region &gt;32mb.</p>
+<p>Note also that some of the tools mentioned above <code>hap.py</code> and <code>vcfeval</code> would do a more rigorous job with this.</p>
+</section>
+<section id="extracting-sets-of-variants" class="level4" data-number="6.2.4.2">
+<h4 data-number="6.2.4.2" class="anchored" data-anchor-id="extracting-sets-of-variants"><span class="header-section-number">6.2.4.2</span> Extracting sets of variants</h4>
+<p><code>vt</code> gave us a summary. If we want to extract sets of variants that are shared or not, we can use <code>bcftools isec</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCF1</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_normAP.vcf.gz</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="va">VCF2</span><span class="op">=</span>variants/results/05_variantCalling/gatk/gatk_normAP.vcf.gz</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="va">OUT</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/fb_gatk_vars</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> isec <span class="at">-p</span> <span class="va">${OUT}</span> <span class="va">${VCF1}</span> <span class="va">${VCF2}</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="va">${OUT}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0000.vcf
+0001.vcf
+0002.vcf
+0003.vcf
+README.txt
+sites.txt</code></pre>
+</div>
+</div>
+<p>This produces 4 VCF files. Variants unique to VCF1, unique to VCF2, shared records from VCF1 and shared records from VCF2. The README explains.</p>
+<p>You can use these to investigate discrepancies if you’re interested in that kind of thing.</p>
+</section>
+</section>
+</section>
+<section id="annotating-variants" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="annotating-variants"><span class="header-section-number">6.3</span> Annotating variants</h2>
+<p>In this section we’re going to cover annotating variants. There are <em>lots</em> of ways to annotate variants. We’ll cover 2 here. The first is very closely related to our variant comparisons above. The idea is that given some database of known variants, perhaps with literature references associated, you want to see if any of your variants can be found in the database.</p>
+<p>In the second, you have some annotation of your genome, usually containing genes at the least, and you want to know how variants you’ve discovered might impact the function of your annotated sequences. There are lots of complex models for looking at this, but we’ll stick to asking basic questions like “is the variant in a coding region?” “is the variant a missense or nonsense mutation?”</p>
+<section id="adding-database-ids" class="level3" data-number="6.3.1">
+<h3 data-number="6.3.1" class="anchored" data-anchor-id="adding-database-ids"><span class="header-section-number">6.3.1</span> Adding database IDs</h3>
+<p>As an example, we’ll use <a href="https://www.ncbi.nlm.nih.gov/snp/">dbSNP</a> here. dbSNP is a database of short variants that each of unique IDs (e.g.&nbsp;rsXXXXXX). You can look up information about these variants, if there is any published and linked to the database record.</p>
+<p>To link <em>our</em> variants to dbSNP records, we are going to download a VCF file of dbSNP variants with the ID column populated with rsIDs and transfer the rsIDs over to our VCF using bcftools. It’s pretty straightforward. Remember that to do this, we will need to have normalized our variants. It’s a good idea to also break down multi-allelic records, but we’re going to skip that step here for convenience as we don’t have that many anyway.</p>
+<p>Have a look at the script <code>scripts/06_filteringAnnotating/03_dbSNP.sh</code>.</p>
+<p>To download the dbSNP records we want, we have to do a little bit of fiddling around with the files:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the dbsnp set for chromosome 20</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># see here for details</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://www.ncbi.nlm.nih.gov/variation/docs/human_variation_vcf/</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># download only a section of chr20 from dbsnp. change `20` to `chr20` in sequence ID column</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tabix</span> <span class="at">-h</span> ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz 20:28000000-35000000 <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sed</span> <span class="st">'s/^20/chr20/'</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">bgzip</span> <span class="at">-c</span> <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/chr20.dbsnp.vcf.gz</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tabix</span> <span class="at">-p</span> vcf <span class="at">-f</span> <span class="va">${OUTDIR}</span>/chr20.dbsnp.vcf.gz</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># update the sequence dictionary</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">gatk</span> UpdateVCFSequenceDictionary <span class="at">-V</span> <span class="va">${OUTDIR}</span>/chr20.dbsnp.vcf.gz <span class="at">--source-dictionary</span> <span class="va">${INDIR}</span>/freebayes_normAP.vcf.gz <span class="at">--output</span> <span class="va">${OUTDIR}</span>/chr20.dbsnp.contig.vcf.gz <span class="at">--replace</span><span class="op">=</span>true</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tabix</span> <span class="at">-p</span> vcf <span class="at">-f</span> <span class="va">${OUTDIR}</span>/chr20.dbsnp.contig.vcf.gz</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove intermediate files</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rm</span> <span class="va">${OUTDIR}</span>/chr20.dbsnp.vcf.gz<span class="pp">*</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>First note that if you visit the link in the comment, the dbsSNP records are on GRCh38 (even different patches of this genome version have the same coordinate system, so it is compatible with the genome we’re using, at least for the chromosomes themselves).</p>
+<p>Next, dbSNP has chromosome names like <code>20</code> instead of <code>chr20</code>, so we need to fix them so they’ll match up. This is a perennial problem with human genomes. Different copies of GRCh38 may have chromosomes labeled with <code>20</code>, <code>chr20</code>, Genbank IDs, or RefSeq IDs.</p>
+<p>Now that we’ve altered the VCF records, we next need to update the sequence dictionary in the header. This could be a problem for unassigned scaffolds that might differ between our GRCh38 and the one dbSNP is using if we were doing the whole genome (for the most part, you probably don’t need rsIDs for all variants in an entire WGS study).</p>
+<p>Finally, remove intermediate files.</p>
+<p>Now we’ve got our file, we can use <code>bcftools annotate</code> to transfer the rsIDs:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> annotate <span class="at">-c</span> ID <span class="dt">\</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>--output-type z <span class="dt">\</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>-a <span class="va">${OUTDIR}</span>/chr20.dbsnp.contig.vcf.gz <span class="dt">\</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="va">${INDIR}</span>/freebayes_normAP.vcf.gz <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/freebayes_normAP.RSID.vcf.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To see the results:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-H</span> <span class="va">${OUTDIR}</span>/freebayes_normAP.RSID.vcf.gz <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1-5 <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can see the ID column (3) is populated with rsIDs.</p>
+<pre><code>chr20   29400112        rs1403688300    T       G
+chr20   29400296        rs1408580948    TA      T
+chr20   29400592        rs1379819498    T       C
+chr20   29400683        rs1213763564    A       G
+chr20   29402005        rs1248633832    G       A
+chr20   29402036        rs1353591646    TATAGATATATGTAC T
+chr20   29402158        rs1385687340    TATAC   T
+chr20   29402162        rs1476534343    C       CAT
+chr20   29402228        rs1459724709    T       C
+chr20   29402415        rs1172173923    A       G</code></pre>
+<p>And for the first one, you can see there is <a href="https://www.ncbi.nlm.nih.gov/snp/?term=rs1403688300">an entry in dbSNP</a>.</p>
+</section>
+<section id="variant-effect-annotations" class="level3" data-number="6.3.2">
+<h3 data-number="6.3.2" class="anchored" data-anchor-id="variant-effect-annotations"><span class="header-section-number">6.3.2</span> Variant effect annotations</h3>
+<p>Finally, we’re going to cover annotating variants with functional impacts. There are a number of tools available for this, including <a href="https://annovar.openbioinformatics.org/en/latest/">ANNOVAR</a>, <a href="https://github.com/Ensembl/ensembl-vep">VEP from ENSEMBL</a>, <a href="https://pcingola.github.io/SnpEff/">snpEff</a> and good old <code>bcftools</code>.</p>
+<p>These tools classify variants by how they impact annotated sequences. Do they change an amino acid sequence? Are they located in an annotated sequence? At least ANNOVAR can also add database annotations (i.e.&nbsp;dbSNP). They don’t make predictions about the functional impact from the level of conservation or structural or biochemical properties of the resulting sequence alterations. For that there are other approaches, such as <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4480630/">PolyPhen2</a> and <a href="https://academic.oup.com/nar/article-abstract/31/13/3812/2904131">SIFT</a>. For human data, it’s possible to grab pre-existing predictions from <a href="https://www.dbnsfp.org">dbNSFP</a> and integrate them using some of the tools above (<a href="https://pcingola.github.io/SnpEff/snpsift/dbnsfp/">like snpEff/snpSift</a>).</p>
+<p>Below we’ll demonstrate <code>bcftools</code> and <code>snpEff</code>.</p>
+<section id="bcftools-csq" class="level4" data-number="6.3.2.1">
+<h4 data-number="6.3.2.1" class="anchored" data-anchor-id="bcftools-csq"><span class="header-section-number">6.3.2.1</span> bcftools csq</h4>
+<p>For this method, we need an annotation in <code>GFF3</code> format and our VCF file. Per the <a href="https://samtools.github.io/bcftools/howtos/csq-calling.html">documentation</a> it will only accept ENSEMBL formatted GFF3.</p>
+<p>Check out the script here <code>scripts/06_filteringAnnotating/04_bcftoolsCSQ.sh</code>.</p>
+<p>Just like with the dbSNP file, we’re going to grab it and update the chromosome names:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://ftp.ensembl.org/pub/release-113/gff3/homo_sapiens/Homo_sapiens.GRCh38.113.chromosome.20.gff3.gz</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">gunzip</span> <span class="va">${OUTDIR}</span>/Homo_sapiens.GRCh38.113.chromosome.20.gff3.gz</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fix up chromosome 20 names</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="at">-i</span> <span class="st">'s/^20/chr20/'</span> <span class="va">${OUTDIR}</span>/Homo_sapiens.GRCh38.113.chromosome.20.gff3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then we can run it pretty simply:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">GFF</span><span class="op">=</span><span class="va">${OUTDIR}</span>/Homo_sapiens.GRCh38.113.chromosome.20.gff3</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># run bcftools csq</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> csq <span class="at">--phase</span> a <span class="at">-f</span> <span class="va">${GENOME}</span> <span class="at">-g</span> <span class="va">${GFF}</span> <span class="va">${VCFIN}</span> <span class="at">-Oz</span> <span class="at">-o</span> <span class="va">${VCFOUT}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This tool wants to predict variants while accounting for other nearby variants. For that it needs to know the phase. We don’t have phase information, so we use <code>--phase a</code> to tell it to pretend the data are phased. Not ideal, but otherwise it will error out.</p>
+<p>This will add annotations to the INFO field. An example:</p>
+<pre><code>BCSQ=missense|REM1|ENST00000201979|protein_coding|+|28H&gt;28R|31476528A&gt;G</code></pre>
+<p>The information here is <code>|</code>-separated. A single variant can have multiple annotations (annotations are transcript-centered). We can list the fields in the annotation with:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">bcftools</span> +split-vep <span class="at">-l</span> <span class="va">$VCFOUT</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>0       Consequence
+1       gene
+2       transcript
+3       biotype
+4       strand
+5       amino_acid_change
+6       dna_change</code></pre>
+<p>They are fairly self-explanatory. To extract just these annotations, we can use format strings similar to <code>bcftools query</code></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> +split-vep <span class="at">-s</span> worst <span class="at">-f</span> <span class="st">'%CHROM\t%POS\t%Consequence\t%gene\t%amino_acid_change'</span> <span class="va">$VCFOUT</span> <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>chr20   29410595        non_coding      DUX4L34 .
+chr20   29410654        non_coding      DUX4L34 .
+chr20   29410720        non_coding      DUX4L34 .
+chr20   29415522        non_coding      FRG2EP  .
+chr20   29415878        non_coding      FRG2EP  .
+chr20   29416287        non_coding      FRG2EP  .
+chr20   29416682        non_coding      FRG2EP  .
+chr20   29416706        non_coding      FRG2EP  .
+chr20   29416719        non_coding      FRG2EP  .
+chr20   29416809        non_coding      FRG2EP  .</code></pre>
+<p>If we wanted to summarize the consequence types we could do:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> +split-vep <span class="at">-s</span> worst <span class="at">-f</span> <span class="st">'%CHROM\t%POS\t%Consequence\t%gene\t%amino_acid_change'</span> <span class="va">$VCFOUT</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 3 <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="at">-c</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-g</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Warning: fewer BCSQ fields than expected at chr20:29410595, filling with dots. This warning is printed only once.
+      1 inframe_insertion
+      1 missense&amp;nmd_transcript
+      1 stop_gained
+      1 synonymous&amp;nmd_transcript
+      3 splice_region
+      4 5_prime_utr&amp;nmd_transcript
+      4 splice_region&amp;nmd_transcript
+      9 3_prime_utr&amp;nmd_transcript
+     17 5_prime_utr
+     22 synonymous
+     26 missense
+     61 3_prime_utr
+    324 non_coding
+   2352 intron</code></pre>
+</section>
+<section id="snpeff" class="level4" data-number="6.3.2.2">
+<h4 data-number="6.3.2.2" class="anchored" data-anchor-id="snpeff"><span class="header-section-number">6.3.2.2</span> snpEff</h4>
+<p><a href="https://pcingola.github.io/SnpEff/"><code>snpEff</code></a> works similarly to bcftools here, but gives a little more detail, and a nice summary file. It also requires you to create a database of your annotation beforehand and is reasonably tolerant of different annotation files. This makes it a nice choice for non-model systems. The documentation explains how to create a database, but we are going to use a pre-generated one for GRCh38.</p>
+<p>Check out the script here: <code>scripts/06_filteringAnnotating/05_snpEff.sh</code>.</p>
+<p>Aside from the usual accounting for directories, etc, the main call is this:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-Xmx8G</span> <span class="at">-jar</span> <span class="va">${SNPEFF}</span> eff <span class="at">-dataDir</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>/<span class="va">${OUTDIR}</span>/snpeff_data hg38 <span class="va">$VCF</span> <span class="kw">|</span> <span class="ex">bgzip</span> <span class="at">-c</span> <span class="op">&gt;</span><span class="va">${VCFANN}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’re telling it to use <code>hg38</code>, which has the same coordinate system as <code>GRCh38</code> (and uses chr20 style names).</p>
+<p>Like bcftools, it adds a new tag to the INFO field <code>ANN</code>. There is a pretty long document <a href="https://pcingola.github.io/SnpEff/adds/VCFannotationformat_v1.0.pdf">explaining it</a> and a bit of a shorter explanation in the <a href="https://pcingola.github.io/SnpEff/snpeff/inputoutput/#ann-field-vcf-output-files">snpEff docs</a>.</p>
+<p>Here’s an example:</p>
+<pre><code>ANN=T|missense_variant|MODERATE|PXMP4|PXMP4|transcript|NM_007238.4|protein_coding|4/4|c.610G&gt;A|p.Val204Ile|733/5724|610/639|204/212||</code></pre>
+<p>Check the docs above for an explanation. A big advantage over bcftools here is that snpEff also outputs an html formatted report, and a summary text file giving results by gene. Querying and summarizing a big VCF file yourself can be a big lift.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./02_3_filteringVariants.html" class="pagination-link" aria-label="Filtering and Assessing Variants">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./03_0_genomeAssembly.html" class="pagination-link" aria-label="Genome Assembly">
+        <span class="nav-page-text">Genome Assembly</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

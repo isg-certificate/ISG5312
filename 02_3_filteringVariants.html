@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; Filtering and Assessing Variants – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./02_4_assessingAnnotating.html" rel="next">
+<link href="./02_2_variantCalling.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02_0_variantDetection.html">Variant Detection and Genotyping</a></li><li class="breadcrumb-item"><a href="./02_3_filteringVariants.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Genome Assembly</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-cell RNAseq</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">5.1</span> Learning Objectives</a></li>
+  <li><a href="#summarizing-variants-call-sets" id="toc-summarizing-variants-call-sets" class="nav-link" data-scroll-target="#summarizing-variants-call-sets"><span class="header-section-number">5.2</span> Summarizing variants call sets</a>
+  <ul class="collapse">
+  <li><a href="#bcftools-stats" id="toc-bcftools-stats" class="nav-link" data-scroll-target="#bcftools-stats"><span class="header-section-number">5.2.1</span> <code>bcftools stats</code></a></li>
+  <li><a href="#vt-peek" id="toc-vt-peek" class="nav-link" data-scroll-target="#vt-peek"><span class="header-section-number">5.2.2</span> <code>vt peek</code></a></li>
+  <li><a href="#bcftools-query" id="toc-bcftools-query" class="nav-link" data-scroll-target="#bcftools-query"><span class="header-section-number">5.2.3</span> <code>bcftools query</code></a></li>
+  </ul></li>
+  <li><a href="#filtering-variants" id="toc-filtering-variants" class="nav-link" data-scroll-target="#filtering-variants"><span class="header-section-number">5.3</span> Filtering variants</a>
+  <ul class="collapse">
+  <li><a href="#filtering-with-bcftools." id="toc-filtering-with-bcftools." class="nav-link" data-scroll-target="#filtering-with-bcftools."><span class="header-section-number">5.3.1</span> Filtering with <code>bcftools</code>.</a></li>
+  <li><a href="#filtering-with-vcftools" id="toc-filtering-with-vcftools" class="nav-link" data-scroll-target="#filtering-with-vcftools"><span class="header-section-number">5.3.2</span> Filtering with <code>vcftools</code></a></li>
+  <li><a href="#filtering-our-three-vcf-files" id="toc-filtering-our-three-vcf-files" class="nav-link" data-scroll-target="#filtering-our-three-vcf-files"><span class="header-section-number">5.3.3</span> Filtering our three VCF files</a></li>
+  </ul></li>
+  <li><a href="#assessing-variant-call-set-quality" id="toc-assessing-variant-call-set-quality" class="nav-link" data-scroll-target="#assessing-variant-call-set-quality"><span class="header-section-number">5.4</span> Assessing variant call set quality</a>
+  <ul class="collapse">
+  <li><a href="#total-numbers-of-variants" id="toc-total-numbers-of-variants" class="nav-link" data-scroll-target="#total-numbers-of-variants"><span class="header-section-number">5.4.1</span> Total numbers of variants:</a></li>
+  <li><a href="#tstv" id="toc-tstv" class="nav-link" data-scroll-target="#tstv"><span class="header-section-number">5.4.2</span> ts/tv</a></li>
+  <li><a href="#mendelian-violations" id="toc-mendelian-violations" class="nav-link" data-scroll-target="#mendelian-violations"><span class="header-section-number">5.4.3</span> Mendelian violations</a></li>
+  <li><a href="#other-checks" id="toc-other-checks" class="nav-link" data-scroll-target="#other-checks"><span class="header-section-number">5.4.4</span> Other checks</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">5.5</span> Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./02_0_variantDetection.html">Variant Detection and Genotyping</a></li><li class="breadcrumb-item"><a href="./02_3_filteringVariants.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">5.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Manipulate the VCF format.</td>
+</tr>
+<tr class="odd">
+<td>Apply strategies for filtering problematic variants.</td>
+</tr>
+<tr class="even">
+<td>Assessing variant call set quality</td>
+</tr>
+</tbody>
+</table>
+<p>In this chapter we’ll look at ways to extract information from VCF, and apply hard filters to variants.</p>
+</section>
+<section id="summarizing-variants-call-sets" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="summarizing-variants-call-sets"><span class="header-section-number">5.2</span> Summarizing variants call sets</h2>
+<p>When we get a VCF file back, we want to calculate some high level summaries to give us a sense of the general characteristics of the variant call set. Some standard statistics are the number of variants, numbers of variants in different categories and the transition/transversion ratio. We may also dig in a little more to look at other features like the depth of coverage, the distribution of quality scores, rates of missing data.</p>
+<p>Some of these we may be able to develop a prior expectations for, like the numbers of variants we expect to detect in a sample of individuals from a population. Across most of the tree of life, you can expect genetic diversity to fall within the window 0.0005-0.01. What this means is that you can expect somewhere between 0.5 and 10 heterozygous sites per 1000bp in a diploid individual (that is not inbred). In humans, this number should be around 0.001, or 1 heterozygous site per 1000bp. What does this mean for a VCF file with variants from multiple individuals? Well, a commonly used estimator of genetic diversity <a href="https://en.wikipedia.org/wiki/Watterson_estimator">Watterson’s theta</a> gives a simple relationship:</p>
+<p><span class="math display">\[
+\hat{\theta}_w = \frac{K}{a_n}
+\]</span> And</p>
+<p><span class="math display">\[
+a_n = \sum_{i=1}^{n-1} \frac{1}{i}
+\]</span></p>
+<p><span class="math inline">\(\hat{\theta}_w\)</span> is the genetic diversity. <span class="math inline">\(K\)</span> is the number of segregating sites (or variable sites in our VCF file). <span class="math inline">\(a_n\)</span> is a function of the number of alleles we’ve sampled (in 10 diploid individuals <span class="math inline">\(n = 20\)</span>).</p>
+<p>To get a per-site value, divide <span class="math inline">\(\hat{\theta}_w\)</span> by the total number of sites analyzed.</p>
+<p>If we replaced <span class="math inline">\(\hat{\theta}_w\)</span> with our expected value (e.g.&nbsp;0.001 in humans), multiplied by <span class="math inline">\(a_n\)</span>, and multiplied by the total number of sites analyzed, that would give us a rough estimate of how many variable sites we should see.</p>
+<p>This is <em>very</em> rough. Lots of factors contribute to genetic diversity, and it can change among populations within species and among genomic regions. Nevertheless, having a ballpark sense of how many variants you should see can help you understand if you’re on the right track.</p>
+<p>With that very light detour through population genetics out of the way…</p>
+<p>For other statistics, we may just need to look at the empirical distributions in our data to get a sense of what “normal” is.</p>
+<p>We used bash tools to extract some pieces of the VCF file to inspect in the previous chapter. Clever bash/awk one-liners are always great for quick inspection, but there are other more effective tools we can use to get a better picture.</p>
+<section id="bcftools-stats" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="bcftools-stats"><span class="header-section-number">5.2.1</span> <code>bcftools stats</code></h3>
+<p>Let’s start with <code>bcftools stats</code>. Like <code>samtools stats</code>, it will output several tables in one output stream with data from each table prepended by a prefix. We can grab them by grepping out the prefix of interest. To list out all possible prefixes:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"^#"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># This file was produced by bcftools stats (1.21+htslib-1.21) and can be plotted using plot-vcfstats.
+# The command line was: bcftools stats  variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+#
+# Definition of sets:
+# ID    [2]id   [3]tab-separated file names
+# SN, Summary numbers:
+#   number of records   .. number of data rows in the VCF
+#   number of no-ALTs   .. reference-only sites, ALT is either "." or identical to REF
+#   number of SNPs      .. number of rows with a SNP
+#   number of MNPs      .. number of rows with a MNP, such as CC&gt;TT
+#   number of indels    .. number of rows with an indel
+#   number of others    .. number of rows with other type, for example a symbolic allele or
+#                          a complex substitution, such as ACT&gt;TCGA
+#   number of multiallelic sites     .. number of rows with multiple alternate alleles
+#   number of multiallelic SNP sites .. number of rows with multiple alternate alleles, all SNPs
+# 
+#   Note that rows containing multiple types will be counted multiple times, in each
+#   counter. For example, a row with a SNP and an indel increments both the SNP and
+#   the indel counter.
+# 
+# SN    [2]id   [3]key  [4]value
+# TSTV, transitions/transversions
+#   - transitions, see https://en.wikipedia.org/wiki/Transition_(genetics)
+#   - transversions, see https://en.wikipedia.org/wiki/Transversion
+# TSTV  [2]id   [3]ts   [4]tv   [5]ts/tv    [6]ts (1st ALT) [7]tv (1st ALT) [8]ts/tv (1st ALT)
+# SiS, Singleton stats:
+#   - allele count, i.e. the number of singleton genotypes (AC=1)
+#   - number of transitions, see above
+#   - number of transversions, see above
+#   - repeat-consistent, inconsistent and n/a: experimental and useless stats [DEPRECATED]
+# SiS   [2]id   [3]allele count [4]number of SNPs   [5]number of transitions    [6]number of transversions  [7]number of indels [8]repeat-consistent    [9]repeat-inconsistent  [10]not applicable
+# AF, Stats by non-reference allele frequency:
+# AF    [2]id   [3]allele frequency [4]number of SNPs   [5]number of transitions    [6]number of transversions  [7]number of indels [8]repeat-consistent    [9]repeat-inconsistent  [10]not applicable
+# QUAL, Stats by quality
+# QUAL  [2]id   [3]Quality  [4]number of SNPs   [5]number of transitions (1st ALT)  [6]number of transversions (1st ALT)    [7]number of indels
+# IDD, InDel distribution:
+# IDD   [2]id   [3]length (deletions negative)  [4]number of sites  [5]number of genotypes  [6]mean VAF
+# ST, Substitution types:
+# ST    [2]id   [3]type [4]count
+# DP, depth:
+#   - set id, see above
+#   - the depth bin, corresponds to the depth (unless --depth was given)
+#   - number of genotypes with this depth (zero unless -s/-S was given)
+#   - fraction of genotypes with this depth (zero unless -s/-S was given)
+#   - number of sites with this depth
+#   - fraction of sites with this depth
+# DP, Depth distribution
+# DP    [2]id   [3]bin  [4]number of genotypes  [5]fraction of genotypes (%)    [6]number of sites  [7]fraction of sites (%)</code></pre>
+</div>
+</div>
+<p>Let’s start with the summary numbers:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"^SN"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SN  0   number of samples:  3
+SN  0   number of records:  71579
+SN  0   number of no-ALTs:  0
+SN  0   number of SNPs: 64307
+SN  0   number of MNPs: 5055
+SN  0   number of indels:   3375
+SN  0   number of others:   760
+SN  0   number of multiallelic sites:   3849
+SN  0   number of multiallelic SNP sites:   1565</code></pre>
+</div>
+</div>
+<p>So we’ve got 71,579 records. We’re looking at a 5mb region. That’s an average of 1.4 variable sites in every 100bp. That’s waaaay too many. We’ve sampled two independent individuals (you don’t expect to discover new variants in the son), so it would yield a Watterson’s theta that is almost 8x too high:</p>
+<p><span class="math display">\[
+\frac{71,579 / (5*10^6)} {\sum_{i=1}^{3} \frac{1}{i}}  = 0.007808618
+\]</span></p>
+<p>Or in <code>R</code> code: <code>71579 / 5e6 / sum(1/(1:3))</code> . Freebayes is outputting a lot of junk we’ll filter later.</p>
+<p>We can apply a filter right now and recalculate the stats:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-e</span> <span class="st">"QUAL &lt; 30"</span> variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"^SN"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SN  0   number of samples:  3
+SN  0   number of records:  23679
+SN  0   number of no-ALTs:  0
+SN  0   number of SNPs: 19186
+SN  0   number of MNPs: 2211
+SN  0   number of indels:   2456
+SN  0   number of others:   459
+SN  0   number of multiallelic sites:   987
+SN  0   number of multiallelic SNP sites:   41</code></pre>
+</div>
+</div>
+<p><code>-e "QUAL &lt; 30"</code> excludes all variants with quality less than 30.</p>
+<p>Our number of variable sites is a bit high still, leading to a Watterson’s theta of <code>0.002583164</code>. About twice what we expect. However, we’re only looking at 5mb of the genome, and a challenging 5mb at that. We also haven’t really thought hard about filtering yet.</p>
+<p>We should point out one last thing here about per-site statistics. Here we are dividing Watterson’s theta by 5mb to get genetic diversity <em>per site</em>. That assumes that ALL 5mb in our window can be accurately variant-called. We <em>know</em> that’s not true from our prior evaluation of coverage. Some regions had excess coverage, some had very little. This is a consequence of VCF tracking only sites where variation has been observed! We also are assuming each variant represents one site. This is definitely not true with freebayes! If you want to calculate genetic diversity statistics for real, not just in this rough back-of-the-napkin ballpark kind of way, you need to accurately count up the number of sites <em>where you could have detected genetic variation if it was there</em>, and you either need to break down variants into their constituent parts and count only SNPs, or account for the possibility of multiple differences between haplotypes.</p>
+<p>Next let’s look at the transition/transversion ratio:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"TSTV"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># TSTV, transitions/transversions
+# TSTV  [2]id   [3]ts   [4]tv   [5]ts/tv    [6]ts (1st ALT) [7]tv (1st ALT) [8]ts/tv (1st ALT)
+TSTV    0   26920   36791   0.73    26230   35205   0.75</code></pre>
+</div>
+</div>
+<p>Transitions are changes between purines, so <code>A&lt;-&gt;G</code> and <code>C&lt;-&gt;T</code>. The other four changes are pyrimidines. So if changes are random, you expect a ts/tv ratio of 0.5. The true genome-wide average in most organisms is much higher. In humans it’s &gt; 2, though it varies across the genome and among non-coding, synonymous and non-synonymous sites. Here we observe 0.73. We might generally take this to mean our variant call set was full of bad calls (which it currently is!), but again, part of our window is a challenging region of the genome.</p>
+<p>If we apply that quality filter again we get a very different result:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-e</span> <span class="st">"QUAL &lt; 30"</span> variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">grep</span> <span class="st">"TSTV"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># TSTV, transitions/transversions
+# TSTV  [2]id   [3]ts   [4]tv   [5]ts/tv    [6]ts (1st ALT) [7]tv (1st ALT) [8]ts/tv (1st ALT)
+TSTV    0   10898   7440    1.46    10846   7376    1.47</code></pre>
+</div>
+</div>
+<p>ts/tv = 1.46. Still way below our genome-wide average, but <em>much</em> higher.</p>
+</section>
+<section id="vt-peek" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="vt-peek"><span class="header-section-number">5.2.2</span> <code>vt peek</code></h3>
+<p>This is a bit redundant to <code>bcftools</code>, but an old, but pretty helpful program called <code>vt</code> (installed on Xanadu) can produce a nice summary of a VCF file with the submodule <code>peek</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">vt</span> peek variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>peek v0.5
+
+options:     input VCF file            variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+
+
+stats: no. of samples                     :          3
+       no. of chromosomes                 :         59
+
+       ========== Micro variants ==========
+
+       no. of SNP                         :      61009
+           2 alleles                      :           59555 (0.75) [25615/33940]
+           3 alleles                      :            1417 (0.36) [752/2082]
+           4 alleles                      :              37 (0.50) [37/74]
+
+       no. of MNP                         :       1147
+           2 alleles                      :            1137 (1.25) [1305/1040]
+           3 alleles                      :               9 (0.74) [17/23]
+           4 alleles                      :               1 (0.20) [1/5]
+
+       no. of INDEL                       :       2873
+           2 alleles                      :            2573 (0.80) [1143/1430]
+           3 alleles                      :             238 (1.12) [251/225]
+           4 alleles                      :              48 (1.15) [77/67]
+           &gt;=5 alleles                    :              14 (1.07) [29/27]
+
+       no. of SNP/MNP                     :       1877
+           2 alleles                      :            1522 (0.80) [678/844]
+           3 alleles                      :             292 (0.77) [341/443]
+           4 alleles                      :              54 (0.67) [84/126]
+           &gt;=5 alleles                    :               9 (0.35) [12/34]
+
+       no. of SNP/INDEL                   :        537
+           2 alleles                      :             148 (0.78) [65/83] (0.72) [62/86]
+           3 alleles                      :             282 (0.78) [137/176] (0.64) [122/192]
+           4 alleles                      :              84 (0.66) [54/82] (0.62) [55/89]
+           &gt;=5 alleles                    :              23 (0.49) [19/39] (0.59) [16/27]
+
+       no. of MNP/INDEL                   :         99
+           2 alleles                      :              76 (0.46) [61/133] (0.41) [22/54]
+           3 alleles                      :              20 (0.74) [26/35] (0.58) [11/19]
+           4 alleles                      :               3 (0.29) [2/7] (0.40) [2/5]
+
+       no. of SNP/MNP/INDEL               :         16
+           3 alleles                      :               9 (0.50) [12/24] (0.50) [3/6]
+           4 alleles                      :               5 (1.12) [9/8] (2.50) [5/2]
+           &gt;=5 alleles                    :               2 (3.00) [9/3] (0.00) [0/3]
+
+       no. of MNP/CLUMPED                 :       2565
+           2 alleles                      :            2462 (1.04) [2874/2776]
+           3 alleles                      :             100 (0.93) [253/272]
+           4 alleles                      :               3 (0.57) [8/14]
+
+       no. of SNP/MNP/CLUMPED             :        976
+           3 alleles                      :             665 (0.71) [862/1209]
+           4 alleles                      :             246 (0.55) [387/706]
+           &gt;=5 alleles                    :              65 (0.71) [182/257]
+
+       no. of INDEL/CLUMPED               :        372
+           2 alleles                      :             257 (0.77) [112/145]
+           3 alleles                      :              79 (0.72) [51/71]
+           4 alleles                      :              23 (0.59) [22/37]
+           &gt;=5 alleles                    :              13 (0.53) [17/32]
+
+       no. of SNP/INDEL/CLUMPED           :         97
+           3 alleles                      :              34 (1.15) [53/46] (0.54) [14/26]
+           4 alleles                      :              32 (0.81) [66/81] (0.71) [17/24]
+           &gt;=5 alleles                    :              31 (0.52) [58/111] (1.57) [33/21]
+
+       no. of MNP/INDEL/CLUMPED           :          8
+           3 alleles                      :               5 (0.42) [8/19] (1.00) [4/4]
+           4 alleles                      :               3 (0.32) [8/25] (1.00) [3/3]
+
+       no. of SNP/MNP/INDEL/CLUMPED       :          3
+           4 alleles                      :               2 (1.75) [7/4] (0.00) [0/2]
+           &gt;=5 alleles                    :               1 (0.67) [2/3] (0.50) [1/2]
+
+       no. of micro variants              :      71579
+
+       ++++++ Other useful categories +++++
+
+        no. of clumped variants           :       4021
+           2 alleles                      :            2719 (1.01) [3190/3153] (0.77) [112/145]
+           3 alleles                      :             883 (0.75) [1334/1773] (0.68) [69/101]
+           4 alleles                      :             309 (0.62) [567/920] (0.64) [42/66]
+           &gt;=5 alleles                    :             110 (1.22) [469/383] (0.93) [51/55]
+
+        no. of block substitutions        :       6565
+           2 alleles                      :            5121 (1.04) [4857/4660]
+           3 alleles                      :            1066 (0.76) [1473/1947]
+           4 alleles                      :             304 (0.56) [480/851]
+           &gt;=5 alleles                    :              74 (0.67) [194/291]
+
+        no. of complex substitutions      :       1132
+           2 alleles                      :             481 (0.75) [442/593] (0.69) [196/285]
+           3 alleles                      :             429 (0.75) [394/527] (0.64) [205/318]
+           4 alleles                      :             152 (0.80) [237/297] (0.64) [104/162]
+           &gt;=5 alleles                    :              70 (1.88) [315/168] (0.79) [67/85]
+
+
+       ========= General summary ==========
+
+       no. of VCF records                        :      71579
+
+
+Time elapsed: 0.93s</code></pre>
+</section>
+<section id="bcftools-query" class="level3" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="bcftools-query"><span class="header-section-number">5.2.3</span> <code>bcftools query</code></h3>
+<p>Sometimes we want to pull specific bits of information out of the VCF, read it into R and make plots. This can help us understand our data. There are a few different tools we can use to do this. In R there are two packages <code>vcfR</code> and <code>VariantAnnotation</code>, but for simplicity, here we’ll focus on <code>bcftools query</code>. We can use that to extract what we need and then read that into R. This <a href="https://samtools.github.io/bcftools/howtos/query.html">document</a> gives some details.</p>
+<p>It’s fairly straightforward, though format strings do look messy. The syntax is:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> query <span class="at">-f</span> <span class="op">&lt;</span>format string<span class="op">&gt;</span> my.vcf.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>format string</code> can include any of the parts of the VCF file. The main fields can be accessed as <code>%CHROM</code> <code>%POS</code> etc. Tags from the <code>INFO</code> field can be accessed like <code>%INFO/DP</code> for the depth tag. For parts of sample genotypes strings, use square brackets and tags from the <code>FORMAT</code> field and bcftools will loop over all samples. To extract genotypes, use <code>[%GT]</code>.</p>
+<p>When putting tags together to define the output, if you want it to be tab-separated you need to use <code>\t</code> in between tags.</p>
+<p>Some examples:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> query <span class="at">--print-header</span> <span class="at">-r</span> chr20:33000000- <span class="at">-f</span> <span class="st">'%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%INFO/DP\t[%GT\t]'</span> variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#[1]CHROM   [2]POS  [3]REF  [4]ALT  [5]QUAL [6]DP   [7]son:GT   [8]dad:GT   [9]mom:GT   
+chr20   33000241    T   A   1425.05 194 0/1 0/0 0/1 
+chr20   33000521    G   A   1475.03 189 0/1 0/1 0/0 
+chr20   33000741    A   G   1.99799e-14 129 0/0 0/0 0/0 
+chr20   33000745    T   G   0   125 0/0 0/0 0/0 
+chr20   33000750    T   G   0   122 0/0 0/0 0/0 
+chr20   33000788    T   G   4.06677e-14 113 0/0 0/0 0/0 
+chr20   33000795    T   G   4.54383e-17 114 0/0 0/0 0/0 
+chr20   33000805    A   C   3.24255e-14 110 0/0 0/0 0/0 
+chr20   33000812    T   C   0   114 0/0 0/0 0/0 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> query <span class="at">--print-header</span> <span class="at">-r</span> chr20:33000000- <span class="at">-f</span> <span class="st">'%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%INFO/DP\t%INFO/AB\t[%GT\t][%DP\t]'</span> variants/results/05_variantCalling/freebayes/freebayes.vcf.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#[1]CHROM   [2]POS  [3]REF  [4]ALT  [5]QUAL [6]DP   [7]AB   [8]son:GT   [9]dad:GT   [10]mom:GT  [11]son:DP  [12]dad:DP  [13]mom:DP  
+chr20   33000241    T   A   1425.05 194 0.455285    0/1 0/0 0/1 60  71  63  
+chr20   33000521    G   A   1475.03 189 0.487395    0/1 0/1 0/0 63  56  70  
+chr20   33000741    A   G   1.99799e-14 129 0   0/0 0/0 0/0 41  38  50  
+chr20   33000745    T   G   0   125 0   0/0 0/0 0/0 37  38  50  
+chr20   33000750    T   G   0   122 0   0/0 0/0 0/0 37  37  48  
+chr20   33000788    T   G   4.06677e-14 113 0   0/0 0/0 0/0 33  33  47  
+chr20   33000795    T   G   4.54383e-17 114 0   0/0 0/0 0/0 34  33  47  
+chr20   33000805    A   C   3.24255e-14 110 0   0/0 0/0 0/0 33  31  46  
+chr20   33000812    T   C   0   114 0   0/0 0/0 0/0 34  33  47  </code></pre>
+</div>
+</div>
+<p>This is a very simple way to grab these stats so they can be easily read in and summarized in R.</p>
+<p>Make the file:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="va">QOUT</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.query.txt.gz</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> query <span class="at">--print-header</span> <span class="at">-r</span> chr20:29400000-34400000 <span class="at">-f</span> <span class="st">'%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%INFO/DP\t%INFO/AB\t[%GT\t][%DP\t]'</span> <span class="va">${VCFIN}</span> <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span><span class="va">${QOUT}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Read it in:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># column names will be super ugly</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"variants/results/05_variantCalling/freebayes/freebayes.query.txt.gz"</span>, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">comment.char=</span><span class="st">""</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(df) <span class="sc">%&gt;%</span> <span class="fu">str_remove</span>(<span class="st">"^X[.0-9]+"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># filter out multi-allelic loci for simplicity. fix AB so it's numeric (b/c comma-separated for multiallelic loci)</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">filter</span>(df, <span class="sc">!</span><span class="fu">str_detect</span>(ALT, <span class="st">","</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AB=</span><span class="fu">as.numeric</span>(AB))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Make some plots.</p>
+<p>First, allele balance in heterozygotes along our focal window, colored by variant quality. We can see lots of sites with really skewed allele balance (should be around 0.5) have low quality, but not all of them!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>POS, <span class="at">y=</span>AB, <span class="at">color=</span>QUAL <span class="sc">&gt;</span> <span class="dv">30</span>)) <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_3_filteringVariants_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now, depth along the chromosome, colored by quality:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>POS, <span class="at">y=</span>DP, <span class="at">color=</span>QUAL <span class="sc">&gt;</span> <span class="dv">30</span>)) <span class="sc">+</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">400</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_3_filteringVariants_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We could look at the distribution of depth of coverage as a histogram as well:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>DP)) <span class="sc">+</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth=</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>,<span class="dv">300</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 7834 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
+(`geom_bar()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_3_filteringVariants_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see a pretty messy distribution. We might consider broader coverage cutoffs, like 50-250 here.</p>
+<p>We can also do a quick summary of missing data rates by site and by individual. In this file, missing genotypes are encoded with <code>.</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colMeans</span>(df[,<span class="dv">8</span><span class="sc">:</span><span class="dv">10</span>]<span class="sc">==</span><span class="st">"."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     son.GT      dad.GT      mom.GT 
+0.002587896 0.005637916 0.008410662 </code></pre>
+</div>
+</div>
+<p>We can see overall a very low rate of missing data for individuals. Similarly, very few sites have any missing data. This isn’t always the case.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rowSums</span>(df[,<span class="dv">8</span><span class="sc">:</span><span class="dv">10</span>]<span class="sc">==</span><span class="st">"."</span>) <span class="sc">%&gt;%</span> <span class="fu">table</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>.
+    0     1     2 
+53320   656   122 </code></pre>
+</div>
+</div>
+<p>By looking at summaries like these (often for one region or a subsample of our data if we have a huge WGS variant call set), we can get a sense of the distribution of characteristics of our variant calls. We can also see that things like the quality score, allele balance, and depth can all flag variants as questionable, but they don’t highlight exactly the same set of questionable variants. Depending on how we plot them, they can also flag regions where weird things might be happening and variant calls might be generally problematic.</p>
+</section>
+</section>
+<section id="filtering-variants" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="filtering-variants"><span class="header-section-number">5.3</span> Filtering variants</h2>
+<p>We’ve now seen how we can explore some aspects of our data. We can use this information to filter out data we think might be unreliable. What we’ll do here is referred to as “hard filtering”. We will look at individuals and at sites. We are going to identify a set of thresholds on characteristics we think can help us identify individuals or variants that are likely to be problematic (i.e.&nbsp;that are false positives, or have high rates of genotyping error) and remove data based on those thresholds. We could also “soft filter” (sites only), meaning we would mark sites as not passing (in the FILTER field of the VCF) rather than remove them.</p>
+<p>There are other approaches that can be used, such as <a href="https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR">variant quality score recalibration</a> as implemented by GATK, but those require training sets, which aren’t always available, so we won’t cover them here.</p>
+<p>When we filter, we are always trying to strike a balance between leaving in too many false positives and badly genotyped sites (or individuals) and throwing out too much good data. How we strike that balance is pretty much always dataset, or at least application dependent. Filtering is often a rather ad hoc procedure. Unless you are working on a very established application, or specific experimental context, deciding how and what to filter may require some data exploration and judgement.</p>
+<p>It’s important to note that filtering data can have unintended side-effects. As a general strategy, it’s not a great idea to filter on data characteristics that are directly related to the questions you’re interested in. If you wanted to calculate inbreeding coefficients for individuals, removing sites that violate Hardy-Weinberg equilibrium would be a really bad idea, as it might completely destroy any signal. Conversely, we have seen people looking to demonstrate genetic divergence between two sampling sites filter loci by how divergent they were between the sampling sites. Lo and behold, there was significant genetic divergence!</p>
+<p>Another thing to be wary of is filtering for extreme values for putatively beneficial characteristics. Having higher depth of coverage certainly improves accuracy of genotype calling, all things being equal, but grabbing the SNPs in the top 1% of the coverage distribution is going to <em>greatly</em> enrich for false positives relating to mismapping (as we have seen).</p>
+<p>So let’s get to it.</p>
+<section id="filtering-with-bcftools." class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="filtering-with-bcftools."><span class="header-section-number">5.3.1</span> Filtering with <code>bcftools</code>.</h3>
+<p>We’re going to lean heavily on <code>bcftools</code> here. <a href="https://samtools.github.io/bcftools/howtos/filtering.html">Most of the tools</a> in <code>bcftools</code> accept flags for filtering: <code>-i/--include</code> and <code>-e/--exclude</code> with filtering. We can set up filtering expressions using tags as we did above in <code>bcftools query</code>.</p>
+<p>Below is an example where we filter on allele balance, depth, and variant quality.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="va">VCFOUT</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filter_test.vcf.gz</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-r</span> chr20:29400000-34400000 <span class="at">--exclude</span> <span class="st">'INFO/DP &lt; 50 | INFO/DP &gt; 250 | AB &lt; .25 | AB &gt; 0.75 | QUAL &lt; 30 | AF &lt; 0.1'</span> <span class="va">${VCFIN}</span> <span class="at">-Oz</span> <span class="at">-o</span> <span class="va">${VCFOUT}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We used a series of <em>or</em> statements (<code>|</code>) to remove records that failed at least one. With <code>bcftools filter</code> We could have populated the FILTER field, rather than remove them:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> filter <span class="at">-r</span> chr20:29400000-34400000 <span class="at">--exclude</span> <span class="st">'INFO/DP &lt; 50 | INFO/DP &gt; 250 | AB &lt; .25 | AB &gt; 0.75 | QUAL &lt; 30 | AF &lt; 0.1'</span> <span class="va">${VCFIN}</span> <span class="at">-s</span> <span class="st">"lowQual"</span> <span class="kw">|</span> <span class="ex">bcftools</span> view <span class="at">-H</span> <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>chr20   29400057    .   TGT TGGT    6.25005e-14 lowQual AB=0;ABP=0;AC=0;AF=0;AN=6;AO=12;CIGAR=1M1I2M;DP=151;DPB=155;DPRA=0;EPP=3.73412;EPPR=3.15295;GTI=0;LEN=1;MEANALT=1.66667;MQM=20.4167;MQMR=60;NS=3;NUMALT=1;ODDS=36.083;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=228;QR=5116;RO=137;RPL=2;RPP=14.5915;RPPR=7.591;RPR=10;RUN=1;SAF=9;SAP=9.52472;SAR=3;SRF=88;SRP=27.1184;SRR=49;TYPE=ins GT:DP:AD:RO:QR:AO:QA:GL 0/0:53:50,3:50:1871:3:63:0,-10.6117,-163.278    0/0:45:36,8:36:1378:8:126:0,-4.16829,-114.881   0/0:53:51,1:51:1867:1:39:0,-12.2659,-164.805
+chr20   29400070    .   T   C   3.29774e-07 lowQual AB=0.217391;ABP=34.9215;AC=1;AF=0.166667;AN=6;AO=18;CIGAR=1X;DP=156;DPB=156;DPRA=0;EPP=3.49285;EPPR=3.57677;GTI=0;LEN=1;MEANALT=1;MQM=21.0556;MQMR=60;NS=3;NUMALT=1;ODDS=16.3934;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=675;QR=4994;RO=138;RPL=3;RPP=20.3821;RPPR=15.3468;RPR=15;RUN=1;SAF=11;SAP=4.9405;SAR=7;SRF=87;SRP=23.4033;SRR=51;TYPE=snp    GT:DP:AD:RO:QR:AO:QA:GL 0/0:55:50,5:50:1776:5:184:0,-8.75316,-152.258   0/1:46:36,10:36:1312:10:375:-2.90954,0,-104.499 0/0:55:52,3:52:1906:3:116:0,-9.10278,-164.312
+chr20   29400078    .   C   T   0.0286297   lowQual AB=0.254902;ABP=29.6215;AC=1;AF=0.166667;AN=6;AO=23;CIGAR=1X;DP=164;DPB=164;DPRA=0;EPP=5.3706;EPPR=3.25847;GTI=0;LEN=1;MEANALT=1.33333;MQM=19.5217;MQMR=60;NS=3;NUMALT=1;ODDS=5.01857;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=892;QR=5067;RO=140;RPL=4;RPP=24.253;RPPR=8.03571;RPR=19;RUN=1;SAF=13;SAP=3.86001;SAR=10;SRF=87;SRP=20.9405;SRR=53;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 0/0:58:51,7:51:1857:7:279:0,-7.42044,-157.315   0/1:51:38,13:38:1395:13:500:-6.84574,0,-110.465 0/0:55:51,3:51:1815:3:113:0,-11.0245,-158.225
+chr20   29400112    .   T   G   34.3868 PASS    AB=0.321429;ABP=18.5208;AC=1;AF=0.166667;AN=6;AO=30;CIGAR=1X;DP=183;DPB=183;DPRA=0;EPP=7.64277;EPPR=3.13803;GTI=0;LEN=1;MEANALT=1;MQM=19.7667;MQMR=60;NS=3;NUMALT=1;ODDS=7.9175;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=1120;QR=5652;RO=153;RPL=10;RPP=10.2485;RPPR=9.26925;RPR=20;RUN=1;SAF=15;SAP=3.0103;SAR=15;SRF=88;SRP=10.5182;SRR=65;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 0/0:68:60,8:60:2193:8:313:0,-6.91275,-184.017   0/1:56:38,18:38:1412:18:662:-11.0713,0,-110.481 0/0:59:55,4:55:2047:4:145:0,-9.70284,-176.396
+chr20   29400118    .   G   T   0   lowQual AB=0;ABP=0;AC=0;AF=0;AN=6;AO=8;CIGAR=1X;DP=182;DPB=182;DPRA=0.888889;EPP=7.35324;EPPR=3.20998;GTI=0;LEN=1;MEANALT=1;MQM=12.375;MQMR=55.2529;NS=3;NUMALT=1;ODDS=44.9794;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=284;QR=6411;RO=174;RPL=4;RPP=3.0103;RPPR=10.1986;RPR=4;RUN=1;SAF=4;SAP=3.0103;SAR=4;SRF=98;SRP=9.05049;SRR=76;TYPE=snp GT:DP:AD:RO:QR:AO:QA:GL 0/0:67:67,0:67:2443:0:0:0,-20.169,-205.631  0/0:56:48,8:48:1777:8:284:0,-8.15254,-136.193   0/0:59:59,0:59:2191:0:0:0,-17.7608,-192.037
+chr20   29400128    .   G   C   29.2536 lowQual AB=0.327273;ABP=17.2631;AC=1;AF=0.166667;AN=6;AO=31;CIGAR=1X;DP=188;DPB=188;DPRA=0;EPP=3.64073;EPPR=3.02413;GTI=0;LEN=1;MEANALT=1;MQM=19.6129;MQMR=60;NS=3;NUMALT=1;ODDS=6.7347;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=1152;QR=5682;RO=157;RPL=12;RPP=6.44263;RPPR=3.35608;RPR=19;RUN=1;SAF=16;SAP=3.08035;SAR=15;SRF=89;SRP=9.10979;SRR=68;TYPE=snp GT:DP:AD:RO:QR:AO:QA:GL 0/0:69:61,8:61:2272:8:311:0,-7.28508,-191.203   0/1:55:37,18:37:1351:18:657:-10.3117,0,-105.309 0/0:64:59,5:59:2059:5:184:0,-9.38522,-175.625
+chr20   29400197    .   ACA AA,AAA  1.73244e-12 lowQual AB=0,0;ABP=0,0;AC=0,0;AF=0,0;AN=6;AO=3,21;CIGAR=1M1D1M,1M1X1M;DP=203;DPB=202;DPRA=0.819444,0;EPP=3.73412,3.1137;EPPR=7.89001;GTI=0;LEN=1,1;MEANALT=3,1.66667;MQM=11,20.6667;MQMR=59.9944;NS=3;NUMALT=2;ODDS=28.5744;PAIRED=1,1;PAIREDR=1;PAO=0,0;PQA=0,0;PQR=0;PRO=0;QA=113,404;QR=6581;RO=178;RPL=2,12;RPP=3.73412,3.94093;RPPR=5.40136;RPR=1,9;RUN=1,1;SAF=1,10;SAP=3.73412,3.1137;SAR=2,11;SRF=95;SRP=4.767;SRR=83;TYPE=del,snp  GT:DP:AD:RO:QR:AO:QA:GL 0/0:81:74,0,7:74:2713:0,7:0,140:0,-22.2762,-244.149,-12.8174,-234.887,-232.78   0/0:59:45,3,10:45:1672:3,10:113,186:0,-11.4932,-147.573,-2.00512,-137,-136.038  0/0:63:59,0,4:59:2196:0,4:0,78:0,-17.7608,-197.672,-12.8248,-192.915,-191.711
+chr20   29400216    .   C   T   0   lowQual AB=0;ABP=0;AC=0;AF=0;AN=6;AO=17;CIGAR=1X;DP=210;DPB=210;DPRA=0;EPP=4.1599;EPPR=10.6557;GTI=0;LEN=1;MEANALT=1.33333;MQM=23;MQMR=58.5312;NS=3;NUMALT=1;ODDS=41.9206;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=660;QR=6759;RO=192;RPL=16;RPP=31.7504;RPPR=5.22701;RPR=1;RUN=1;SAF=8;SAP=3.13803;SAR=9;SRF=100;SRP=3.73412;SRR=92;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 0/0:82:75,7:75:2606:7:268:0,-12.6769,-222.71    0/0:60:52,7:52:1850:7:278:0,-3.96679,-141.355   0/0:68:65,3:65:2303:3:114:0,-14.4185,-198.615
+chr20   29400224    .   T   C   7.66339e-14 lowQual AB=0;ABP=0;AC=0;AF=0;AN=6;AO=21;CIGAR=1X;DP=211;DPB=211;DPRA=0;EPP=5.59539;EPPR=7.15793;GTI=0;LEN=1;MEANALT=1.33333;MQM=17.9524;MQMR=59.9947;NS=3;NUMALT=1;ODDS=33.4304;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=801;QR=7026;RO=189;RPL=20;RPP=40.3389;RPPR=5.59539;RPR=1;RUN=1;SAF=9;SAP=3.94093;SAR=12;SRF=100;SRP=4.4005;SRR=89;TYPE=snp    GT:DP:AD:RO:QR:AO:QA:GL 0/0:85:78,6:78:2851:6:235:0,-16.3878,-247.681   0/0:58:47,11:47:1736:11:422:0,-0.986367,-140.004    0/0:68:64,4:64:2439:4:144:0,-13.6618,-212.891
+chr20   29400270    .   C   A   8.63075e-14 lowQual AB=0;ABP=0;AC=0;AF=0;AN=6;AO=17;CIGAR=1X;DP=208;DPB=208;DPRA=0;EPP=4.1599;EPPR=3.29452;GTI=0;LEN=1;MEANALT=1;MQM=28.8824;MQMR=58.911;NS=3;NUMALT=1;ODDS=34.4249;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=572;QR=6859;RO=191;RPL=15;RPP=24.5973;RPPR=3.02167;RPR=2;RUN=1;SAF=8;SAP=3.13803;SAR=9;SRF=95;SRP=3.02167;SRR=96;TYPE=snp GT:DP:AD:RO:QR:AO:QA:GL 0/0:82:77,5:77:2767:5:189:0,-16.9701,-241.484   0/0:58:50,8:50:1797:8:254:0,-1.8978,-135.05 0/0:68:64,4:64:2295:4:129:0,-12.4351,-198.71</code></pre>
+</div>
+</div>
+<p>What if we wanted to include/exclude entire predefined regions? Let’s get set of target regions together and see how we could do it. For that we’ll come back to <code>bedtools</code>!</p>
+<p>We’re going to first create a set of target regions from our coverage map BED file. That file looks like this, with column 4 as the median coverage per 1kb window:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> variants/results/04_alignQC/coverage/coverage_1kb.bed.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>chr1    0   1000    0   0   1000
+chr1    1000    2000    0   0   1000
+chr1    2000    3000    0   0   1000
+chr1    3000    4000    0   0   1000
+chr1    4000    5000    0   0   1000
+chr1    5000    6000    0   0   1000
+chr1    6000    7000    0   0   1000
+chr1    7000    8000    0   0   1000
+chr1    8000    9000    0   0   1000
+chr1    9000    10000   0   0   1000</code></pre>
+</div>
+</div>
+<p>To get a set of target windows, we will first select the windows we want, then merge them together.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="va">COV</span><span class="op">=</span>variants/results/04_alignQC/coverage/coverage_1kb.bed.gz</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="va">TARGETS</span><span class="op">=</span>variants/results/04_alignQC/coverage/targets.bed.gz</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="va">${COV}</span> <span class="kw">|</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$4 &gt; 50 &amp;&amp; $4 &lt; 250'</span> <span class="kw">|</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> merge <span class="at">-i</span> stdin <span class="kw">|</span> </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">gzip</span> <span class="op">&gt;</span><span class="va">${TARGETS}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can intersect that targets file with the VCF file with <code>bedtools intersect</code>. We can even do this in a pipe with our previous filter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFIN</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="va">TARGETS</span><span class="op">=</span>variants/results/04_alignQC/coverage/targets.bed.gz</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> filter <span class="dt">\</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-r</span> chr20:29400000-34400000 <span class="dt">\</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--exclude</span> <span class="st">'INFO/DP &lt; 50 | INFO/DP &gt; 250 | AB &lt; .25 | AB &gt; 0.75 | QUAL &lt; 30 | AF &lt; 0.1'</span> <span class="dt">\</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="va">${VCFIN}</span> <span class="kw">|</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> intersect <span class="at">-header</span> <span class="at">-a</span> stdin <span class="at">-b</span> <span class="va">${TARGETS}</span> <span class="kw">|</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> view <span class="at">-H</span> <span class="kw">|</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>***** WARNING: File variants/results/04_alignQC/coverage/targets.bed.gz has inconsistent naming convention for record:
+KMT2C_chr13_11526357_11569988   1000    5000
+
+chr20   29400112    .   T   G   34.3868 PASS    AB=0.321429;ABP=18.5208;AC=1;AF=0.166667;AN=6;AO=30;CIGAR=1X;DP=183;DPB=183;DPRA=0;EPP=7.64277;EPPR=3.13803;GTI=0;LEN=1;MEANALT=1;MQM=19.7667;MQMR=60;NS=3;NUMALT=1;ODDS=7.9175;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=1120;QR=5652;RO=153;RPL=10;RPP=10.2485;RPPR=9.26925;RPR=20;RUN=1;SAF=15;SAP=3.0103;SAR=15;SRF=88;SRP=10.5182;SRR=65;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 0/0:68:60,8:60:2193:8:313:0,-6.91275,-184.017   0/1:56:38,18:38:1412:18:662:-11.0713,0,-110.481 0/0:59:55,4:55:2047:4:145:0,-9.70284,-176.396
+chr20   29400296    .   TAAAAAAAAAATAGATG   TAAAAAAAAATAGATG    3292.91 PASS    AB=0.447761;ABP=6.18648;AC=4;AF=0.666667;AN=6;AO=116;CIGAR=1M1D15M;DP=194;DPB=183.824;DPRA=0;EPP=4.20835;EPPR=3.36563;GTI=0;LEN=1;MEANALT=4.66667;MQM=60;MQMR=60;NS=3;NUMALT=1;ODDS=50.0691;PAIRED=1;PAIREDR=1;PAO=1.66667;PQA=62.3333;PQR=62.3333;PRO=1.66667;QA=4137;QR=2039;RO=55;RPL=57;RPP=3.08518;RPPR=3.99733;RPR=59;RUN=1;SAF=57;SAP=3.08518;SAR=59;SRF=23;SRP=6.20829;SRR=32;TYPE=del  GT:DP:AD:RO:QR:AO:QA:GL 0/1:74:35,32:35:1286:32:1097:-78.6681,0,-95.6981    0/1:60:20,28:20:753:28:1026:-77.9681,0,-53.4091 1/1:60:0,56:0:0:56:2014:-181.187,-16.8577,0
+chr20   29400592    .   T   C   5871.83 PASS    AB=0.509091;ABP=3.04978;AC=5;AF=0.833333;AN=6;AO=191;CIGAR=1X;DP=219;DPB=219;DPRA=0;EPP=3.02167;EPPR=5.02092;GTI=0;LEN=1;MEANALT=1.33333;MQM=54.9581;MQMR=60;NS=3;NUMALT=1;ODDS=79.1104;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=7178;QR=958;RO=27;RPL=100;RPP=3.93119;RPPR=6.95112;RPR=91;RUN=1;SAF=93;SAP=3.29452;SAR=98;SRF=16;SRP=5.02092;SRR=11;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 1/1:76:0,76:0:0:76:2867:-244.837,-22.8783,0 0/1:55:27,28:27:958:28:1047:-75.7836,0,-69.9451 1/1:88:0,87:0:0:87:3264:-274.861,-26.1896,0
+chr20   29400683    .   A   G   1256.23 PASS    AB=0.4375;ABP=6.81038;AC=2;AF=0.333333;AN=6;AO=49;CIGAR=1X;DP=190;DPB=190;DPRA=0.717949;EPP=6.59988;EPPR=4.25774;GTI=0;LEN=1;MEANALT=1;MQM=60;MQMR=56.5106;NS=3;NUMALT=1;ODDS=74.9432;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=1873;QR=5266;RO=141;RPL=23;RPP=3.40914;RPPR=19.7815;RPR=26;RUN=1;SAF=30;SAP=8.37251;SAR=19;SRF=73;SRP=3.39531;SRR=68;TYPE=snp   GT:DP:AD:RO:QR:AO:QA:GL 0/1:63:34,29:34:1277:29:1132:-83.2092,0,-90.1919    0/1:49:29,20:29:1108:20:741:-52.253,0,-84.908   0/0:78:78,0:78:2881:0:0:0,-23.4803,-248.851
+chr20   29402005    .   G   A   2144.97 PASS    AB=0.42268;ABP=8.04722;AC=4;AF=0.666667;AN=6;AO=81;CIGAR=1X;DP=137;DPB=137;DPRA=0;EPP=3.03711;EPPR=3.0103;GTI=0;LEN=1;MEANALT=1;MQM=58.4444;MQMR=58.8929;NS=3;NUMALT=1;ODDS=28.5044;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=2961;QR=1719;RO=56;RPL=71;RPP=102.764;RPPR=3.16541;RPR=10;RUN=1;SAF=34;SAP=7.5409;SAR=47;SRF=17;SRP=21.778;SRR=39;TYPE=snp    GT:DP:AD:RO:QR:AO:QA:GL 0/1:55:31,24:31:970:24:846:-59.8663,0,-68.693   0/1:42:25,17:25:749:17:564:-36.2808,0,-55.0179  1/1:40:0,40:0:0:40:1551:-138.712,-12.0412,0
+chr20   29402036    .   TATAGATATATGTACA    TA  1047.45 PASS    AB=0.655172;ABP=21.2057;AC=3;AF=0.5;AN=6;AO=57;CIGAR=1M14D1M;DP=87;DPB=37.8125;DPRA=0;EPP=3.0484;EPPR=22.5536;GTI=1;LEN=14;MEANALT=4;MQM=58.9123;MQMR=60;NS=3;NUMALT=1;ODDS=10.0412;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=19;PRO=0.75;QA=1557;QR=598;RO=16;RPL=37;RPP=14.02;RPPR=37.7539;RPR=20;RUN=1;SAF=14;SAP=35.049;SAR=43;SRF=2;SRP=22.5536;SRR=14;TYPE=del   GT:DP:AD:RO:QR:AO:QA:GL 0/1:40:7,28:7:253:28:724:-54.2057,0,-12.2925    0/1:28:2,18:2:80:18:528:-41.5086,0,-1.2021  0/1:19:7,11:7:265:11:305:-22.1279,0,-18.6084
+chr20   29402158    .   TATACATATATATG  TATATATATG,TATACATATATATATG 2705.35 PASS    AB=0.355263,0.552632;ABP=16.8392,4.83891;AC=4,2;AF=0.666667,0.333333;AN=6;AO=59,42;CIGAR=1M4D9M,5M2I9M;DP=109;DPB=99.4286;DPRA=0,1.15152;EPP=5.99147,16.2459;EPPR=0;GTI=0;LEN=4,2;MEANALT=3.66667,4.5;MQM=59.0339,60;MQMR=0;NS=3;NUMALT=2;ODDS=22.3067;PAIRED=1,1;PAIREDR=0;PAO=0.25,0.583333;PQA=9.25,16.25;PQR=16.25;PRO=0.583333;QA=1990,1499;QR=0;RO=0;RPL=8,12;RPP=71.062,19.7617;RPPR=0;RPR=51,30;RUN=1,1;SAF=30,17;SAP=3.0471,6.31921;SAR=29,25;SRF=0;SRP=0;SRR=0;TYPE=del,ins   GT:DP:AD:RO:QR:AO:QA:GL 1/2:45:0,17,26:0:0:17,26:582,932:-123.162,-76.1295,-71.012,-47.1508,0,-39.324   1/2:31:0,10,16:0:0:10,16:267,567:-67.2189,-46.2356,-43.2253,-20.9987,0,-16.1822 1/1:33:0,32,0:0:0:32,0:1141,0:-102.451,-9.63296,0,-102.451,-9.63296,-102.451
+chr20   29402228    .   T   C   1602.72 PASS    AB=0.596154;ABP=11.3621;AC=2;AF=0.333333;AN=6;AO=62;CIGAR=1X;DP=159;DPB=159;DPRA=0.945455;EPP=4.27115;EPPR=3.21178;GTI=0;LEN=1;MEANALT=1;MQM=59.2419;MQMR=59.6907;NS=3;NUMALT=1;ODDS=41.0717;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=2257;QR=3660;RO=97;RPL=19;RPP=23.184;RPPR=8.04722;RPR=43;RUN=1;SAF=33;SAP=3.57068;SAR=29;SRF=53;SRP=4.82359;SRR=44;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 0/1:61:26,35:26:974:35:1258:-93.6737,0,-69.6021 0/1:43:16,27:16:592:27:999:-77.2721,0,-40.6591  0/0:55:55,0:55:2094:0:0:0,-16.5566,-188.589
+chr20   29402415    .   A   G   1614.76 PASS    AB=0.529915;ABP=3.91972;AC=2;AF=0.333333;AN=6;AO=62;CIGAR=1X;DP=188;DPB=188;DPRA=0.823944;EPP=4.27115;EPPR=3.0103;GTI=0;LEN=1;MEANALT=1;MQM=58.8548;MQMR=59.619;NS=3;NUMALT=1;ODDS=60.5049;PAIRED=1;PAIREDR=0.984127;PAO=0;PQA=0;PQR=0;PRO=0;QA=2300;QR=4667;RO=126;RPL=34;RPP=4.27115;RPPR=7.42218;RPR=28;RUN=1;SAF=30;SAP=3.15039;SAR=32;SRF=66;SRP=3.63072;SRR=60;TYPE=snp   GT:DP:AD:RO:QR:AO:QA:GL 0/1:68:32,36:32:1191:36:1332:-97.6922,0,-87.003 0/1:49:23,26:23:868:26:968:-72.0413,0,-63.6289  0/0:71:71,0:71:2608:0:0:0,-21.3731,-234.82
+chr20   29402494    .   A   G   1900.48 PASS    AB=0.595041;ABP=12.5038;AC=2;AF=0.333333;AN=6;AO=72;CIGAR=1X;DP=190;DPB=190;DPRA=0.876812;EPP=3.13094;EPPR=6.61715;GTI=0;LEN=1;MEANALT=1;MQM=59.6389;MQMR=59.8644;NS=3;NUMALT=1;ODDS=52.7625;PAIRED=1;PAIREDR=1;PAO=0;PQA=0;PQR=0;PRO=0;QA=2614;QR=4501;RO=118;RPL=32;RPP=4.9405;RPPR=3.0103;RPR=40;RUN=1;SAF=37;SAP=3.13094;SAR=35;SRF=61;SRP=3.30474;SRR=57;TYPE=snp  GT:DP:AD:RO:QR:AO:QA:GL 0/1:66:24,42:24:867:42:1521:-117.279,0,-58.4526 0/1:55:25,30:25:972:30:1093:-81.4681,0,-71.1272 0/0:69:69,0:69:2662:0:0:0,-20.7711,-239.747</code></pre>
+</div>
+</div>
+<p>One last common filtering need: we could cut down our data to look <em>only</em> at biallelic snps with <code>bcftools view  -m2 -M2 -v snps</code>.</p>
+</section>
+<section id="filtering-with-vcftools" class="level3" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="filtering-with-vcftools"><span class="header-section-number">5.3.2</span> Filtering with <code>vcftools</code></h3>
+<p>We won’t do it here, but the package <a href="https://vcftools.github.io/man_latest.html"><code>vcftools</code></a> also has lots of tools for filtering variants. Usefully, it can filter by features that are <em>not</em> in the INFO or FORMAT fields, such as the rate of missing data, the number of alleles, the allele frequency, the number of observations of the alternate allele and others. It can also be used to calculate a variety of statistics. Between these two packages, most typical filtering criteria are available. If you need something more complex, you may need specialized software or to write your own filtering script.</p>
+</section>
+<section id="filtering-our-three-vcf-files" class="level3" data-number="5.3.3">
+<h3 data-number="5.3.3" class="anchored" data-anchor-id="filtering-our-three-vcf-files"><span class="header-section-number">5.3.3</span> Filtering our three VCF files</h3>
+<p>So that we have a consistent set of variants to consider next, let’s run the filtering script <code>scripts/06_filteringAnnotating/01_filterVariants.sh</code></p>
+<p>It applies the following filters:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># freebayes: use AB/AF/DP/QUAL</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> filter <span class="dt">\</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-r</span> chr20:29400000-34400000 <span class="dt">\</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--exclude</span> <span class="st">'INFO/DP &lt; 50 | INFO/DP &gt; 250 | AB &lt; .25 | AB &gt; 0.75 | QUAL &lt; 30 | AF &lt; 0.1'</span> <span class="dt">\</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">${FREEBAYES}</span> <span class="kw">|</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> intersect <span class="at">-header</span> <span class="at">-a</span> stdin <span class="at">-b</span> <span class="va">${TARGETS}</span> <span class="kw">|</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="ex">bgzip</span> <span class="op">&gt;</span><span class="va">${FREEBAYESOUT}</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="ex">tabix</span> <span class="at">-p</span> vcf <span class="va">${FREEBAYESOUT}</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="co"># gatk: use DP/QUAL (others not available)</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> filter <span class="dt">\</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">-r</span> chr20:29400000-34400000 <span class="dt">\</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">--exclude</span> <span class="st">'INFO/DP &lt; 50 | INFO/DP &gt; 250 | QUAL &lt; 30'</span> <span class="dt">\</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  <span class="va">${GATK}</span> <span class="kw">|</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> intersect <span class="at">-header</span> <span class="at">-a</span> stdin <span class="at">-b</span> <span class="va">${TARGETS}</span> <span class="kw">|</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a><span class="ex">bgzip</span> <span class="op">&gt;</span><span class="va">${GATKOUT}</span></span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a><span class="ex">tabix</span> <span class="at">-p</span> vcf <span class="va">${GATKOUT}</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a><span class="co"># bcftools: use DP/QUAL (others not available)</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> filter <span class="dt">\</span></span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">-r</span> chr20:29400000-34400000 <span class="dt">\</span></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">--exclude</span> <span class="st">'INFO/DP &lt; 50 | INFO/DP &gt; 250 | QUAL &lt; 30'</span> <span class="dt">\</span></span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>  <span class="va">${BCFTOOLS}</span> <span class="kw">|</span></span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a><span class="ex">bedtools</span> intersect <span class="at">-header</span> <span class="at">-a</span> stdin <span class="at">-b</span> <span class="va">${TARGETS}</span> <span class="kw">|</span></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a><span class="ex">bgzip</span> <span class="op">&gt;</span><span class="va">${BCFTOOLSOUT}</span></span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a><span class="ex">tabix</span> <span class="at">-p</span> vcf <span class="va">${BCFTOOLSOUT}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="assessing-variant-call-set-quality" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="assessing-variant-call-set-quality"><span class="header-section-number">5.4</span> Assessing variant call set quality</h2>
+<p>There are a number of ways we can go about this. We’ll look at the numbers and types of variants, the transition/transversion ratio, and because we have a known pedigree for our samples, we can count up the rate of violations of Mendelian inheritance (i.e.&nbsp;the number of sites where offspring genotypes are inconsistent with their parents, like Father=AA Mother=BB, Child=AA).</p>
+<section id="total-numbers-of-variants" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="total-numbers-of-variants"><span class="header-section-number">5.4.1</span> Total numbers of variants:</h3>
+<p>Let’s do <code>bcftools stats</code> for both pre- and post-filtered VCF files (focusing on just our region). First pre-filter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="va">PRE</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-r</span> chr20:29400000-34400000 <span class="va">$PRE</span> <span class="kw">|</span> <span class="fu">grep</span> ^SN</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SN  0   number of samples:  3
+SN  0   number of records:  57423
+SN  0   number of no-ALTs:  0
+SN  0   number of SNPs: 52753
+SN  0   number of MNPs: 3122
+SN  0   number of indels:   2743
+SN  0   number of others:   464
+SN  0   number of multiallelic sites:   3325
+SN  0   number of multiallelic SNP sites:   1349</code></pre>
+</div>
+</div>
+<p>Now post-filter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="va">POST</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-r</span> chr20:29400000-34400000 <span class="va">$POST</span> <span class="kw">|</span> <span class="fu">grep</span> ^SN</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SN  0   number of samples:  3
+SN  0   number of records:  7718
+SN  0   number of no-ALTs:  0
+SN  0   number of SNPs: 6401
+SN  0   number of MNPs: 191
+SN  0   number of indels:   1150
+SN  0   number of others:   89
+SN  0   number of multiallelic sites:   262
+SN  0   number of multiallelic SNP sites:   2</code></pre>
+</div>
+</div>
+<p>We have <em>dramatically</em> cut down our number of sites. Part of this is that we also exclude a bit of our initial 5mb with the targets file (it’s now 4226000, per the targets file), but we have also removed tons of false positives. So our Watterson’s theta is down near 0.001 where it should be (for humans), versus 0.007. Again, this is a <em>very</em> rough way of calculating this value as a sanity check, not how you should approach it if you needed to know the real number to report in a publication.</p>
+</section>
+<section id="tstv" class="level3" data-number="5.4.2">
+<h3 data-number="5.4.2" class="anchored" data-anchor-id="tstv"><span class="header-section-number">5.4.2</span> ts/tv</h3>
+<p>Next we can look at our ts/tv ratio. First pre-filter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="va">PRE</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-r</span> chr20:29400000-34400000 <span class="va">$PRE</span> <span class="kw">|</span> <span class="fu">grep</span> TS</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># TSTV, transitions/transversions
+# TSTV  [2]id   [3]ts   [4]tv   [5]ts/tv    [6]ts (1st ALT) [7]tv (1st ALT) [8]ts/tv (1st ALT)
+TSTV    0   20940   31363   0.67    20348   29973   0.68</code></pre>
+</div>
+</div>
+<p>Then post-filter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="va">POST</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-r</span> chr20:29400000-34400000 <span class="va">$POST</span> <span class="kw">|</span> <span class="fu">grep</span> TS</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># TSTV, transitions/transversions
+# TSTV  [2]id   [3]ts   [4]tv   [5]ts/tv    [6]ts (1st ALT) [7]tv (1st ALT) [8]ts/tv (1st ALT)
+TSTV    0   4198    2057    2.04    4189    2050    2.04</code></pre>
+</div>
+</div>
+<p>We see a pretty dramatic shift, from 0.67 before filtering to 2.04 after filtering. And in fact, if we limit our focus to the region away from the centromere (chr20:32400000-34400000) it will rise a bunch more.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="va">POST</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> stats <span class="at">-r</span> chr20:32400000-34400000 <span class="va">$POST</span> <span class="kw">|</span> <span class="fu">grep</span> TS</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># TSTV, transitions/transversions
+# TSTV  [2]id   [3]ts   [4]tv   [5]ts/tv    [6]ts (1st ALT) [7]tv (1st ALT) [8]ts/tv (1st ALT)
+TSTV    0   1544    594 2.60    1540    592 2.60</code></pre>
+</div>
+</div>
+<p>Remember that this is a <em>very</em> rough way of evaluating variant quality and ts/tv values are different among species and regions of the genome. There’s no perfect target to hit here.</p>
+</section>
+<section id="mendelian-violations" class="level3" data-number="5.4.3">
+<h3 data-number="5.4.3" class="anchored" data-anchor-id="mendelian-violations"><span class="header-section-number">5.4.3</span> Mendelian violations</h3>
+<p>If we have a pedigree, we can also look at rates of violation of Mendelian inheritance. <code>bcftools</code> has a plugin that can do this (note also that <code>vt</code> has a really nice module <code>profile_mendelian</code> that produces a nice report). The plugin <code>+mendelian2</code> can also filter variants by the presence of Mendelian errors, but you should be careful with this. Even in a great dataset, you expect some rate of genotyping error and if you have a big enough pedigree, you could carelessly throw out tons of good data on account of what is really a pretty small error rate.</p>
+<p>For our</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="va">PRE</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes.vcf.gz</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> +mendelian2 <span class="at">-r</span> chr20:29400000-34400000 <span class="at">-p</span> son,dad,mom <span class="at">-m</span> c <span class="va">${PRE}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Summary stats
+sites_ref_only  0   # sites skipped because there was no ALT allele
+sites_many_als  0   # skipped because of too many ALT alleles
+sites_fail  0   # skipped because of failed -i/-e filter
+sites_no_GT 0   # skipped because of absent FORMAT/GT field
+sites_not_diploid   0   # skipped because FORMAT/GT not formatted diploid
+sites_missing   793 # number of sites with at least one trio GT missing
+sites_merr  1300    # number of sites with at least one Mendelian error
+sites_good  55364   # number of sites with at least one good trio
+# Per-trio stats, each column corresponds to one trio. List of trios is below.
+# The meaning of per-trio stats is the same as described above, ngood_alt is
+# the number of good genotypes with at least one non-reference allele, and is
+# included in the ngood counter
+ngood   55364
+ngood_alt   19676
+nmerr   1300
+nmissing    793
+nfail   0
+# List of trios. Their ids are in the same order as the values listed in the stats lines above. For
+# example, the values for the first trio (id=1) and the third trio (id=3) are in the 2nd and the 4th
+# column and their stats can be obtained with the unix command
+#     cat stats.txt | grep ^n | cut -f1,2,4
+# TRIO  [2]id   [3]child    [4]father   [5]mother
+TRIO    1   son dad mom</code></pre>
+</div>
+</div>
+<p>This gives us a Mendelian error rate of <code>1300 / (1300 + 55364) = 0.02294226</code>. Not too bad for zero filtering! In fact, it’s weirdly low! We could investigate further extracting our low-quality sites and looking at the distribution of genotypes. It could be there are lots of parent1:AB parent2:AA offspring:AA where allele B is a false positive. <code>vt</code> would give us a bit more detailed of a report as well.</p>
+<p>Let’s look at post-filter data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="va">POST</span><span class="op">=</span>variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> +mendelian2 <span class="at">-r</span> chr20:29400000-34400000 <span class="at">-p</span> son,dad,mom <span class="at">-m</span> c <span class="va">${POST}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Summary stats
+sites_ref_only  0   # sites skipped because there was no ALT allele
+sites_many_als  0   # skipped because of too many ALT alleles
+sites_fail  0   # skipped because of failed -i/-e filter
+sites_no_GT 0   # skipped because of absent FORMAT/GT field
+sites_not_diploid   0   # skipped because FORMAT/GT not formatted diploid
+sites_missing   1   # number of sites with at least one trio GT missing
+sites_merr  13  # number of sites with at least one Mendelian error
+sites_good  7704    # number of sites with at least one good trio
+# Per-trio stats, each column corresponds to one trio. List of trios is below.
+# The meaning of per-trio stats is the same as described above, ngood_alt is
+# the number of good genotypes with at least one non-reference allele, and is
+# included in the ngood counter
+ngood   7704
+ngood_alt   7704
+nmerr   13
+nmissing    1
+nfail   0
+# List of trios. Their ids are in the same order as the values listed in the stats lines above. For
+# example, the values for the first trio (id=1) and the third trio (id=3) are in the 2nd and the 4th
+# column and their stats can be obtained with the unix command
+#     cat stats.txt | grep ^n | cut -f1,2,4
+# TRIO  [2]id   [3]child    [4]father   [5]mother
+TRIO    1   son dad mom</code></pre>
+</div>
+</div>
+<p>Now our Mendelian error rate is <code>0.001684592</code>! Much better!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="va">POST</span><span class="op">=</span>variants/results/05_variantCalling/gatk/gatk_filtered.vcf.gz</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bcftools</span> +mendelian2 <span class="at">-r</span> chr20:29400000-34400000 <span class="at">-p</span> son,dad,mom <span class="at">-m</span> c <span class="va">${POST}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Summary stats
+sites_ref_only  0   # sites skipped because there was no ALT allele
+sites_many_als  0   # skipped because of too many ALT alleles
+sites_fail  0   # skipped because of failed -i/-e filter
+sites_no_GT 0   # skipped because of absent FORMAT/GT field
+sites_not_diploid   0   # skipped because FORMAT/GT not formatted diploid
+sites_missing   59  # number of sites with at least one trio GT missing
+sites_merr  354 # number of sites with at least one Mendelian error
+sites_good  11457   # number of sites with at least one good trio
+# Per-trio stats, each column corresponds to one trio. List of trios is below.
+# The meaning of per-trio stats is the same as described above, ngood_alt is
+# the number of good genotypes with at least one non-reference allele, and is
+# included in the ngood counter
+ngood   11457
+ngood_alt   11457
+nmerr   354
+nmissing    59
+nfail   0
+# List of trios. Their ids are in the same order as the values listed in the stats lines above. For
+# example, the values for the first trio (id=1) and the third trio (id=3) are in the 2nd and the 4th
+# column and their stats can be obtained with the unix command
+#     cat stats.txt | grep ^n | cut -f1,2,4
+# TRIO  [2]id   [3]child    [4]father   [5]mother
+TRIO    1   son dad mom</code></pre>
+</div>
+</div>
+</section>
+<section id="other-checks" class="level3" data-number="5.4.4">
+<h3 data-number="5.4.4" class="anchored" data-anchor-id="other-checks"><span class="header-section-number">5.4.4</span> Other checks</h3>
+<p>Depending on the type of study, there are other statistics you can look at. Deviations from Hardy-Weinberg equilibrium is a big one, but only useful in the context of a population sample, and you may expect deviations under certain breeding systems or sampling regimes. You can use functional annotations (do you see an unreasonable number of alleles that disrupt proteins?). You can also zoom and look at the underlying data for a region of interest in IGV. If you have a large set of “known” variants, you could ask whether you have discovered an unreasonably large set of new variants.</p>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">5.5</span> Conclusion</h2>
+<p>In this chapter we’ve seen ways we can summarize variant call sets, filter them and check their overall quality. In the next chapter we’ll cover comparing variant call sets and annotating them.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./02_2_variantCalling.html" class="pagination-link" aria-label="Variant Calling">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./02_4_assessingAnnotating.html" class="pagination-link" aria-label="Comparing and Annotating Variants">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

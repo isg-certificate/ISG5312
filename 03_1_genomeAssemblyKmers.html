@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Genome Assembly - first steps – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./04_0_scRNAseq.html" rel="next">
+<link href="./03_0_genomeAssembly.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03_0_genomeAssembly.html">Genome Assembly</a></li><li class="breadcrumb-item"><a href="./03_1_genomeAssemblyKmers.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./03_0_genomeAssembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Genome Assembly</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_1_genomeAssemblyKmers.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-cell RNAseq</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">7.1</span> Learning Objectives</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">7.2</span> Introduction</a></li>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code"><span class="header-section-number">7.3</span> Code</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data"><span class="header-section-number">7.4</span> Data</a>
+  <ul class="collapse">
+  <li><a href="#downloading-the-data" id="toc-downloading-the-data" class="nav-link" data-scroll-target="#downloading-the-data"><span class="header-section-number">7.4.1</span> Downloading the data</a></li>
+  <li><a href="#basic-qc" id="toc-basic-qc" class="nav-link" data-scroll-target="#basic-qc"><span class="header-section-number">7.4.2</span> Basic QC</a></li>
+  </ul></li>
+  <li><a href="#genome-size-estimation" id="toc-genome-size-estimation" class="nav-link" data-scroll-target="#genome-size-estimation"><span class="header-section-number">7.5</span> Genome size estimation</a>
+  <ul class="collapse">
+  <li><a href="#getting-the-k-mer-frequency-spectrum." id="toc-getting-the-k-mer-frequency-spectrum." class="nav-link" data-scroll-target="#getting-the-k-mer-frequency-spectrum."><span class="header-section-number">7.5.1</span> Getting the k-mer frequency spectrum.</a></li>
+  <li><a href="#genomescope-2.0" id="toc-genomescope-2.0" class="nav-link" data-scroll-target="#genomescope-2.0"><span class="header-section-number">7.5.2</span> GenomeScope 2.0</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">7.6</span> Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03_0_genomeAssembly.html">Genome Assembly</a></li><li class="breadcrumb-item"><a href="./03_1_genomeAssemblyKmers.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">7.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Conduct quality control analysis of raw data specific to genome assembly.</td>
+</tr>
+<tr class="odd">
+<td>Estimate genome size from unassembled reads.</td>
+</tr>
+</tbody>
+</table>
+<p>In this chapter we’re going to focus on initial characterization of the data we’ll use to assemble a genome.</p>
+</section>
+<section id="introduction" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="introduction"><span class="header-section-number">7.2</span> Introduction</h2>
+<p>The field of genome assembly is rapidly changing. The <a href="https://www.genome.gov/about-genomics/fact-sheets/Sequencing-Human-Genome-cost">first draft human genome</a>, completed in 2003 (but far from a complete or correct genome!) took 13 years to sequence and assemble and cost <strong>$2.7 billion</strong>.</p>
+<p>Software and data used in genome assembly have advanced rapidly ever since. So all this is to say, we’ll demonstrate the general workflow and concepts here, but you can expect improvements in data, software and reductions in cost to make any specific recommendations obsolete pretty quickly!</p>
+</section>
+<section id="code" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="code"><span class="header-section-number">7.3</span> Code</h2>
+<p>We’re going to work through scripts that can be found in <a href="https://github.com/isg-certificate/genome_assembly">this GitHub repository</a>. As usual, they are all written for the Xanadu cluster at UConn, and so you should be able to clone the repository and run the scripts without any modification.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Be aware this project is going to balloon up to around 700GB (though the final products are just a couple GB), so you may want to create a directory in <code>/scratch</code> to work in rather than your home.</p>
+</div>
+</div>
+</section>
+<section id="data" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="data"><span class="header-section-number">7.4</span> Data</h2>
+<p>In these chapters, we’ll use publicly available data from the <a href="https://vertebrategenomesproject.org">Vertebrate Genomes Project</a>. Specifically, the data we’ll grab for this chapter is for banded killifish, <a href="https://en.wikipedia.org/wiki/Banded_killifish"><em>Fundulus diaphanus</em></a> an inhabitant mostly of freshwaters in northeast North America.</p>
+<p>Links to the raw data can be found at <a href="https://www.genomeark.org/genomeark-all/Fundulus_diaphanus.html">GenomeArk</a> and VGP’s final assembly has been deposited <a href="https://www.ncbi.nlm.nih.gov/bioproject/1074739">in NCBI</a>. Note there are <em>two</em> genome assembly products there. That’s because VGP did a phased diploid assembly, which we’ll explain more about later.</p>
+<p>If you visit the <a href="https://www.genomeark.org/genomeark-all/Fundulus_diaphanus.html">GenomeArk page</a> you’ll see three data types:</p>
+<ul>
+<li><strong>PacBio HiFi data</strong>: There are a few products here. We’re going to grab the fastq files, which are the actual raw HiFi reads we want to use for assembly. HiFi data is one of the most widely used data types in primary assembly at the moment.</li>
+<li><strong>Hi-C data</strong>: This is chromatin conformation capture data that is generally used to understand the physical organization of the genome. We’re going to use it to scaffold our contigs after primary assembly. This is paired-end Illumina data generated with a highly specialized library preparation procedure.</li>
+<li><strong>Bionano data</strong>: We glossed over Bionano in ISG5302, but it’s a specialized type of data used for scaffolding. We’re going to skip this as it is less commonly used currently.</li>
+</ul>
+<p>Note that by simply downloading pre-existing data, we are skipping over an important stage in planning a genome. We typically recommend that you try to get an estimate of the genome size so that you can aim for certain target coverages. You can sometimes find this in the literature from flow cytometry studies, but we’ll cover below how you can get this number from sequencing data. It’s often cheap to collect some Illumina data that can be used for this purpose to guide long read sequencing and scaffolding data collection.</p>
+<section id="downloading-the-data" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="downloading-the-data"><span class="header-section-number">7.4.1</span> Downloading the data</h3>
+<p>If you haven’t already, clone the repository:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/isg-certificate/genome_assembly.git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>These are pretty simple scripts. In <code>scripts/01_dataDownload/01_hifi.sh</code> we just do the following to grab the two HiFi fastq files:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://genomeark.s3.amazonaws.com/species/Fundulus_diaphanus/fFunDia1/genomic_data/pacbio_hifi/m64330e_221020_171856.bc1022--bc1022.hifi_reads.fastq.gz</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://genomeark.s3.amazonaws.com/species/Fundulus_diaphanus/fFunDia1/genomic_data/pacbio_hifi/m64334e_221030_084704.bc1022--bc1022.hifi_reads.fastq.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In <code>scripts/01_dataDownload/02_hiC.sh</code> we’re going to download the Illumina fastq files and a couple metadata files.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://genomeark.s3.amazonaws.com/species/Fundulus_diaphanus/fFunDia1/genomic_data/arima/fFunDia1_Banded_Killifish_R1_001.fastq.gz</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://genomeark.s3.amazonaws.com/species/Fundulus_diaphanus/fFunDia1/genomic_data/arima/fFunDia1_Banded_Killifish_R2_001.fastq.gz</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://genomeark.s3.amazonaws.com/species/Fundulus_diaphanus/fFunDia1/genomic_data/arima/re_bases.txt</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-P</span> <span class="va">${OUTDIR}</span> https://genomeark.s3.amazonaws.com/species/Fundulus_diaphanus/fFunDia1/genomic_data/arima/fFunDia1_hic_stats.yaml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>yaml</code> file contains some useful metadata:</p>
+<pre><code>hic:
+  data:
+  - mean length: 150.0
+    name: fFunDia1_Banded_Killifish_R1_001.fastq.gz
+    reads: 616286356
+    yield: 92442953400
+  - mean length: 150.0
+    name: fFunDia1_Banded_Killifish_R2_001.fastq.gz
+    reads: 616286356
+    yield: 92442953400
+  metadata:
+  - enzymes: GATC,GANTC,CTNAG,TTAA
+    name: fFunDia1_Banded_Killifish_R1_001.fastq.gz
+    version: arima 2.0
+  - enzymes: GATC,GANTC,CTNAG,TTAA
+    name: fFunDia1_Banded_Killifish_R2_001.fastq.gz
+    version: arima 2.0
+  total:
+    coverage: 122.03690217821782
+    reads: 1232572712
+    yield: 184885906800</code></pre>
+<p>We have about 616 million 150bp paired end reads giving an expected 122x coverage of the genome. The “enzymes” are restriction enzymes used in the library preparation.</p>
+</section>
+<section id="basic-qc" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="basic-qc"><span class="header-section-number">7.4.2</span> Basic QC</h3>
+<p>We’re going to do some basic QC on these data to get a basic sense of the data quality we’re dealing with.</p>
+<section id="hifi-data" class="level4" data-number="7.4.2.1">
+<h4 data-number="7.4.2.1" class="anchored" data-anchor-id="hifi-data"><span class="header-section-number">7.4.2.1</span> HiFi data</h4>
+<p>For the HiFi data, we’ll run NanoPlot. It produces an HTML formatted report. See script <code>scripts/02_rawQC/01_nanoplotHIFI.sh</code></p>
+<p>It’s pretty simple:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">NanoPlot</span> <span class="at">--fastq</span> <span class="va">${INDIR}</span>/<span class="pp">*</span>hifi<span class="pp">*</span>fastq.gz <span class="at">-o</span> <span class="va">${OUTDIR}</span> <span class="at">-p</span> hifi <span class="at">-t</span> 4 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’re using globs (<code>*</code>) to get nanoplot to produce one report for both HiFi fastq files. To see some text results:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/02_qc/nanoplot/hifiNanoStats.txt </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>General summary:         
+Mean read length:                 14,662.8
+Mean read quality:                    28.3
+Median read length:               13,825.0
+Median read quality:                  35.6
+Number of reads:               3,290,962.0
+Read length N50:                  14,886.0
+STDEV read length:                 4,058.0
+Total bases:              48,254,719,500.0
+Number, percentage and megabases of reads above quality cutoffs
+&gt;Q5:    3290962 (100.0%) 48254.7Mb
+&gt;Q7:    3290962 (100.0%) 48254.7Mb
+&gt;Q10:   3290962 (100.0%) 48254.7Mb
+&gt;Q12:   3290962 (100.0%) 48254.7Mb
+&gt;Q15:   3290962 (100.0%) 48254.7Mb
+Top 5 highest mean basecall quality scores and their read lengths
+1:  93.0 (7981)
+2:  93.0 (8742)
+3:  93.0 (1273)
+4:  93.0 (7051)
+5:  93.0 (6247)
+Top 5 longest reads and their mean basecall quality score
+1:  49746 (22.3)
+2:  49407 (24.3)
+3:  49367 (21.6)
+4:  48162 (27.2)
+5:  47986 (25.8)</code></pre>
+<p>As expected for HiFi data, we have a mean read length of around 14kb. Median read quality is phred 35.6 for an error rate of 0.00028. This low error rate is really important as it allows assembly through “repetitive” sequences as long as the repeats have more differences than the expected error rate. Similarly, it allows the accurate separation of haplotypes in diploid organisms as long as heterozygosity is higher than the error rate (it very often is higher than this error rate).</p>
+<p>Our expected genome size is around 1.3gb, so this amounts to about 37x coverage.</p>
+<p>Don’t forget to download and open the HTML file in a browser: <code>hifiNanoPlot-report.html</code> The visualizations can help you understand more of the detail of your data (such as the fact that reads &lt; Q20 were filtered out).</p>
+</section>
+<section id="illumina-hi-c-data" class="level4" data-number="7.4.2.2">
+<h4 data-number="7.4.2.2" class="anchored" data-anchor-id="illumina-hi-c-data"><span class="header-section-number">7.4.2.2</span> Illumina Hi-C data</h4>
+<p>We’re going to run good old <code>fastqc</code> on the Hi-C data. See <code>scripts/02_rawQC/02_fastqcHiC.sh</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fastqc</span> <span class="at">-t</span> 4 <span class="at">-o</span> <span class="va">${OUTDIR}</span> <span class="va">${INDIR}</span>/fFunDia1<span class="pp">*</span>.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will produce 2 HTML reports. We’ll skip multiQC here because, well, two html files isn’t that much to just look at.</p>
+<p>We can see these data are all 150bp, so they haven’t been trimmed before deposit in the public repository. We don’t see any major quality issues, and miraculously, zero adapter contamination. Because of this, we’ll skip quality trimming.</p>
+</section>
+</section>
+</section>
+<section id="genome-size-estimation" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="genome-size-estimation"><span class="header-section-number">7.5</span> Genome size estimation</h2>
+<p>An area of genomics that is just plain cool and full of simple, clever ideas, is the analysis of k-mer data. The term <code>k-mer</code> refers simply to sequences of length <code>k</code>. The starting point for all <code>k-mer</code>-based analysis is to simply take a collection of sequences and chop them up into <em>all possible</em> subsequences of length <code>k</code> and count up their frequencies.</p>
+<p>So for a sequence <code>GTCAGTAGAT</code>, all 5-mers are as follows:</p>
+<pre><code>seq   GTCAGTAGAT
+5mer  GTCAG
+       TCAGT
+        CAGTA
+         AGTAG
+          TAGAT</code></pre>
+<p>Because DNA is double-stranded and typically sequenced without respect to strand, we usually count <em>canonical</em> k-mers, meaning that a k-mer and its reverse complement are treated as the same (e.g.&nbsp;<code>GTCAG</code> = <code>CTGAC</code>).</p>
+<p>We can chop up and count raw sequencing (as we will do here), or we can do it for completed genomes. In the third chapter in this module we will estimate the completeness and accuracy of our genome assembly by comparing the k-mers in the raw sequence data to the complete genome.</p>
+<p>Once you have your k-mer count databases, there are a variety of analyses you can do to model the distribution and make inferences about the underlying data. In this section, we will estimate genome size and heterozygosity.</p>
+<p>The idea behind estimating genome size from k-mers will be covered in ISG5302, so we won’t explain much more here, but we have a couple basic issues to deal with.</p>
+<ul>
+<li>What value should you choose for <code>k</code>? It’s hard to give great guidelines. It depends on genome size and heterozygosity. Usually something in the range of 19-23 works for estimating genome size. We’ll go with 23 for this. - What type of data do you need? These types of k-mer analyses are only effective with <em>highly accurate</em> data, such as HiFi or Illumina data (or ONT duplex data). If the error rate is too high, too many k-mers will have errors in them and the models will perform poorly. You also need the data to be WGS shotgun data. That is, it should be randomly distributed throughout the genome. We have HiFi data, which will work. We also have Illumina Hi-C data. Hi-C might not really have the randomness we want, but we’ll try it anyway and see what happens.</li>
+<li>What depth of coverage do we need? We usually recommend people shoot for 80-150x coverage (of Illumina data). We have 37x coverage of HiFi data, which is a bit low, but we’ll try it anyway. The Hi-C data is 122x coverage. That would be great, but the Hi-C data may have some properties that detrimentally effect the estimates. We’ll see!</li>
+</ul>
+<section id="getting-the-k-mer-frequency-spectrum." class="level3" data-number="7.5.1">
+<h3 data-number="7.5.1" class="anchored" data-anchor-id="getting-the-k-mer-frequency-spectrum."><span class="header-section-number">7.5.1</span> Getting the k-mer frequency spectrum.</h3>
+<p>For this application, what we want is the k-mer frequency spectrum. You can think of this as a histogram giving how many k-mers have a given frequency. So on the x-axis you have k-mer frequency and on the y-axis a count of k-mers.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03_1_genomeAssemblyKmers_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this plot, the peak is 36. If you’ve done the ISG5302 section on this, you won’t be surprised to see that it is just about our expected sequencing coverage for the dataset. This is the data that will be modeled to estimate genome size and heterozygosity.</p>
+<p>To get this, there are two steps:</p>
+<ol type="1">
+<li>Shred the sequencing data into k-mers and count up the frequency of each k-mer.</li>
+<li>Count up the frequencies of k-mer frequencies to get the k-mer frequency spectrum.</li>
+</ol>
+<section id="counting-k-mers." class="level4" data-number="7.5.1.1">
+<h4 data-number="7.5.1.1" class="anchored" data-anchor-id="counting-k-mers."><span class="header-section-number">7.5.1.1</span> Counting k-mers.</h4>
+<p>We’re going to use <a href="https://github.com/marbl/meryl"><code>meryl</code></a> for this. There are a lot of k-mer counters out there (including KMC, KAT and Jellyfish).</p>
+<p>K-mer counting of large sequencing datasets is typically a pretty memory-intensive process. This is because there are a ton of k-mers to keep track of! The larger k is, this worse this becomes. If k=1, you only have 4 (A, C, G, T). If k=read length (e.g.&nbsp;150bp for our Hi-C data) then you are essentially counting the frequency of each unique read!</p>
+<p>We have two scripts for k-mer counting, one for each of our datasets: - <code>scripts/03_genomeSize/01_merylCountHIFI.sh</code> - <code>scripts/03_genomeSize/02_merylCountHiC.sh</code></p>
+<p>The program calls are similar:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">meryl</span> count k=23 memory=250 threads=16 <span class="va">${INDIR}</span>/<span class="pp">*</span>hifi<span class="pp">*</span>fastq.gz output <span class="va">${OUTDIR}</span>/db</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Here we are requesting 250G of memory and 16 cpus (also reflected in the SLURM header).</p>
+<p>The output will be a directory, <code>${OUTDIR}/db</code>, containing the meryl k-mer database.</p>
+<p>For the HiFi data, at 37x coverage, <code>seff</code> output looks like this:</p>
+<pre><code>Job ID: 8884236
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 16
+CPU Utilized: 09:02:48
+CPU Efficiency: 87.10% of 10:23:12 core-walltime
+Job Wall-clock time: 00:38:57
+Memory Utilized: 152.96 GB
+Memory Efficiency: 61.19% of 250.00 GB</code></pre>
+<p>So we requested excess memory, but that’s ok. It took around 40 minutes of wall time.</p>
+<p>For the Hi-C data, with 122x coverage:</p>
+<pre><code>Job ID: 8884245
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 16
+CPU Utilized: 1-03:05:48
+CPU Efficiency: 87.58% of 1-06:56:16 core-walltime
+Job Wall-clock time: 01:56:01
+Memory Utilized: 226.71 GB
+Memory Efficiency: 64.78% of 350.00 GB</code></pre>
+<p>It used 226G of memory and 2 hours of wall time.</p>
+</section>
+<section id="the-k-mer-frequency-spectrum" class="level4" data-number="7.5.1.2">
+<h4 data-number="7.5.1.2" class="anchored" data-anchor-id="the-k-mer-frequency-spectrum"><span class="header-section-number">7.5.1.2</span> The k-mer frequency spectrum</h4>
+<p>Now that we’ve digested the data into k-mer databases, actually calculating the frequency spectrum is super fast and easy and requires very little resources.</p>
+<p>The scripts are:</p>
+<ul>
+<li><code>scripts/03_genomeSize/03_merylHistogramHIFI.sh</code></li>
+<li><code>scripts/03_genomeSize/04_merylHistogramHiC.sh</code></li>
+</ul>
+<p>The command line looks like:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">meryl</span> histogram <span class="va">${INDIR}</span> <span class="kw">|</span> <span class="fu">sed</span> <span class="st">'s/\t/ /'</span> <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/hifi.histo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And the <code>hifi.histo</code> file is very simple:</p>
+<pre><code>1 1074054143
+2 105077828
+3 27325822
+4 10787262
+5 5526611
+6 3432311
+7 2509450
+8 2124587
+9 1995496
+10 2061575
+...</code></pre>
+<p>Column 1 is a frequency and column 2 is the number of k-mers that have that frequency. The <code>sed</code> command changes the <code>tab</code> separated table to a <code>space</code> because that’s what the next program we’re going to use wants.</p>
+<p>Note that by <em>far</em> the most common k-mer frequencies are 1 and 2. Those are k-mers with sequencing errors in them! Because sequencing errors are rare and random, they most often create singleton or doubleton k-mers.</p>
+</section>
+</section>
+<section id="genomescope-2.0" class="level3" data-number="7.5.2">
+<h3 data-number="7.5.2" class="anchored" data-anchor-id="genomescope-2.0"><span class="header-section-number">7.5.2</span> GenomeScope 2.0</h3>
+<p>Now we’ve got our k-mer frequencies, we’re going to run <a href="https://github.com/tbenavi1/genomescope2.0"><code>GenomeScope 2.0</code></a>. <code>GenomeScope</code> is available as an R package, but it’s pretty light weight and the authors provide a nice <a href="http://genomescope.org/genomescope2.0/">web server</a> for it, so we’ll just use that.</p>
+<p>Download the <code>.histo</code> files locally, visit <a href="http://genomescope.org/genomescope2.0/">the link</a> and add the histo file to run the analysis. Don’t forget we used k=23. We get a nice figure:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/HIFI_linear_plot.png" class="img-fluid figure-img"></p>
+<figcaption>GenomeScope 2.0 HiFi output</figcaption>
+</figure>
+</div>
+<p>And text output:</p>
+<pre><code>GenomeScope version 2.0
+input file = user_uploads/17ZdeuYze9itb3IG8sym
+output directory = user_data/17ZdeuYze9itb3IG8sym
+p = 2
+k = 23
+
+property                      min               max               
+Homozygous (aa)               99.6948%          99.7166%          
+Heterozygous (ab)             0.283432%         0.305203%         
+Genome Haploid Length         1,262,324,162 bp  1,264,199,891 bp  
+Genome Repeat Length          432,312,843 bp    432,955,230 bp    
+Genome Unique Length          830,011,320 bp    831,244,660 bp    
+Model Fit                     64.8325%          95.2763%          
+Read Error Rate               0.135773%         0.135773%</code></pre>
+<p>This is telling us that GenomeScope thinks the genome is 1.262GB long and has a heterozygosity of 0.00283. This is not a terrible estimate for the genome length. We’ll get closer to 1.3GB in the assembly. We might get a more accurate estimate if we had higher coverage data.</p>
+<p>So what does the Hi-C data say?</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/HiC_linear_plot.png" class="img-fluid figure-img"></p>
+<figcaption>GenomeScope 2.0 HiFi output</figcaption>
+</figure>
+</div>
+<p>And text output:</p>
+<pre><code>GenomeScope version 2.0
+input file = user_uploads/q7IbQMxgKNTVYQBqgmUR
+output directory = user_data/q7IbQMxgKNTVYQBqgmUR
+p = 2
+k = 23
+
+property                      min               max               
+Homozygous (aa)               99.354%           99.381%           
+Heterozygous (ab)             0.618952%         0.646049%         
+Genome Haploid Length         1,220,750,197 bp  1,224,552,304 bp  
+Genome Repeat Length          439,125,189 bp    440,492,873 bp    
+Genome Unique Length          781,625,009 bp    784,059,431 bp    
+Model Fit                     65.7103%          98.1208%          
+Read Error Rate               0.448916%         0.448916%      </code></pre>
+<p>We’re still getting a similar underestimate of genome size, and for some reason an increased estimate of heterozygosity.</p>
+<p>These estimates, while not quite right, would be sufficient for planning sequencing coverage. The actual genome is 3-6% larger, so if you had aimed for 30x coverage based on this estimate, you would have wound up with 28.3-29.1x coverage.</p>
+<p>The estimate of heterozygosity is considerably noisier, changing by 2x. This isn’t really a problem though, we can still see that it is much higher than our expected sequencing error rate (0.00028). We’ll expect to see 4.2 errors per 15kb sequencing read, but an average of 42.5-92.8 heterozygous sites. This means we should expect our assembler to separately assemble haplotypes for a lot of the genome.</p>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">7.6</span> Conclusion</h2>
+<p>We’ve got a pretty good picture of our data here and what to expect from our genome. In the next chapter we’ll go over assembly and scaffolding. In the third chapter in the module we’ll cover assembly QC.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./03_0_genomeAssembly.html" class="pagination-link" aria-label="Genome Assembly">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Genome Assembly</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./04_0_scRNAseq.html" class="pagination-link" aria-label="Single-cell RNAseq">
+        <span class="nav-page-text">Single-cell RNAseq</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

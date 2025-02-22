@@ -205,8 +205,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
-      <span class="sidebar-item-text sidebar-link text-start">
- <span class="menu-text">Genome Assembly</span></span>
+      <div class="sidebar-item-container"> 
+            <a href="./03_0_genomeAssembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Genome Assembly</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_1_genomeAssemblyKmers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span></a>
+  </div>
+</li>
+      </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <span class="sidebar-item-text sidebar-link text-start">
@@ -631,7 +644,7 @@ Memory Efficiency: 3.20% of 5.00 GB</code></pre>
 ##FORMAT=&lt;ID=QA,Number=A,Type=Integer,Description="Sum of quality of the alternate observations"&gt;
 ##FORMAT=&lt;ID=MIN_DP,Number=1,Type=Integer,Description="Minimum depth in gVCF output block."&gt;
 ##bcftools_viewVersion=1.21+htslib-1.21
-##bcftools_viewCommand=view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz; Date=Fri Feb 14 19:08:24 2025
+##bcftools_viewCommand=view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz; Date=Sat Feb 22 15:39:17 2025
 #CHROM  POS ID  REF ALT QUAL    FILTER  INFO    FORMAT  son dad mom</code></pre>
 </div>
 </div>

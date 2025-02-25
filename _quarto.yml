@@ -21,7 +21,7 @@ book:
     chapters:
     - 03_1_genomeAssemblyKmers.qmd
     - 03_2_Assembling.qmd
-    # - 03_3.qmd
+    # - 03_3_assemblyQC.qmd
   - part: 04_0_scRNAseq.qmd
     # chapters:
     # - 04_1.qmd

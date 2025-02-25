@@ -1,0 +1,568 @@
+---
+title: "Variant Calling"
+editor: source
+
+engine: knitr
+---
+
+## Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| Identify variants and genotype samples against a reference genome. |
+| Manipulate the VCF format. |
+
+In this section we're going to take our qc'ed and aligned data and call variants using a couple different methods. We'll demonstrate `freebayes` and `bcftools`, which do multi-sample variant calling, and `GATK` which can do basic multi-sample variant calling, but we'll walk through the step-wise procedure for calling variants on multiple samples because it's a great way of doing variant calling when your set of samples could grow over time. We'll also see a basic split-apply-combine approach to variant calling. We'll also introduce the VCF format and some tools we can use to manipulate it. 
+
+## Multi-sample variant calling
+
+When you have more than one sample (typical when variant calling) you want to combine the samples together so they can be called simultaneously rather than calling variants on a per-sample basis and then combining them. This has a couple benefits:
+
+- **Combining the data increases statistical power**. When alleles are shared by more than one individual, pooling the data adds more evidence that they are real (rare alleles always remain a relative challenge). 
+- **Calling variants across samples unifies representation of complex variants**. Some variants have more than one possible representation and calling samples together ensures representation is consistent across samples. Representation issues arise most often with complex variants involving multiple indels or mixtures of SNPs and indels and/or when you have multiple haplotypes. If you called variants on each sample separately with the intent to combine them later, you could wind up with the same alleles being represented differently, which could be a hindrance. 
+- **Homozygous reference genotypes (at variable sites) are accurately called** The output of variant calling algorithms typically only outputs variant records at sites with *alternate alleles* (ones that differ from the reference genome) and does not distinguish sites with no data (or not enough evidence to make a call) from sites where there is good evidence for a genotype that is homozygous for the reference allele. If you do single sample calling and combine later, your site x genotype matrix will be splattered with missing data and you won't really know if those missing genotypes are ref/ref genotypes or actually missing data and it won't be safe to assume either way. 
+
+## `freebayes`
+
+[`Freebayes`](https://github.com/freebayes/freebayes) is a popular variant caller. It uses a Bayesian model that accounts for many different features of the mapped data in trying to distinguish errors from true variation. It has a notably simple in application in that it does not require pre-processing or filters to be applied to the read data and produces output in a single step. As the authors note in the github readme, freebayes adheres to the Unix philosophy of creating modular tools that can read from stdin and write to stdout and be chained together by users into pipelines that fit their specific needs. This is a really nice feature that makes it easy to work with. 
+
+### freebayes and short haplotypes
+
+A major distinguishing feature of freebayes is that it outputs short haplotype variants. Working with haplotypes improves the sensitivity and specificity of variant calling, but as output, they can be useful or annoying, depending on your downstream application. 
+
+Consider the codon `TTT`, which codes for phenyalanine. Now imagine you have a reference sequence with a protein containing `TTT` at some position and you have sequenced a diploid sample that is heterozygous `TTT/TAA`. If your variant caller outputs short haplotypes, you will see the genotype `TT/AA` and easily recognize that one is the reference sequence and the other produces a premature stop codon. If, like most others, your variant caller outputs two heterozygous SNPs `T/A` and `T/A` and no phasing information, you will have no way of knowing (without going back to the data) if you have the haplotypes `TT/AA`, producing `phenylalanine/stop codon` or `TA/AT`, producing `leucine/tyrosine`. Note that this is a general problem when we lack phasing information. 
+
+An example where these haplotypes can be a headache is in population genetics, where you might wish to calculate a statistic like `pi`, the mean pairwise divergence between a collection of sequences (phase is unimportant here). The short haplotypes introduce complexity into the calculations that simple SNPs avoid. . 
+
+We will look more at haplotypes and how to manage them later in this chapter in the section on variant normalization. 
+
+### Running `freebayes`
+
+After all that introduction, running `freebayes` is pretty simple. We will continue in the [variants GitHub repository](https://github.com/isg-certificate/variants) assuming you have completed chapter 2. Go to the directory `scripts/05_variantCalling` and look at script `01_freebayes.sh`. 
+
+We're going to provide `freebayes` with a list of bam files (a useful feature when you've got tons of samples), so we'll create that first:
+
+```bash
+# make a list of bam files
+ls ${INDIR}/*.bam >${INDIR}/bam_list.txt
+```
+
+Then we can run the program, using a variable `$GEN` to hold the genome location and clean up the command line:
+
+```bash
+# set a variable for the reference genome location
+GEN=../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+# run freebayes
+freebayes \
+-f ${GEN} \
+--bam-list ${INDIR}/bam_list.txt |
+bgzip -c >${OUTDIR}/freebayes.vcf.gz
+
+tabix -p vcf ${OUTDIR}/freebayes.vcf.gz
+```
+
+#### bgzip and tabix
+
+By default freebayes will write results to the standard output in uncompressed format. We're going to pipe that to `bgzip` to compress it and then index the compressed file with `tabix`. These are both part of the [`htslib`](http://www.htslib.org) project, which also includes `samtools` and `bcftools` (more on bcftools in a moment). 
+
+`bgzip` is a variant of `gzip`: "block gzip". It does a slightly modified gzip compression, but can still be read by `gzip`, `gunzip`, `zgrep` etc. The modification allows for easy indexing of position sorted tabular genomic data for fast access to data from any genomic region (just as with sorted, indexed bam files). 
+
+Once the file is bgzipped, we index with `tabix`. `tabix` can be used to index any bgzipped position sorted tabular file, and once indexed, retrieve data from the file. It has a few preset modes for BED, GFF, and VCF, but you can specify which columns contain the positional information so that any tabular format can be effectively indexed. Here we specify `-p vcf` because our output is in `VCF` format. 
+
+#### A few other `freebayes` options
+
+It's worth skimming the [github readme](https://github.com/freebayes/freebayes) for freebayes. It has lots of information and isn't hard to read. We'll highlight a few more useful options here. 
+
+- *Calling variants in a specific region*: You can limit freebayes to calling variants in a single genomic interval with the following flag `-r chr20:29400000-34400000`. It probably would have been wise to do that in our case, as we only really have usable data from that region (mismapped reads notwithstanding). You can also provide a BED file containing multiple target regions with `-t targets.bed`. We could have limited freebayes to calling variants only in windows within our coverage threshold this way. This would have sped things up a little, particularly as it would not have needed to churn through all the useless data in that region with 6000x coverage. 
+- *Specifying populations*: freebayes puts a *prior probability distribution* on genotype frequencies that assumes that all samples in a run are drawn from a single population. If this is incorrect (it often is) this prior may increase the error rate for genotype calls (most likely by favoring heterozygote calls too much). If you have high coverage (as we do in the test data) this probably doesn't matter too much, as the data will overwhelm the prior, but if your coverage is on the low end, it can cause real problems (particularly for very low pass sequencing). You can specify which samples belong to which populations with `--populations FILE` (see docs for details). You can turn off this prior altogether with `-w`. 
+- *Specifying genetic diversity*: freebayes also puts a prior on the expected genetic diversity. By default this is `0.001`. This is appropriate for human data, but won't be correct for everything. *Fundulus heteroclitus* populations range in diversity from `0.008` to `0.02`. Again, with high coverage data this prior will have less influence that with low. You can change it with `-T <expected diversity>`. You can turn off both this and the population prior with `-k`, a good idea if you have low coverage. 
+- *Specifying ploidy*: To set default ploidy, or to provide ploidy (or copy number) by region, and even by sample, look at the options `--ploidy` and `--cnv-map`. 
+
+
+#### Resource usage
+
+`freebayes` is pretty lightweight. It can *only* use 1 cpu. The amount of memory required depends on the number of samples and the depth of coverage. For our 3 samples at ~50x coverage, we get the following `seff` output:
+
+```bash
+$ seff 8846713
+
+Job ID: 8846713
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 7
+CPU Utilized: 01:03:01
+CPU Efficiency: 14.30% of 07:20:32 core-walltime
+Job Wall-clock time: 01:02:56
+Memory Utilized: 718.59 MB
+Memory Efficiency: 7.02% of 10.00 GB
+```
+
+For this run we considerably over-requested CPUs as we *can only use 1*. Memory is harder to predict and will increase with more samples. It took freebayes about an hour to process all of our data. 
+
+## `bcftools`
+
+`bcftools` is part of the `htslib` project mentioned above. It includes lots of tools for calling variants and for manipulating them downstream. Its variant calling pipeline is *much, much* faster than freebayes (or GATK, below), but it tends to produce slightly worse calls, mostly at loci where there is complex indel/snp variation. This comes down to the fact that it does not do haplotypic inference as freebayes does or local assembly as GATK does. Depending on your application, the speed and convenience gains may greatly outweigh the computational costs. It also has the benefit of being part of a large open-source project that is continuously developed and supported. Like freebayes, bcftools is very much developed around the Unix ethos of simple tools built for piping. 
+
+### Running `bcftools`
+
+Calling variants with `bcftools` actually involves two steps. First, a summary of the read pileup across samples is generated. This digests the raw mapped BAM file into a tabular format that tracks potential alternate alleles and their evidence in each sample. That "pileup" file is then passed to a variant caller that evaluates the evidence and outputs variant calls and genotypes in VCF format. 
+
+Let's have a look at the script `02_bcftools.sh`. 
+
+```bash
+# make a list of bam files
+ls ${INDIR}/*.bam >${INDIR}/bam_list.txt
+
+# set reference genome location
+GEN=../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+# call variants
+bcftools mpileup -f ${GEN} -b ${INDIR}/bam_list.txt -q 20 -Q 30 | bcftools call -m -v -Oz -o ${OUTDIR}/bcftools.vcf.gz 
+
+# index vcf
+tabix -p vcf ${INDIR}/bcftools.vcf.gz
+```
+
+As above, we provide a list of bam files and the reference genome. We can do the full variant calling analysis by piping the two steps together `bcftools mpileup` which produces the summary of the evidence and `bcftools call`, which does the variant calling and genotyping. 
+
+In `mpileup` we have also provided input filters: `-q 20` ignores all bases with base quality < 20 and `-Q 30` ignores all reads with mapping quality < 30. 
+
+In `call` we provide some options: `-m` with uses the recommended "multi-allelic" caller, `-v` which outputs only variable sites, `-Oz` which outputs bgzip compressed variant calls and `-o ${OUTDIR}/bcftools.vcf.gz ` to specify an output file name. We could also have let it write to stdout and redirected to a file (or piped the output to something else!). 
+
+### `bcftools` options
+
+We'll keep this quick. `bcftools` has similar options to those mentioned above for freebayes. They can be found in the usage for `mpileup` and `call`. Note that there is no way to turn off the population priors, but you *can* provide a `--group-samples` file as with freebayes and put each sample in its own "population". 
+
+### Resource usage
+
+`bcftools` is very lightweight. It finished in 1/10th of the time that freebayes did and used 1/4 of the memory. 
+
+```
+Cores: 1
+CPU Utilized: 00:06:17
+CPU Efficiency: 99.74% of 00:06:18 core-walltime
+Job Wall-clock time: 00:06:18
+Memory Utilized: 164.06 MB
+Memory Efficiency: 3.20% of 5.00 GB
+```
+
+## Parallelizing variant calling
+
+We won't do this here, but note that it is relatively straightforward to parallelize variant calling. The steps are:
+
+1. Specify a set of windows within which to call variants. 
+2. Call variants in each window separately (perhaps using GNU `parallel` or an array job). 
+3. Combine the windowed variant calls, removing duplicate variants that overlap window edges. 
+
+`freebayes` distributes a script `freebayes_parallel`. You can find it here `/isg/shared/apps/freebayes/1.3.4/freebayes-1.3.4/scripts/freebayes-parallel` on Xanadu, or on [github](https://github.com/freebayes/freebayes/blob/master/scripts/freebayes-parallel). 
+
+It's a simple bash script. The meat of it is:
+
+```bash
+
+command=("freebayes" "$@")
+
+(
+cat "$regionsfile" | parallel -k -j "$ncpus" "${command[@]}" --region {}
+) | 
+vcffirstheader |
+vcfstreamsort -w 1000 | 
+vcfuniq 
+```
+
+`cat $regionsfile` pipes the genomic windows, however you define them, to `parallel`. The parallel option `-k` means process the input *in order* (and output it that way).`-j` gives a number of jobs to run simultaneously (one for each cpu in this case). Then you have the freebayes command line `"${command[@]}"` with `--region {}` appended to the end, so freebayes runs on just that region. All of this is wrapped in `()`, which typically groups commands into a single stdout stream. It's not doing anything useful here, but it's in the original script. 
+
+The output here is a single stream of VCF files 
+
+The next three commands process the output stream of variant calls. They are part of the [`vcflib`](https://github.com/vcflib/vcflib) suite. `vcffirstheader` retains the header from *just* the first VCF output (because these are parallel invocations of freebayes, each output VCF will have a header). `vcfstreamsort` sorts variants in a small window (1000 sites) to account for any weirdness due to duplicated variant calls at region edges. `vcfuniq` then removes any such duplicated variants. 
+
+This is handy for cases where the job can be usefully accelerated within a single node. Instead of using `parallel`, you could also break this out into an array job and spread the work over 100 (max number of jobs on Xanadu) simultaneous array tasks for the first step, and then in a second job combine the results. 
+
+If your independent project involves variant calling, you should really consider some version of this to speed things up. You can do it for any of the variant callers. 
+
+## Two-step variant calling with `gatk`
+
+The last variant caller we'll demonstrate is the `HaplotypeCaller` module from the package [`GATK`](https://gatk.broadinstitute.org/hc/en-us). 
+
+`GATK` is a very large suite of tools centered mostly on variant calling. It's developed at [The Broad Institute](https://www.broadinstitute.org), a large biomedical research institute focused on genomics, and affiliated with Harvard and M.I.T. `GATK` is one of the most widely used packages for variant calling and performs very well in tests. It has extensive documentation, and has published "best-practice" recommendations for how to use their software. Unfortunately, the best practices are often very complex [^1], and sometimes require resources that are unavailable in model systems (e.g. "gold-standard" variant call sets). In recent years the documentation has become out of date and hard to parse, with lots of broken links. 
+
+[^1]: For preprocessing, [they recommend](https://gatk.broadinstitute.org/hc/en-us/articles/360039568932--How-to-Map-and-clean-up-short-read-sequence-data-efficiently) that fastq files be converted to *unmapped* bam so that sequences can be annotated (e.g. with adapter contamination), then converted back to fastq, then aligned, then finally for the aligned sequences to be merged with the unmapped bam to reintroduce the annotations made on the unmapped sequence. Whew. 
+
+While `HaplotypeCaller` can be run in one step just like `freebayes`, a cool feature of GATK is its ability to do stepwise joint calling of multiple samples. The advantage of this procedure arises mainly if you have a study where you are likely going to have sampling that increases over time. In this procedure, the heaviest computation is done first, and can be done independently for each sample. If you save the products of that computation, then when you get new samples, you only need to do the initial step for the new samples before combining all samples together. This can save lots of time over standard joint calling in which all the computation needs to be redone every time a new sample is obtained. 
+
+### Running the workflow
+
+There are three key steps:
+
+1. Run `HaplotypeCaller` in GVCF mode on each sample. A `GVCF` is a modification of `VCF` format (which we haven't covered yet). This is the heavy compute. It can be parallelized across samples and genomic regions if necessary. 
+2. Run `GenomicsDBImport` to create a database of your samples (this runs quickly). 
+3. Run `GenotypeGVCFs` to create joint genotype calls (this also runs quickly). 
+
+Let's look at the scripts. 
+
+#### Creating the sequence dictionary
+
+We need one helper file that we don't already have, a sequence dictionary for the reference genome. We're going to run `03_createDict.sh` to create that. It uses [`Picard`](https://broadinstitute.github.io/picard/), a toolkit for manipulating genomes, alignment files, and variant calls. 
+
+```bash
+# load required software
+module load picard/2.23.9
+
+# input/output
+INDIR=../../results/03_Alignment/bwa_align/
+
+OUTDIR=../../results/05_variantCalling/gatk
+mkdir -p $OUTDIR
+
+# set a variable for the reference genome location
+GEN=../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+# create required .dict file
+java -jar $PICARD CreateSequenceDictionary R=$GEN
+```
+
+We have seen Java programs run this way before, but let's reinforce what's happening. When we load the module, an environment variable is created that points at a java "jar" file. 
+
+```bash
+$ module load picard/2.23.9
+$ echo $PICARD
+/isg/shared/apps/picard/2.23.9/picard.jar
+```
+
+We start the program with `java -jar $PICARD`. We can modify the memory usage using command line options as we'll see in a later script. 
+
+#### Generating the GVCF files
+
+In our next step, we'll generate one GVCF file for each sample, using an array job. Look at the script `04_makeGVCFs.sh`
+
+```bash
+SAMPLELIST=(son dad mom)
+SAMPLE=${SAMPLELIST[$SLURM_ARRAY_TASK_ID]}
+
+# set a variable for the reference genome location
+GEN=../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+# run haplotype caller on one sample
+gatk HaplotypeCaller \
+     -R ${GEN} \
+     -I ${INDIR}/${SAMPLE}.bam \
+     -ERC GVCF \
+     --output ${OUTDIR}/${SAMPLE}.g.vcf
+```
+
+The flag `-ERC GVCF` directs GATK to produce the GVCF file. `ERC` stands for "emit reference confidence". So these files are actually tracking whether or not there is good evidence for a homozygous reference genotype in the sample. 
+
+After we've run this we should see this in the results directory:
+
+```bash
+$ ll ../../results/05_variantCalling/gatk/
+-rw-r--r-- 1 nreid cbc  29M Feb  5 16:50 dad.g.vcf
+-rw-r--r-- 1 nreid cbc  91K Feb  5 16:50 dad.g.vcf.idx
+-rw-r--r-- 1 nreid cbc  26M Feb  5 16:51 mom.g.vcf
+-rw-r--r-- 1 nreid cbc  82K Feb  5 16:51 mom.g.vcf.idx
+-rw-r--r-- 1 nreid cbc  25M Feb  5 16:55 son.g.vcf
+-rw-r--r-- 1 nreid cbc  80K Feb  5 16:55 son.g.vcf.idx
+```
+
+This step uses the most resources. For one of the three array tasks:
+
+```bash
+$ seff 8847173_0
+Job ID: 8847174
+Array Job ID: 8847173_0
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 7
+CPU Utilized: 02:05:44
+CPU Efficiency: 23.89% of 08:46:17 core-walltime
+Job Wall-clock time: 01:15:11
+Memory Utilized: 13.30 GB
+Memory Efficiency: 66.51% of 20.00 GB
+```
+
+So in fact we used something like 3hrs 45min of wall time to run these three tasks. This probably would have been a bit faster if we had specified that it should only run on our focal 5mb region instead of crawling across the whole genome. In any case, it took more resources that freebayes and *vastly* more resources than bcftools. 
+
+#### Creating the database
+
+In the next step we're going to create our database. This step can be done on *at most* one reference sequence at a time. So you *must* specify a region (in this case all of chr20) when you do this step, and you *must* do this step once for each sequence in your reference genome. So in some sense GATK encourages parallelism at this stage, though this step and the next are quick enough that it doesn't seem to that important in practice. Have a look at the script `05_DBimport.sh`. 
+
+```bash
+# make an "arguments" file to provide all samples
+find ${INDIR} -name "*g.vcf" >${INDIR}/args.txt
+sed -i 's/^/-V /' ${INDIR}/args.txt
+
+#IMPORTANT: The -Xmx value the tool is run with should be less than the total amount of physical memory available by at least a few GB, as the native TileDB library requires additional memory on top of the Java memory. Failure to leave enough memory for the native code can result in confusing error messages!
+gatk --java-options "-Xmx10g -Xms4g" GenomicsDBImport \
+  --genomicsdb-workspace-path ${OUTDIR} \
+  --overwrite-existing-genomicsdb-workspace true \
+  -L chr20 \
+  --arguments_file ${INDIR}/args.txt
+```
+
+We need to tell it which samples to use. You can specify them on the command line with `-V sample1.g.vcf`, but that gets tedious. So we're going to provide a file with a list of arguments to append to the command line "args.txt". It contains a `-V` flag for each GVCF file. 
+
+When we run `GenomicsDBImport` we specify some java options: `--java-options "-Xmx10g -Xms4g"`. Those give the maximum and minimum memory boundaries for this execution of the program. See the comment line saying we need to request *more* memory than the java option max from SLURM. 
+
+In this case we're providing a workspace path, but also telling the program to overwrite any existing data there (helpful when you're testing the code out and running it over and over again). 
+
+When we finally run this, it goes quickly, taking only 13 minutes:
+
+```bash
+$ seff 8847371
+Job ID: 8847371
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 7
+CPU Utilized: 00:00:57
+CPU Efficiency: 7.14% of 00:13:18 core-walltime
+Job Wall-clock time: 00:01:54
+Memory Utilized: 2.08 GB
+Memory Efficiency: 13.86% of 15.00 GB
+```
+
+#### Generating the VCF file
+
+Finally we can run the script that actually generates our VCF output, `06_genotypeGVCFs.sh`. Let's have a look at it:
+
+```bash
+# set a variable for the reference genome location
+GEN=../../genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+gatk GenotypeGVCFs \
+    -R ${GEN} \
+    -V gendb://../../results/05_variantCalling/gatk/db \
+    -O ${OUTDIR}/gatk.vcf 
+
+bgzip ${OUTDIR}/gatk.vcf 
+tabix -p vcf ${OUTDIR}/gatk.vcf.gz
+```
+
+At this point it's very straightforward. Provide the reference genome, the location of the database and an output file name. Because the database is already region-restricted, we don't need to specify a region. 
+
+After we output the VCF file, we bgzip it and tabix index it. 
+
+Again, this step does not require much in the way of resources. It took less than 1 minute to process chr20. 
+
+```bash
+$ seff 8847490
+Job ID: 8847490
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 7
+CPU Utilized: 00:00:49
+CPU Efficiency: 15.91% of 00:05:08 core-walltime
+Job Wall-clock time: 00:00:44
+Memory Utilized: 1.13 GB
+Memory Efficiency: 7.51% of 15.00 GB
+```
+
+### Options in the GATK approach
+
+It is possible to split up the GVCF calling into subregions to speed it up, though it gets a little complex parallelizing across individuals and regions, requiring some work to organize. 
+
+GATK also uses a population prior, but we don't know how to turn it off or specify population groupings! You *can* change the expected genetic diversity, however, which by default is again set at 0.001 (this value is ubiquitous because it is approximately the value in humans). 
+
+
+## What about AI/ML!?!
+
+There is another big variant caller we are *not* covering in this course, but it is a pretty cool one: Google's [`DeepVariant`](https://github.com/google/deepvariant). 
+
+`DeepVariant` uses machine learning rather than a probabilistic model to distinguish sequencing and mapping errors from true variation and genotype samples. In tests, it works well. The trick is that ML models like those used in DeepVariant need to be *trained* on a set of true variants. Ideally those true variants need to share similar characteristics with those in the data that will ultimately be analyzed. 
+
+In model systems (human, mouse, *Drosophila*) there are often resources available to train models, and the trained models may already be available (the one distributed with DeepVariant is trained on human data). Training is not computationally trivial and relies heavily on the quality of the input. 
+
+In non-model systems, good training data may not be available, or you may not have the time or expertise to do your own training. So the question becomes, will a variant detection model trained on another species do well on mine? The answer to that is... maybe, or maybe not. It really depends on what features of the data the model has learned to associate with true variants and artifacts, and whether those are consistent with your species. For genetically diverse species, such as *Fundulus heteroclitus*, it's highly likely that DeepVariant would do very poorly when applying a human-trained model. In humans, tight clusters of variants often signal false positives. In killifish, there is so much genetic diversity that *all* variants will look crowded together by comparison. This could conceivably cause problems. 
+
+See this [blog post](https://google.github.io/deepvariant/posts/2018-12-05-improved-non-human-variant-calling-using-species-specific-deepvariant-models/) from google about this very question, suggesting that a human trained model didn't do so well when run on mosquitoes, but species-specific training greatly improved the situation. 
+
+## The **VCF** format
+
+Ok, we've finally gotten our VCF files. Let's go over what a VCF file actually is. VCF (or **V**ariant **C**all **F**ormat) is the dominant file format used to store variant calls generated from high-throughput sequencing data. VCF format is a bit of a bear because it packs in so much information. After we cover it here, we'll look at tools for extracting useful information from it. 
+
+At this point, the format will probably seem a *little* familiar, as it is a tabular file that begins with a (sometimes) extensive header. It even has one field (INFO) that serves as a garbage bin of semi-colon separated tags (just like the attributes field in GTF/GFF!). 
+
+You can find a formal specification [here](https://samtools.github.io/hts-specs/VCFv4.2.pdf). But we'll also cover the basics in this section. 
+
+We're going to use `bcftools` to extract bits of the VCF to view them. We saw above how we can use it for variant calling, but it's got *tons* of other functionality (much like `samtools`!) so it's worth skimming through [the documentation](https://samtools.github.io/bcftools/bcftools.html) to see what it can do beyond what you see here. 
+
+We're going to look at the freebayes VCF because it produces the most annotations for each variant. 
+
+### The header
+
+VCF begins with a header. `bcftools view` prints a compressed VCF file to stdout, and `-h` prints *only* the header. 
+
+```{bash}
+bcftools view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head
+```
+
+The biggest part of the header is a sequence dictionary, listing all reference sequences and their lengths. 
+
+Let's look at the last few lines of the header:
+
+```{bash}
+bcftools view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | tail -n 20 
+```
+They record how we produced the VCF we're viewing now (unfortunately freebayes did not add its command line call to the header). 
+
+Note lines beginning: `INFO=<ID=...` and `FORMAT=<ID=...`. These give the definitions of tags found in the INFO and FORMAT fields of the tabular data. If you want to find out what the tag `DP` means, for example, you can do:
+
+```{bash}
+bcftools view -h variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | grep "=DP,"
+```
+
+The final line is the header line for the tabular data that follows. The fields are:
+
+1. **CHROM**: The reference sequence of the variant record, e.g. `chr20` or possibly an NCBI accession. 
+2. **POS**: The left most position of the variant. In case of an insertion, will be the base to the left of an insertion. 1-indexed (not zero). 
+3. **ID**: Any database identifiers that have been attached to the variant (such as [dbSNP](https://www.ncbi.nlm.nih.gov/snp/) IDs. see next chapter). Empty by default. 
+4. **REF**: The reference allele. Cannot be empty, as in the case of an insertion. Will be th base to the left. 
+5. **ALT**: One or more alternate alleles. Comma-separated. Cannot be empty. In case of a deletion will be the base to the left of the deletion. 
+6. **QUAL**: Phred-scaled variant quality determined by variant caller. You should know what these are by now!
+7. **FILTER**: Can be populated with values like `PASS` or `FAIL` or `LowQual` to indicate variants that pass some filtering procedure. Usually empty by default. 
+8. **INFO**: A semicolon separated list of annotations of the variant. Almost always contains basic information like the total depth at the locus, the counts of each observed allele and some other useful stuff. We'll see how to extract it into an easier format later. 
+9. **FORMAT**: Gives the format of the following fields, which contain genotypes. 
+10. **genotypes for sample X**: Every field from 10 onward contains genotype information for a sample along with (typically) some annotations, as defined in the FORMAT field. 
+
+Each column from 10 onwards represents one sample's vector of genotypes. 
+
+### The tabular data
+
+Now let's look at the tabular data:
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:33100000-33200000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head
+```
+
+In this case we specify `-H` to *suppress* the header and `-r chr20:33100000-33200000` to identify a particular region. 
+
+We can see there's a *lot* of information there. Let's take it a bit at a time. 
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:33100000-33200000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head | cut -f 1-7
+```
+Much cleaner! We can see a diversity of variant calls here. We have 7 biallelic SNPs, one multi-allelic SNP and two longer variants. The last two variants have *very bad* quality scores (0 and 7.50367e-15) respectively. Those are an example of freebayes opting for extreme high sensitivity, and we will definitely filter those out later. The other variant calls have rather extreme high quality scores. Improbably high, really. The probability of error for QUAL=7253.87 is 10^-725^. Take a moment to ask yourself whether we should ever believe any statistical output with that degree of confidence. 
+
+Anyway... these high quality variants are most likely real. The SNPs are straightforward. The haplotypes represent deletions, but they don't seem to be represented in a very parsimonious way. The first one might better have the alleles TC and T indicating a single-base deletion. We'll see how we can standardize representation later, but we can in fact see that's exactly how GATK does it:
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:33100000-33200000 variants/results/05_variantCalling/gatk/gatk.vcf.gz | head | cut -f 1-7
+```
+
+Now let's look at the INFO field:
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:33100000-33200000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head | cut -f 8
+```
+
+There's a *ton* of INFO. Many of these are statistics you could use to filter on. The tags are all defined in the header, as we mentioned above. A couple we look at a lot are `DP`, giving the total depth, `AF` giving the alternate allele frequency, and `AO`, giving the number of reads supporting the alternate allele. 
+
+Now let's look at the format and genotype fields:
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:33100000-33200000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head | cut -f 9-
+```
+
+The FORMAT field is a colon separated list of tags indicating what each genotype contains. These are also defined in the header. 
+
+Consider this format field `GT:DP:AD:RO:QR:AO:QA:GL` and this genotype field	`1/1:73:0,73:0:0:73:2712:-244.24,-21.9752,0`. It works out like this:
+
+| GT  | DP | AD   | RO | QR | AO | QA  | GL                      |
+|-----|----|------|----|----|----|-----|-------------------------|
+| 1/1 | 73 | 0,73 | 0  | 0  | 73 | 2712 | -244.24,-21.9752,0 |
+
+`GT` is the big one! Alleles are numbered from 0 as REF, ALT1, ALT2...ALTN. A genotype `0/1` indicates a REF/ALT heterozygote. The allele separator `/` indicates an unphased genotype. If the separator were instead `|` (`0|1`) that would indicate that all consecutive genotypes from that sample also using the separator were phase-known. For example, at position 1 you have `0|1`, position 10 you have `1|0` and position 20 you have `0|3`. You know that the two haplotypes spanning positions 1-20 are `010` and `103`. 
+
+Unphased genotypes have alleles sorted numerically, so a REF/ALT heterozygote will always be `0/1` and not `1/0`. Obviously the ordering matters for phased genotypes. 
+
+Missing genotypes are encoded differently by different programs. They may simply be `.` or they may be `./.`. For some programs missing genotypes will also have the rest of the annotations, but also missing, e.g `./.:.:.:.:.:.:.:.`. 
+
+`DP` gives the total depth for the sample. `AD` is the depth for each possible allele in the genotype. We don't often scrutinize these except in cases where we are interested in particular variants and their genotypes, or we are curious about some behavior of the variant caller that doesn't match our expectations for the data. `RO` and `AO` give counts of REF and ALT allele observations, while `QR` and `QA`give the sums of the phred base qualities for REF and ALT alleles. 
+
+For most callers there will be some version of a comma-separated genotype likelihood vector, in this case `GL`, which is the log10 scaled likelihood (i.e. the probability of the read data) for each possible genotype given the alleles. The values are scaled so that they are relative to the highest likelihood genotype (which makes that value 0). 
+
+### How do we dig in to a VCF file?
+
+We'll look at a few *very* basic things with linux/bash here, but we'll save the bulk for the next chapter. These tricks are useful when you want a quick glance at what's going on in a VCF file. You should only really use them on smallish regions as exploratory measures when you get results back. 
+
+Let's start by asking how many variants we've got we've got in our target region. 
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:29400000-34400000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | wc -l
+```
+
+What do the QUAL scores look like? We'll try four categories: < 10, >= 10 & < 30, >= 30 & < 100, >= 100. 
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:29400000-34400000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz |
+awk '
+  {if($6 < 10){w+=1}}
+  {if($6 >= 10 && $6 < 30){x+=1}}
+  {if($6 >= 30 && $6 < 100){y+=1}}
+  {if($6 >= 100){z+=1}}
+  END {print w,x,y,z}'
+```
+
+The *vast* majority are pretty very low quality. At least in this dataset, setting a QUAL threshold anywhere between 10 and 100 won't have a big impact on the number of variants retained. GATK and bcftools won't output so many garbage variants. Extremely high sensitivity is just how freebayes rolls. 
+
+We can also quickly pull out INFO field tags if we want. Let's grab the overall depth tag `DP` and summarize it along the lines of our coverage thresholds we considered previously. 
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:29400000-34400000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz |
+ggrep -oP "(?<=DP=)[0-9]+" |
+awk '
+  {if($1 < 90){w+=1}}
+  {if($1 >= 90 && $1 < 260){x+=1}}
+  {if($1 >= 260 && $1 < 1000){y+=1}}
+  {if($1 >= 1000){z+=1}}
+  END {print w,x,y,z}'
+```
+
+Note the `ggrep` is because this is being compiled on a mac, which natively has BSD versions of `grep` with slightly different options `ggrep` is the GNU version of grep that is installed as plain old `grep` on linux systems. 
+
+The regex `"(?<=DP=)[0-9]+"` contains a [zero-length assertion](https://www.regular-expressions.info/lookaround.html), it pulls out strings preceded by `DP=`. 
+
+There isn't really strong concordance between the QUAL numbers and the DP numbers. Not all bad variant records fall outside the depth thresholds. 
+
+Let's pull out one more tag that freebayes produces, the TYPE tag. 
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:29400000-34400000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz |
+ggrep -oP "(?<=TYPE=)[a-zA-Z]+" |
+sort | uniq -c | sort -g
+```
+We can see the vast majority of variant records are categorized as SNPs, though we also have insertions, deletions, complex variants, and multi-nucleotide polymorphisms (typically short haployptes of just SNPs). 
+
+Now let's look at the distribution of genotypes in just one sample:
+
+```{bash}
+#| warning: false
+bcftools view -H -r chr20:29400000-34400000 variants/results/05_variantCalling/freebayes/freebayes.vcf.gz |
+cut -f 10 |
+sed 's/:.*//' |
+sort | uniq -c | sort -g
+```
+As we might expect, most genotypes are `0/0` in this sample, with the next most common being `0/1`. We can see there are a handful of loci that have many alleles. These are probably mostly false positives. After all, with only 3 diploids, it's impossible to have more than 6 alleles at a site, and if sites with such allelic diversity existed, it would be next to impossible to sample 6 different alleles with only three individuals anyway. 
+
+## Conclusions
+
+We've now seen several pieces of software for calling variants from mapped data. We've covered the VCF format and how to dig into a little bit. In the next chapter we will look at tools for manipulating and extracting information from VCF files, summarizing them, filtering them and reformatting. 
+

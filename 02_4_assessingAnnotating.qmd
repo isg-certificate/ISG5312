@@ -1,0 +1,415 @@
+---
+title: "Comparing and Annotating Variants"
+editor: source
+
+engine: knitr
+
+---
+
+## Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| Comparing variants. |
+| Annotating variants. |
+
+
+## Comparing variant call sets
+
+Sometimes we want to compare sets of variants. It may be because we are trying to evaluate two different approaches to calling variants on our data, we may have two different datasets and we want to see how they differ, or we may want to check our variants against an existing database containing annotations (see below the section on adding database IDs). These all have similar mechanics, and require us to match identical variants across sets. This is conceptually pretty simple, but there are some complications:
+
+- Variant callers often represent identical variants in different ways. There may be even be fundamental ambiguity about how they should be represented. 
+
+  See freebayes vs gatk for one site where representation diverges:
+  
+  ```
+  # freebayes
+  chr20	29402036	.	TATAGATATATGTACA	TA
+
+  # gatk
+  chr20	29402036	.	TATAGATATATGTAC	  T	
+  ```
+
+- Variant callers may output short haplotypes or single records. 
+  
+  See again, freebayes vs gatk
+  ```
+  # freebayes
+  chr20	34025687	.	AA	TT
+
+  #gatk
+  chr20	34025687	.	A	T	
+  chr20	34025688	.	A	T	
+  ```
+
+- Multi-allelic records need to be accounted for. Variant:
+
+  ```
+  chr20	34091776	.	T	TTTG
+  ```
+  
+  Is a subset of
+  
+  ```
+  chr20	34091776	.	T	TTTG,TTTGG
+  ```
+  
+The examples above is are easy ones. They can be dealt with through normalization and decomposition as we will see below. Other cases are more difficult, particularly in cases where ambiguous alleles at multiple sites are emitted without phase information. Specialized software such as [`hap.py`](https://github.com/Illumina/hap.py) and [`RTG vcfeval`](https://github.com/RealTimeGenomics/rtg-tools) have been developed to do this with the greatest rigor for benchmarking studies. See [this paper](https://www.nature.com/articles/s41587-019-0054-x) for a discussion of strategies for rigorous variant call comparisons. 
+
+We're going to apply some simpler approaches below to demonstrate the impacts. 
+
+### Normalization of variants
+
+The first thing we'll do is *normalize* variants. [This site](https://genome.sph.umich.edu/wiki/Variant_Normalization) has a nice explanation of the details, but in short, we want to *left align* ambiguous variants (push them as far left as is consistent with the data), and we want the variants to be parsimonious (we don't want the REF and ALT alleles to have extra bases in them). 
+
+We can do this with `bcftools norm`. Let's first have a look at some variants annotated by freebayes as "complex":
+
+```{bash}
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+bcftools view -r chr20:29416672-29535934 -H -i 'INFO/TYPE="complex"' ${VCFIN} | 
+cut -f 1-5
+```
+Now what happens to them when we apply `bcftools norm`? Note that we need to give it the reference genome so it can see the context of the variants to be normalized. 
+
+```{bash}
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+GENOME=variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+  
+bcftools view -r chr20:29416672-29535934 -i 'INFO/TYPE="complex"'  ${VCFIN} | 
+  bcftools norm -f ${GENOME} | 
+  bcftools view -H - | 
+  cut -f 1-5 
+```
+We can see that this set of 10 variants was already largely left-aligned, but often not parsimonious, so several were trimmed. 
+
+
+### Decomposition of haplotype variants
+
+Haplotype variants can sometimes be broken down into their constituent parts. This can make some kinds of analysis easier, and for the simple approach to comparing variant call sets we use below, it's necessary for us to do, otherwise concordance will look very low. This mostly applies to `freebayes`, which outputs tons of small haplotypes, though we can run it later on the GATK output to see if it does anything significant. 
+
+After normalization, we can pipe our VCF to `vcfallelicprimitives`, a part of the package [`vcflib`](https://github.com/vcflib/vcflib?tab=readme-ov-file). Like other packages we've mentioned or worked with, it has many useful tools and the documentation is worth perusing. 
+
+`vcfallelicprimitives` will break down our complex variants into multiple VCF records. Note that it cannot update the annotations in the INFO or FORMAT fields (aside from the genotype) so those are discarded by default. So only use this tool when you think you won't need that information anymore. 
+
+```bash
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+GENOME=variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+  
+bcftools view -r chr20:29416672-29535934 -i 'INFO/TYPE="complex"'  ${VCFIN} | 
+  bcftools norm -f ${GENOME} | 
+  vcfallelicprimitives |
+  bcftools view -H - | 
+  cut -f 1-5
+```
+
+```
+Lines   total/split/realigned/skipped:	10/0/3/0
+chr20	29416682	.	A	G
+chr20	29416683	.	TCC	T
+chr20	29422132	.	T	C
+chr20	29422136	.	C	T
+chr20	29427951	.	C	G
+chr20	29427952	.	C	T
+chr20	29427953	.	A	G
+chr20	29427954	.	C	G
+chr20	29447781	.	G	T
+chr20	29447785	.	G	T
+chr20	29481154	.	G	T
+chr20	29481158	.	T	C
+chr20	29501683	.	G	A
+chr20	29501684	.	T	C
+chr20	29505266	.	T	C
+chr20	29505272	.	C	T
+chr20	29531939	.	T	AA
+chr20	29535161	.	C	A
+chr20	29535163	.	T	C
+chr20	29535927	.	GA	A
+chr20	29535929	.	T	C
+```
+
+Here we can see our 10 variants above decomposed into 21 constituents. 
+
+### Splitting multi-allelic records 
+
+If we want to have each alternate allele represented by a single VCF record, we can do that with `bcftools norm` as well. This helps with database matching, where database records represent single alternate alleles, not all the variation known from a site. 
+
+Some multi-allelic records (some of these may be artifacts that remain after filtering):
+
+```{bash}
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+GENOME=variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+bcftools view -i 'N_ALT>1' -r chr20:32014243-32129138 ${VCFIN} | 
+  bcftools norm -f ${GENOME} |
+  bcftools view -H |
+  cut -f 1-5 
+```
+Now to give each allele its own record and normalize we can use the argument `-m -any` to `bcftools norm`:
+
+```{bash}
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+GENOME=variants/genome/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta
+
+bcftools view -i 'N_ALT>1' -r chr20:32014243-32129138 ${VCFIN} | 
+  bcftools norm -m -any -f ${GENOME} |
+  bcftools view -H |
+  cut -f 1-5 
+```
+
+
+### Comparisons
+
+We're almost ready to do some comparisons. Let's run the script `scripts/06_filteringAnnotating/02_normalizeVariants.sh` to generate some files we can use to filter our variants. This script will create two more VCF files for each variant caller. One where the variants have been just normalized (`*norm.vcf.gz`), and one where the haplotypic variants have been broken down into their constituent parts with `vcfallelicprimitives` (`*normAP.vcf.gz`). 
+
+#### Summaries
+
+To compare VCF files, we can use a couple tools. To get a quick summary, we will use `vt partition` (mentioned above). `vcftools` produces a quick summary as well with the `diff` options, but this one has a nicer format. Let's compare GATK to freebayes:
+
+```bash
+#| warning: false
+VCF1=variants/results/05_variantCalling/freebayes/freebayes_normAP.vcf.gz
+VCF2=variants/results/05_variantCalling/gatk/gatk_normAP.vcf.gz
+vt partition ${VCF1} ${VCF2}
+```
+
+```
+partition v0.5
+
+Options:     input VCF file a   ../../results/05_variantCalling/freebayes/freebayes_normAP.vcf.gz
+             input VCF file b   ../../results/05_variantCalling/gatk/gatk_normAP.vcf.gz
+         [w] write_partition    false
+
+    A:        8074 variants
+    B:       11867 variants
+
+                   ts/tv  ins/del
+    A-B        392 [0.68] [0.73]
+    A&B       7682 [2.03] [0.94]
+    B-A       4185 [1.32] [1.12]
+    of A     95.1%
+    of B     64.7%
+
+Time elapsed: 0.16s
+```
+
+Now we notice here that GATK has far more variants than freebayes, but note that the variants unique to GATK have a much lower ts/tv ratio, suggesting something may be amiss with them. Now, we didn't filter these the *exact* same way. Particularly, we used the allele balance annotation provided by freebayes, and that is likely to have flagged a decent number of problematic variants, particularly in the centromere region. We'd probably see much higher concordance in general if we restricted to the more accessible region >32mb. 
+
+Note also that some of the tools mentioned above `hap.py` and `vcfeval` would do a more rigorous job with this. 
+
+#### Extracting sets of variants
+
+`vt` gave us a summary. If we want to extract sets of variants that are shared or not, we can use `bcftools isec`. 
+
+```{bash}
+VCF1=variants/results/05_variantCalling/freebayes/freebayes_normAP.vcf.gz
+VCF2=variants/results/05_variantCalling/gatk/gatk_normAP.vcf.gz
+OUT=variants/results/05_variantCalling/freebayes/fb_gatk_vars
+bcftools isec -p ${OUT} ${VCF1} ${VCF2}
+
+ls ${OUT}
+```
+This produces 4 VCF files. Variants unique to VCF1, unique to VCF2, shared records from VCF1 and shared records from VCF2. The README explains. 
+
+You can use these to investigate discrepancies if you're interested in that kind of thing. 
+
+## Annotating variants
+
+In this section we're going to cover annotating variants. There are *lots* of ways to annotate variants. We'll cover 2 here. The first is very closely related to our variant comparisons above. The idea is that given some database of known variants, perhaps with literature references associated, you want to see if any of your variants can be found in the database. 
+
+In the second, you have some annotation of your genome, usually containing genes at the least, and you want to know how variants you've discovered might impact the function of your annotated sequences. There are lots of complex models for looking at this, but we'll stick to asking basic questions like "is the variant in a coding region?" "is the variant a missense or nonsense mutation?"
+
+### Adding database IDs
+
+As an example, we'll use [dbSNP](https://www.ncbi.nlm.nih.gov/snp/) here. dbSNP is a database of short variants that each of unique IDs (e.g. rsXXXXXX). You can look up information about these variants, if there is any published and linked to the database record. 
+
+To link *our* variants to dbSNP records, we are going to download a VCF file of dbSNP variants with the ID column populated with rsIDs and transfer the rsIDs over to our VCF using bcftools. It's pretty straightforward. Remember that to do this, we will need to have normalized our variants. It's a good idea to also break down multi-allelic records, but we're going to skip that step here for convenience as we don't have that many anyway. 
+
+Have a look at the script `scripts/06_filteringAnnotating/03_dbSNP.sh`. 
+
+To download the dbSNP records we want, we have to do a little bit of fiddling around with the files:
+
+```bash
+# get the dbsnp set for chromosome 20
+    # see here for details
+	    # https://www.ncbi.nlm.nih.gov/variation/docs/human_variation_vcf/
+
+	# download only a section of chr20 from dbsnp. change `20` to `chr20` in sequence ID column
+	tabix -h ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz 20:28000000-35000000 | \
+	sed 's/^20/chr20/' | \
+	bgzip -c >${OUTDIR}/chr20.dbsnp.vcf.gz
+	tabix -p vcf -f ${OUTDIR}/chr20.dbsnp.vcf.gz
+
+	# update the sequence dictionary
+	gatk UpdateVCFSequenceDictionary -V ${OUTDIR}/chr20.dbsnp.vcf.gz --source-dictionary ${INDIR}/freebayes_normAP.vcf.gz --output ${OUTDIR}/chr20.dbsnp.contig.vcf.gz --replace=true
+	tabix -p vcf -f ${OUTDIR}/chr20.dbsnp.contig.vcf.gz
+
+	# remove intermediate files
+	rm ${OUTDIR}/chr20.dbsnp.vcf.gz*
+```
+
+First note that if you visit the link in the comment, the dbsSNP records are on GRCh38 (even different patches of this genome version have the same coordinate system, so it is compatible with the genome we're using, at least for the chromosomes themselves). 
+
+Next, dbSNP has chromosome names like `20` instead of `chr20`, so we need to fix them so they'll match up. This is a perennial problem with human genomes. Different copies of GRCh38 may have chromosomes labeled with `20`, `chr20`, Genbank IDs, or RefSeq IDs. 
+
+Now that we've altered the VCF records, we next need to update the sequence dictionary in the header. This could be a problem for unassigned scaffolds that might differ between our GRCh38 and the one dbSNP is using if we were doing the whole genome (for the most part, you probably don't need rsIDs for all variants in an entire WGS study). 
+
+Finally, remove intermediate files. 
+
+Now we've got our file, we can use `bcftools annotate` to transfer the rsIDs:
+
+```bash
+bcftools annotate -c ID \
+--output-type z \
+-a ${OUTDIR}/chr20.dbsnp.contig.vcf.gz \
+${INDIR}/freebayes_normAP.vcf.gz >${OUTDIR}/freebayes_normAP.RSID.vcf.gz
+```
+
+To see the results:
+
+```bash
+bcftools view -H ${OUTDIR}/freebayes_normAP.RSID.vcf.gz | cut -f 1-5 | head
+```
+
+You can see the ID column (3) is populated with rsIDs. 
+
+```
+chr20   29400112        rs1403688300    T       G
+chr20   29400296        rs1408580948    TA      T
+chr20   29400592        rs1379819498    T       C
+chr20   29400683        rs1213763564    A       G
+chr20   29402005        rs1248633832    G       A
+chr20   29402036        rs1353591646    TATAGATATATGTAC T
+chr20   29402158        rs1385687340    TATAC   T
+chr20   29402162        rs1476534343    C       CAT
+chr20   29402228        rs1459724709    T       C
+chr20   29402415        rs1172173923    A       G
+```
+
+And for the first one, you can see there is [an entry in dbSNP](https://www.ncbi.nlm.nih.gov/snp/?term=rs1403688300). 
+
+### Variant effect annotations
+
+Finally, we're going to cover annotating variants with functional impacts. There are a number of tools available for this, including [ANNOVAR](https://annovar.openbioinformatics.org/en/latest/), [VEP from ENSEMBL](https://github.com/Ensembl/ensembl-vep), [snpEff](https://pcingola.github.io/SnpEff/) and good old `bcftools`. 
+
+These tools classify variants by how they impact annotated sequences. Do they change an amino acid sequence? Are they located in an annotated sequence? At least ANNOVAR can also add database annotations (i.e. dbSNP). They don't make predictions about the functional impact from the level of conservation or structural or biochemical properties of the resulting sequence alterations. For that there are other approaches, such as [PolyPhen2](https://pmc.ncbi.nlm.nih.gov/articles/PMC4480630/) and [SIFT](https://academic.oup.com/nar/article-abstract/31/13/3812/2904131). For human data, it's possible to grab pre-existing predictions from [dbNSFP](https://www.dbnsfp.org) and integrate them using some of the tools above ([like snpEff/snpSift](https://pcingola.github.io/SnpEff/snpsift/dbnsfp/)). 
+
+Below we'll demonstrate `bcftools` and `snpEff`. 
+
+#### bcftools csq
+
+For this method, we need an annotation in `GFF3` format and our VCF file. Per the [documentation](https://samtools.github.io/bcftools/howtos/csq-calling.html) it will only accept ENSEMBL formatted GFF3. 
+
+Check out the script here `scripts/06_filteringAnnotating/04_bcftoolsCSQ.sh`. 
+
+Just like with the dbSNP file, we're going to grab it and update the chromosome names:
+
+```bash
+wget -P ${OUTDIR} https://ftp.ensembl.org/pub/release-113/gff3/homo_sapiens/Homo_sapiens.GRCh38.113.chromosome.20.gff3.gz
+gunzip ${OUTDIR}/Homo_sapiens.GRCh38.113.chromosome.20.gff3.gz
+
+# fix up chromosome 20 names
+sed -i 's/^20/chr20/' ${OUTDIR}/Homo_sapiens.GRCh38.113.chromosome.20.gff3
+```
+
+Then we can run it pretty simply:
+
+```bash
+GFF=${OUTDIR}/Homo_sapiens.GRCh38.113.chromosome.20.gff3
+
+# run bcftools csq
+bcftools csq --phase a -f ${GENOME} -g ${GFF} ${VCFIN} -Oz -o ${VCFOUT}
+```
+
+This tool wants to predict variants while accounting for other nearby variants. For that it needs to know the phase. We don't have phase information, so we use `--phase a` to tell it to pretend the data are phased. Not ideal, but otherwise it will error out. 
+
+This will add annotations to the INFO field. An example:
+
+```
+BCSQ=missense|REM1|ENST00000201979|protein_coding|+|28H>28R|31476528A>G
+```
+
+The information here is `|`-separated. A single variant can have multiple annotations (annotations are transcript-centered). 
+We can list the fields in the annotation with:
+
+```bash
+ bcftools +split-vep -l $VCFOUT
+ ```
+ ```
+ 0       Consequence
+1       gene
+2       transcript
+3       biotype
+4       strand
+5       amino_acid_change
+6       dna_change
+```
+
+They are fairly self-explanatory. To extract just these annotations, we can use format strings similar to `bcftools query`
+
+```bash
+bcftools +split-vep -s worst -f '%CHROM\t%POS\t%Consequence\t%gene\t%amino_acid_change' $VCFOUT | head
+```
+```
+chr20   29410595        non_coding      DUX4L34 .
+chr20   29410654        non_coding      DUX4L34 .
+chr20   29410720        non_coding      DUX4L34 .
+chr20   29415522        non_coding      FRG2EP  .
+chr20   29415878        non_coding      FRG2EP  .
+chr20   29416287        non_coding      FRG2EP  .
+chr20   29416682        non_coding      FRG2EP  .
+chr20   29416706        non_coding      FRG2EP  .
+chr20   29416719        non_coding      FRG2EP  .
+chr20   29416809        non_coding      FRG2EP  .
+```
+
+If we wanted to summarize the consequence types we could do:
+
+```bash
+bcftools +split-vep -s worst -f '%CHROM\t%POS\t%Consequence\t%gene\t%amino_acid_change' $VCFOUT | cut -f 3 | sort | uniq -c | sort -g
+```
+```
+Warning: fewer BCSQ fields than expected at chr20:29410595, filling with dots. This warning is printed only once.
+      1 inframe_insertion
+      1 missense&nmd_transcript
+      1 stop_gained
+      1 synonymous&nmd_transcript
+      3 splice_region
+      4 5_prime_utr&nmd_transcript
+      4 splice_region&nmd_transcript
+      9 3_prime_utr&nmd_transcript
+     17 5_prime_utr
+     22 synonymous
+     26 missense
+     61 3_prime_utr
+    324 non_coding
+   2352 intron
+```
+
+
+#### snpEff
+
+[`snpEff`](https://pcingola.github.io/SnpEff/) works similarly to bcftools here, but gives a little more detail, and a nice summary file. It also requires you to create a database of your annotation beforehand and is reasonably tolerant of different annotation files. This makes it a nice choice for non-model systems. The documentation explains how to create a database, but we are going to use a pre-generated one for GRCh38. 
+
+Check out the script here: `scripts/06_filteringAnnotating/05_snpEff.sh`.
+
+Aside from the usual accounting for directories, etc, the main call is this:
+
+```bash
+java -Xmx8G -jar ${SNPEFF} eff -dataDir $(pwd)/${OUTDIR}/snpeff_data hg38 $VCF | bgzip -c >${VCFANN}
+```
+
+We're telling it to use `hg38`, which has the same coordinate system as `GRCh38` (and uses chr20 style names). 
+
+Like bcftools, it adds a new tag to the INFO field `ANN`. There is a pretty long document [explaining it](https://pcingola.github.io/SnpEff/adds/VCFannotationformat_v1.0.pdf) and a bit of a shorter explanation in the [snpEff docs](https://pcingola.github.io/SnpEff/snpeff/inputoutput/#ann-field-vcf-output-files). 
+
+Here's an example:
+
+```
+ANN=T|missense_variant|MODERATE|PXMP4|PXMP4|transcript|NM_007238.4|protein_coding|4/4|c.610G>A|p.Val204Ile|733/5724|610/639|204/212||
+```
+
+Check the docs above for an explanation. A big advantage over bcftools here is that snpEff also outputs an html formatted report, and a summary text file giving results by gene. Querying and summarizing a big VCF file yourself can be a big lift. 
+
+
+

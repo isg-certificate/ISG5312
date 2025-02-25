@@ -3,9 +3,18 @@ title: "Variant Detection and Genotyping"
 editor: source
 ---
 
-# Learning Objectives
+## Learning Objectives
 
 |                           |
 |------------------------------------------------------------------------|
 | **Learning Objectives:**  |
-| FIRST OBJECTIVE   |
+| Conduct quality control analysis of raw and mapped data specific to variant detection.  |
+| Identify variants and genotype samples against a reference genome. |
+| Manipulate the VCF format |
+| Apply strategies for filtering problematic variants. |
+| Assess variant call-set quality. |
+| Conduct basic variant effect annotation. |
+
+
+In this module we will work through a basic variant detection and genotyping workflow. We'll cover quality control at various stages of the analysis, and use a few different variant callers so that we can compare results. We'll also cover basic variant effect annotation. The basic scripts we're going to work through can be found at [this github repository](https://github.com/isg-certificate/variants). 
+

@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; Assembling the genome – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./04_0_scRNAseq.html" rel="next">
+<link href="./03_1_genomeAssemblyKmers.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03_0_genomeAssembly.html">Genome Assembly</a></li><li class="breadcrumb-item"><a href="./03_2_Assembling.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./03_0_genomeAssembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Genome Assembly</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_1_genomeAssemblyKmers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_2_Assembling.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-cell RNAseq</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">8.1</span> Learning Objectives</a></li>
+  <li><a href="#getting-started." id="toc-getting-started." class="nav-link" data-scroll-target="#getting-started."><span class="header-section-number">8.2</span> Getting started.</a>
+  <ul class="collapse">
+  <li><a href="#pacbio-data" id="toc-pacbio-data" class="nav-link" data-scroll-target="#pacbio-data"><span class="header-section-number">8.2.1</span> PacBio data</a></li>
+  <li><a href="#hi-c-data." id="toc-hi-c-data." class="nav-link" data-scroll-target="#hi-c-data."><span class="header-section-number">8.2.2</span> Hi-C data.</a></li>
+  </ul></li>
+  <li><a href="#assembling-the-genome" id="toc-assembling-the-genome" class="nav-link" data-scroll-target="#assembling-the-genome"><span class="header-section-number">8.3</span> Assembling the genome</a>
+  <ul class="collapse">
+  <li><a href="#running-hifiasm" id="toc-running-hifiasm" class="nav-link" data-scroll-target="#running-hifiasm"><span class="header-section-number">8.3.1</span> Running <code>hifiasm</code></a></li>
+  <li><a href="#hifiasm-output" id="toc-hifiasm-output" class="nav-link" data-scroll-target="#hifiasm-output"><span class="header-section-number">8.3.2</span> <code>hifiasm</code> output</a></li>
+  <li><a href="#examining-the-output" id="toc-examining-the-output" class="nav-link" data-scroll-target="#examining-the-output"><span class="header-section-number">8.3.3</span> Examining the output</a></li>
+  </ul></li>
+  <li><a href="#scaffolding-with-hi-c-data" id="toc-scaffolding-with-hi-c-data" class="nav-link" data-scroll-target="#scaffolding-with-hi-c-data"><span class="header-section-number">8.4</span> Scaffolding with Hi-C data</a>
+  <ul class="collapse">
+  <li><a href="#hi-c-alignment" id="toc-hi-c-alignment" class="nav-link" data-scroll-target="#hi-c-alignment"><span class="header-section-number">8.4.1</span> Hi-C alignment</a></li>
+  <li><a href="#scaffolding-with-yahs" id="toc-scaffolding-with-yahs" class="nav-link" data-scroll-target="#scaffolding-with-yahs"><span class="header-section-number">8.4.2</span> Scaffolding with <code>YaHS</code></a></li>
+  </ul></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions"><span class="header-section-number">8.5</span> Conclusions</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03_0_genomeAssembly.html">Genome Assembly</a></li><li class="breadcrumb-item"><a href="./03_2_Assembling.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">8.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Assemble a genome sequence.</td>
+</tr>
+<tr class="odd">
+<td>Scaffold a genome sequence using Hi-C data.</td>
+</tr>
+</tbody>
+</table>
+<p>In this chapter we’ll move on to assembling our genome, understanding the assembly outputs, and scaffolding it. Typically we would mix assembly evaluation steps in here in a workflow, but we’re going to save those for the next chapter.</p>
+</section>
+<section id="getting-started." class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="getting-started."><span class="header-section-number">8.2</span> Getting started.</h2>
+<p>In ISG5302 you learned about many of the different data types and combinations of data that can go into genome assembly. Here we’re going to use PacBio HiFi data and Hi-C data from <a href="https://arimagenomics.com">Arima Genomics</a>. We’ll generate a <em>phased diploid</em> assembly. The diploid part means we’re going to get <em>two</em> copies of our genome, and phased means that, a few switch errors notwithstanding, sequences will be as they were inherited from the parent.</p>
+<section id="pacbio-data" class="level3" data-number="8.2.1">
+<h3 data-number="8.2.1" class="anchored" data-anchor-id="pacbio-data"><span class="header-section-number">8.2.1</span> PacBio data</h3>
+<p>The PacBio data is what generates the primary assembly. As we have seen, our PacBio data has mean base quality 35.6 for an error rate of 0.00028, or about 4.2 errors per 15kb read This is much lower than our estimated heterozygosity, which our lowest estimate said was around 10x higher, leading to a minimum expectation of 42 heterozygous sites per 15kb (though this will certainly vary considerable across the genome). This means that for much of the genome, the assembler will be able to see the two haplotypes in the genome as largely distinct entities and be able to peel them apart. For older long-read assemblies using data with much higher error rates this was not usually the case. Assemblers occasionally split out bits of diploid sequence, but inconsistently, and they did not identify it as such leading to artifactual duplication in the primary genome assembly that needed to be purged later on.</p>
+</section>
+<section id="hi-c-data." class="level3" data-number="8.2.2">
+<h3 data-number="8.2.2" class="anchored" data-anchor-id="hi-c-data."><span class="header-section-number">8.2.2</span> Hi-C data.</h3>
+<p>We’re going to use the Hi-C data in two different ways.</p>
+<ol type="1">
+<li>To phase the diploid assembly.</li>
+<li>To scaffold our subchromosomal contigs into chromosome-scale sequences.</li>
+</ol>
+<p>With just PacBio data we can often assemble two haplotypes, but because some genomic regions will have lower genetic diversity, there are likely to be regions where the haplotypes are not so distinct. This leads to problems with <em>phasing</em>. Sections of largely homozygous sequence will cause uncertainty in which haplotypes go together. Similar ambiguities in the genome assembly graph cause the assembly to be broken up into contigs that are not chromosome length.</p>
+<p><img src="images/ISG5312_HiC_figure_1.jpg" class="img-fluid" alt="Phasing uncertainty"> <a href="https://en.wikipedia.org/wiki/Hi-C_(genomic_analysis_technique)">Hi-C</a> gives us information about DNA sequences that are in physical proximity. The way it works is by cross-linking DNA that is in physical contact in the nucleus of the cell. The DNA is then digested by restriction enzymes, and cross-linked pieces of DNA are ligated together. This produces lots of artificial chimeric sequences composed of fragments of DNA that are in physical contact in the nucleus, but frequently much further apart than typical long-reads. Hi-C is part of a general class of “chromatin conformation capture” methods that were developed to try to understand the tertiary structure of DNA in the cell (are are still used for this purpose).</p>
+<p>In genome assembly, however, we leverage this information to learn about the primary sequence. If we sequence a very large number of these chimeric fragments, we can both phase our haplotypes and order and orient contigs that have been broken up by unresolvable tangles in the genome assembly graph into chromosome-scale sequences (albeit with some gaps).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ISG5312_HiC_figure_2.jpg" class="img-fluid figure-img"></p>
+<figcaption>Hi-C reads</figcaption>
+</figure>
+</div>
+<p>The way this works is by mapping the sequences back to the assembly and analyzing the frequency of inferred contacts between genomic regions. Due to complex tertiary structure of DNA and vagaries of read mapping, the contact frequency is not a simple linear function of distance along the sequence, but it often contains enough information to substantially improve a fragmented assembly and to phase haplotypes.</p>
+<p>It should be noted Hi-C data can be used to phase <em>within chromosomes</em> but not <em>across chromosomes</em>. That is to say, you cannot learn from Hi-C data which chromosomes are maternal and which are paternal. For that you need actual parental data. Sex chromosomes are a general exception to this, with an exception to the exception that some organisms have <em>mostly</em> genetic sex determination but can <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6369831/">nevertheless switch sexes</a> such that a male offspring in a species with XY sex determination could conceivably inherit a Y chromosome from its mother and an X from its father. But that’s neither here nor there.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/ISG5312_HiC_figure_3.jpg" class="img-fluid figure-img"></p>
+<figcaption>Mapped reads and resolved sequence</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="assembling-the-genome" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="assembling-the-genome"><span class="header-section-number">8.3</span> Assembling the genome</h2>
+<p>In this chapter we’re going to use the assembler <a href="https://www.nature.com/articles/s41592-020-01056-5">hifiasm</a>. It is fast and effective. It is built around high accuracy long reads (like PacBio HiFi), but it has features that can incorporate:</p>
+<ul>
+<li>Hi-C data for phasing (demonstrated in this chapter).</li>
+<li>Parental data, used to bin reads by parent of origin and phase haplotypes (<em>across</em> chromosomes).</li>
+<li>Ultra-long ONT data to improve the contiguity of the assembly.</li>
+</ul>
+<p>Genome assembly has historically required pretty large amounts of memory, but <code>hifiasm</code> is relatively efficient. We’re going to request 24 cpus and 100G of memory. Note that per the documentation, <code>hifiasm</code> wants &gt; 13x coverage per haplotype for assembly. We have almost 18x coverage, so we’ll be ok. With older methods (shorter reads or higher error rates) this kind of coverage would have been unthinkably low!</p>
+<section id="running-hifiasm" class="level3" data-number="8.3.1">
+<h3 data-number="8.3.1" class="anchored" data-anchor-id="running-hifiasm"><span class="header-section-number">8.3.1</span> Running <code>hifiasm</code></h3>
+<p>Let’s look at our script here: <code>scripts/04_assembly/01_hifiasm.sh</code> program call looks like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hifiasm</span> <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">-t</span> 24 <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> <span class="va">${OUTDIR}</span>/Fdiaphanus.asm <span class="dt">\</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--h1</span> <span class="va">${INDIR}</span>/fFunDia1_Banded_Killifish_R1_001.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--h2</span> <span class="va">${INDIR}</span>/fFunDia1_Banded_Killifish_R2_001.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">${INDIR}</span>/m64330e_221020_171856.bc1022--bc1022.hifi_reads.fastq.gz <span class="dt">\</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">${INDIR}</span>/m64334e_221030_084704.bc1022--bc1022.hifi_reads.fastq.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>the <code>--hn</code> options provide the paired-end Hi-C data. The other two fastq.gz files are just two chunks of HiFi data (you can append as many fastq files as you need). <code>Fdiaphanus.asm</code> is the file prefix that <code>hififasm</code> uses.</p>
+<p><code>seff</code> output for this job:</p>
+<pre><code>Job ID: 8890455
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 24
+CPU Utilized: 3-20:14:40
+CPU Efficiency: 75.28% of 5-02:32:24 core-walltime
+Job Wall-clock time: 05:06:21
+Memory Utilized: 73.56 GB
+Memory Efficiency: 21.02% of 350.00 GB</code></pre>
+<p>This indicates decent memory and CPU efficiency, and only 5 hours wall-time to do the assembly!</p>
+</section>
+<section id="hifiasm-output" class="level3" data-number="8.3.2">
+<h3 data-number="8.3.2" class="anchored" data-anchor-id="hifiasm-output"><span class="header-section-number">8.3.2</span> <code>hifiasm</code> output</h3>
+<p><code>hifiasm</code> will generate quite a few files:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ll</span> <span class="va">${OUTDIR}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>-rw-r--r-- 1 nreid cbc  12G Feb 19 15:49 Fdiaphanus.asm.ec.bin
+-rw-r--r-- 1 nreid cbc 1.3G Feb 19 16:50 Fdiaphanus.asm.hic.hap1.p_ctg.gfa
+-rw-r--r-- 1 nreid cbc 3.1M Feb 19 16:50 Fdiaphanus.asm.hic.hap1.p_ctg.lowQ.bed
+-rw-r--r-- 1 nreid cbc  29M Feb 19 16:50 Fdiaphanus.asm.hic.hap1.p_ctg.noseq.gfa
+-rw-r--r-- 1 nreid cbc 1.3G Feb 19 16:51 Fdiaphanus.asm.hic.hap2.p_ctg.gfa
+-rw-r--r-- 1 nreid cbc 3.3M Feb 19 16:51 Fdiaphanus.asm.hic.hap2.p_ctg.lowQ.bed
+-rw-r--r-- 1 nreid cbc  28M Feb 19 16:51 Fdiaphanus.asm.hic.hap2.p_ctg.noseq.gfa
+-rw-r--r-- 1 nreid cbc 2.7G Feb 19 16:47 Fdiaphanus.asm.hic.lk.bin
+-rw-r--r-- 1 nreid cbc 1.3G Feb 19 15:57 Fdiaphanus.asm.hic.p_ctg.gfa
+-rw-r--r-- 1 nreid cbc 2.9M Feb 19 15:58 Fdiaphanus.asm.hic.p_ctg.lowQ.bed
+-rw-r--r-- 1 nreid cbc  31M Feb 19 15:57 Fdiaphanus.asm.hic.p_ctg.noseq.gfa
+-rw-r--r-- 1 nreid cbc 3.0G Feb 19 15:56 Fdiaphanus.asm.hic.p_utg.gfa
+-rw-r--r-- 1 nreid cbc  13M Feb 19 15:57 Fdiaphanus.asm.hic.p_utg.lowQ.bed
+-rw-r--r-- 1 nreid cbc  55M Feb 19 15:56 Fdiaphanus.asm.hic.p_utg.noseq.gfa
+-rw-r--r-- 1 nreid cbc 3.1G Feb 19 15:55 Fdiaphanus.asm.hic.r_utg.gfa
+-rw-r--r-- 1 nreid cbc  13M Feb 19 15:56 Fdiaphanus.asm.hic.r_utg.lowQ.bed
+-rw-r--r-- 1 nreid cbc  55M Feb 19 15:55 Fdiaphanus.asm.hic.r_utg.noseq.gfa
+-rw-r--r-- 1 nreid cbc  30G Feb 19 16:08 Fdiaphanus.asm.hic.tlb.bin
+-rw-r--r-- 1 nreid cbc 1.7G Feb 19 15:50 Fdiaphanus.asm.ovlp.reverse.bin
+-rw-r--r-- 1 nreid cbc 8.3G Feb 19 15:50 Fdiaphanus.asm.ovlp.source.bin</code></pre>
+<p>You can see an explanation of the files in the <a href="https://hifiasm.readthedocs.io/en/latest/interpreting-output.html">documentation</a>. The suffixes you’ll see are:</p>
+<ul>
+<li><code>*.bin</code>: these are internal results tracking error correction and Hi-C mapping steps. We won’t do anything with them.</li>
+<li><code>*gfa</code>: these are assembly graphs for various outputs. See the specification <a href="https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md">here</a>.We will visualize, but not go over the details of these.
+<ul>
+<li><code>noseq.gfa</code>: <code>.gfa</code> files contain the actual sequences along with the graph structure. <code>noseq.gfa</code> contains the graph structure without the sequences, making it much easier to load into a visualization program.</li>
+</ul></li>
+<li><code>*lowQ.bed</code>: these give “low quality” regions of the assembly.</li>
+</ul>
+<p>Now, we have lots of examples of each of these suffixes,</p>
+<ul>
+<li><code>hap1</code>/<code>hap2</code>: these refer to our separated <em>phased</em> assemblies. So each contains information for only <em>one</em> set of haplotypes.</li>
+<li><code>utg</code>/<code>ctg</code>: <code>utg</code> refers to a “complete” assembly graph of “unitigs”, containing both haplotypes, while <code>ctg</code> refers to a graph purged of one haplotype and simplified. <code>ctg</code> files contain the final products.</li>
+<li><code>r_/p_</code>: <code>r_</code> files are “raw”, containing lots of potentially artifactual graph features, and <code>p_</code> files are processed. There are no <code>r_ctg</code> files.</li>
+</ul>
+<p>In the end we have three files of greatest interest:</p>
+<ul>
+<li><code>hap1.p_ctg.gfa</code>: haplotype 1 assembly graph.</li>
+<li><code>hap1.p_ctg.gfa</code>: haplotype 2 assembly graph.</li>
+<li><code>p_ctg.gfa</code>: “primary” assembly. this is an unphased haploid assembly graph. it discards phase in order to favor higher contiguity.</li>
+</ul>
+<p>This is a pretty confusing pile of files, but note that you can always look at the file sizes to validate that some contain both haplotypes, and some only half.</p>
+<p>You may be wondering at this point, “where are my fasta files?!” We have to extract them ourselves.</p>
+<p>See the script <code>scripts/04_assembly/02_extractFASTAS.sh</code>. We are going to use a simple <code>awk</code> call on each of our main <code>.gfa</code> files to extract the sequences into <code>fasta</code> format and then generate <code>.fai</code> indexes with samtools.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract fastas</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'/^S/{print "&gt;"$2;print $3}'</span> <span class="va">${INDIR}</span>/Fdiaphanus.asm.hic.hap1.p_ctg.gfa <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/Fdiaphanus_hap1.fa</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'/^S/{print "&gt;"$2;print $3}'</span> <span class="va">${INDIR}</span>/Fdiaphanus.asm.hic.hap2.p_ctg.gfa <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/Fdiaphanus_hap2.fa</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'/^S/{print "&gt;"$2;print $3}'</span> <span class="va">${INDIR}</span>/Fdiaphanus.asm.hic.p_ctg.gfa <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/Fdiaphanus_primary_contigs.fa</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> faidx <span class="va">${OUTDIR}</span>/Fdiaphanus_hap1.fa</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> faidx <span class="va">${OUTDIR}</span>/Fdiaphanus_hap2.fa</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> faidx <span class="va">${OUTDIR}</span>/Fdiaphanus_primary_contigs.fa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="examining-the-output" class="level3" data-number="8.3.3">
+<h3 data-number="8.3.3" class="anchored" data-anchor-id="examining-the-output"><span class="header-section-number">8.3.3</span> Examining the output</h3>
+<p>We’re going to have a superficial look at the files here. Ordinarily in a workflow we would evaluate these assemblies before doing anything else, but we’re going to save all the formal assembly evaluation for the next chapter. Let’s just do some simple linux/bash investigations for now.</p>
+<p>How many sequences are there in each assembly?</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-c</span> <span class="st">"^&gt;"</span> results/04_assembly/hifiasm_fastas/<span class="pp">*</span>fa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>results/04_assembly/hifiasm_fastas/Fdiaphanus_hap1.fa:443
+results/04_assembly/hifiasm_fastas/Fdiaphanus_hap2.fa:407
+results/04_assembly/hifiasm_fastas/Fdiaphanus_primary_contigs.fa:355</code></pre>
+<p>So yes, we can see the unphased primary assembly probably has a bit better contiguity because it has fewer total sequences.</p>
+<p>How long are our longest contigs?</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load bioawk</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> results/04_assembly/hifiasm_fastas/<span class="pp">*</span>fa</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span> <span class="bu">echo</span> <span class="va">$file</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bioawk</span> <span class="at">-c</span> fastx <span class="st">'{print length($seq)}'</span> <span class="va">${file}</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-rg</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 5</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>results/04_assembly/hifiasm_fastas/Fdiaphanus_hap1.fa
+42712095
+40984032
+34031268
+32827360
+30664417
+results/04_assembly/hifiasm_fastas/Fdiaphanus_hap2.fa
+35135847
+33210927
+30986683
+29689966
+25785669
+results/04_assembly/hifiasm_fastas/Fdiaphanus_primary_contigs.fa
+59533521
+46286417
+44726096
+41084776
+36275275</code></pre>
+<p>Again, we’ve got better contiguity in the unphased assembly. This perhaps doesn’t matter a ton, however, because we’re going to use the Hi-C data to scaffold the assembly anyway.</p>
+<p>How long is each assembly?</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load bioawk</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> results/04_assembly/hifiasm_fastas/<span class="pp">*</span>fa</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span> <span class="bu">echo</span> <span class="va">$file</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bioawk</span> <span class="at">-c</span> fastx <span class="st">'{n+=length($seq)}END{print n}'</span> <span class="va">${file}</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>results/04_assembly/hifiasm_fastas/Fdiaphanus_hap1.fa
+1356766612
+results/04_assembly/hifiasm_fastas/Fdiaphanus_hap2.fa
+1322093810
+results/04_assembly/hifiasm_fastas/Fdiaphanus_primary_contigs.fa
+1360163710</code></pre>
+<p>All of them are in the 1.3gb range, which is where we expected based on the published assembly sizes at GenomeArk, but a bit higher than the prediction from GenomeScope 2.0</p>
+</section>
+</section>
+<section id="scaffolding-with-hi-c-data" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="scaffolding-with-hi-c-data"><span class="header-section-number">8.4</span> Scaffolding with Hi-C data</h2>
+<p>Now that we have our assemblies, we can use the Hi-C data (again) to scaffold. It seems reasonable to guess that a future version of <code>hifiasm</code> might incorporate this step automatically, as it has already quite a lot of work with the Hi-C data, but for now it does not.</p>
+<p>We’re going to use the program <a href="https://academic.oup.com/bioinformatics/article/39/1/btac808/6917071"><code>YaHS</code></a>.</p>
+<section id="hi-c-alignment" class="level3" data-number="8.4.1">
+<h3 data-number="8.4.1" class="anchored" data-anchor-id="hi-c-alignment"><span class="header-section-number">8.4.1</span> Hi-C alignment</h3>
+<p>To run <code>YaHS</code>, we need to first align the Hi-C data to an assembly. We’re going to scaffold the two haplotypes here (not the unphased assembly).</p>
+<p><code>YaHS</code> requires you to first align the Hi-C data to the genome. Because Hi-C data is not like regular old paired-end sequence, we’re going to use some <a href="https://github.com/ArimaGenomics/mapping_pipeline">specialized scripts</a> from Arima Genomics to process the alignments. They provide a bash script that can do the whole thing, but we modularized it and put it in array scripts.</p>
+<p>Note that we have 120x coverage of Hi-C data. This is not really strictly necessary for scaffolding. The <a href="http://plantcompgenomics.com">Wegrzyn Lab</a> here at UConn often aims for 50x. Higher coverage, however, probably does help more with phasing especially in species with lower genetic diversity. Consider that to scaffold two sequences, you just need read pairs to span them, but to phase haplotypes, the read pairs have to span the sequences <em>and</em> land on heterozygous sites on both sequences to distinguish the haplotypes.</p>
+<section id="index-the-assemblies" class="level4" data-number="8.4.1.1">
+<h4 data-number="8.4.1.1" class="anchored" data-anchor-id="index-the-assemblies"><span class="header-section-number">8.4.1.1</span> Index the assemblies</h4>
+<p>The first step is to map reads with <code>bwa</code>, so we need to index our assemblies. See script <code>scripts/04_assembly/03_indexAssembly.sh</code>. You should be fairly familiar with this kind of thing by now.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># which haplotype to index</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="va">HAPS</span><span class="op">=</span><span class="va">(</span>hap1 hap2<span class="va">)</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="va">hap</span><span class="op">=</span><span class="va">${HAPS</span><span class="op">[</span><span class="va">$SLURM_ARRAY_TASK_ID</span><span class="op">]</span><span class="va">}</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># input/output dirs</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="va">INDIR</span><span class="op">=</span>../../results/04_assembly/hifiasm_fastas/</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="va">OUTDIR</span><span class="op">=</span><span class="va">${INDIR}</span>/<span class="va">${hap}</span>_index</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">${OUTDIR}</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># index</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa-mem2</span> index <span class="at">-p</span> <span class="va">${OUTDIR}</span>/<span class="va">${hap}</span> <span class="va">${INDIR}</span>/Fdiaphanus_<span class="va">${hap}</span>.fa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="initial-read-mapping-and-trimming" class="level4" data-number="8.4.1.2">
+<h4 data-number="8.4.1.2" class="anchored" data-anchor-id="initial-read-mapping-and-trimming"><span class="header-section-number">8.4.1.2</span> Initial read mapping and trimming</h4>
+<p>The next step is to align the sequences and trim them. See script <code>scripts/04_assembly/04_trimAlignHiC.sh</code>.</p>
+<p>There are two wrinkles here. First, the reads won’t be “properly paired” because of the nature of Hi-C data, so we’re going to align R1 and R2 separately and merge them later. Second, because of the chimeric nature of the fragments, we may get chimeric reads and we need to pick only one part of each alignment for the downstream analysis. Arima provides a perl script for this. We’ll do this with a 4-element array. We’ll show the entire script because it will be confusing otherwise.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=trimAlignHiC</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -n 1</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -N 1</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -c 12</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=20G</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --qos=general</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --partition=general</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-user=</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-type=ALL</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -o %x_%A_%a.out</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -e %x_%A_%a.err</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --array=[0-3]</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load bwa-mem2/2.1</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load samtools/1.20</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load arimaHiCmap/1.0</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># haplotype, R1/R2 variables</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="va">HAPS</span><span class="op">=</span><span class="va">(</span>hap1 hap1 hap2 hap2<span class="va">)</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="va">hap</span><span class="op">=</span><span class="va">${HAPS</span><span class="op">[</span><span class="va">$SLURM_ARRAY_TASK_ID</span><span class="op">]</span><span class="va">}</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="va">RNS</span><span class="op">=</span><span class="va">(</span>R1 R2 R1 R2<span class="va">)</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="va">rn</span><span class="op">=</span><span class="va">${RNS</span><span class="op">[</span><span class="va">$SLURM_ARRAY_TASK_ID</span><span class="op">]</span><span class="va">}</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="co">#input/output</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="va">INDIR</span><span class="op">=</span>../../rawdata</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="va">OUTDIR</span><span class="op">=</span>../../results/04_assembly/HiC_align</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">${OUTDIR}</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="co"># genome index</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="va">INDEX</span><span class="op">=</span>../../results/04_assembly/hifiasm_fastas/<span class="va">${hap}</span>_index/<span class="va">${hap}</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="co"># fastq to align</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a><span class="va">FQ</span><span class="op">=</span><span class="va">${INDIR}</span>/fFunDia1_Banded_Killifish_<span class="va">${rn}</span>_001.fastq.gz</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="co"># set read group variable</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="va">RG</span><span class="op">=</span><span class="va">$(</span><span class="bu">echo</span> <span class="dt">\@</span>RG<span class="dt">\\</span>tID:Fdiaphanus<span class="dt">\\</span>tSM:Fdiaphanus<span class="dt">\\</span>tLB:Fdiaphanus<span class="dt">\\</span>tPL:ILLUMINA<span class="dt">\\</span>tPU:none<span class="va">)</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="co"># get script location</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="va">FFE</span><span class="op">=</span><span class="va">$(</span><span class="fu">which</span> filter_five_end.pl<span class="va">)</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="co"># trim fastqs, align them, pass them to a filter script (from Arima)</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="va">${FQ}</span> <span class="kw">|</span> </span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">awk</span> <span class="st">'{ if(NR%2==0) {print substr($1,6)} else {print} }'</span> <span class="kw">|</span> </span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="ex">bwa-mem2</span> mem <span class="at">-R</span> <span class="va">${RG}</span> <span class="at">-t</span> 8 <span class="va">${INDEX}</span> <span class="at">-</span> <span class="kw">|</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samtools</span> view <span class="at">-@</span> 4 <span class="at">-h</span> <span class="at">-</span> <span class="kw">|</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">perl</span> <span class="va">${FFE}</span> <span class="kw">|</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samtools</span> view <span class="at">-Sb</span> <span class="at">-</span> <span class="op">&gt;</span><span class="va">${OUTDIR}</span>/<span class="va">${hap}</span>_<span class="va">${rn}</span>.bam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>With 120x coverage, this takes around 7 hours for each file. Probably the Arima perl script is a bottleneck.</p>
+<p><code>seff</code>:</p>
+<pre><code>Job ID: 8893033
+Array Job ID: 8893032_0
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 12
+CPU Utilized: 2-16:16:12
+CPU Efficiency: 74.07% of 3-14:46:24 core-walltime
+Job Wall-clock time: 07:13:52
+Memory Utilized: 11.53 GB
+Memory Efficiency: 57.65% of 20.00 GB</code></pre>
+</section>
+<section id="combine-r1r2-and-mark-duplicates" class="level4" data-number="8.4.1.3">
+<h4 data-number="8.4.1.3" class="anchored" data-anchor-id="combine-r1r2-and-mark-duplicates"><span class="header-section-number">8.4.1.3</span> Combine R1/R2 and mark duplicates</h4>
+<p>Finally, we’re going to combine the R1/R2 reads into a single bam file, mark duplicates and sort.</p>
+<pre><code># get locations
+COMBINER=$(which two_read_bam_combiner.pl)
+STATS=$(which get_stats.pl)
+SAMTOOLS=$(which samtools)
+
+# min mapQ
+MAPQ_FILTER=10
+
+# combine R1/R2 into a single bam, sort, mark duplicates
+perl ${COMBINER} ${INDIR}/${hap}_R1.bam ${INDIR}/${hap}_R2.bam ${SAMTOOLS} ${MAPQ_FILTER} | 
+    samtools view -Sh -t ${FAIDX} - | 
+    samblaster | 
+    samtools sort -T ${INDIR}/${hap}.tmp -@ 8 -o ${INDIR}/${hap}.bam -
+
+# index bam file
+samtools index ${INDIR}/${hap}.bam
+
+# get statistics
+perl ${STATS} ${INDIR}/${hap}.bam &gt; ${INDIR}/${hap}.bam.stats</code></pre>
+<p>This step also takes 4-5 hours. <code>seff</code>:</p>
+<pre><code>Job ID: 8897661
+Array Job ID: 8897661_0
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 10
+CPU Utilized: 12:06:56
+CPU Efficiency: 23.98% of 2-02:31:40 core-walltime
+Job Wall-clock time: 05:03:10
+Memory Utilized: 10.34 GB
+Memory Efficiency: 103.44% of 10.00 GB</code></pre>
+<p>These files are pretty large, so it’s a good idea to remove the intermediate bam files when you’re done!</p>
+<p>There is a <code>.stats</code> file produced at the end of this:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> results/04_assembly/HiC_align/hap1.bam.stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>All     337342701
+All intra       165910322
+All intra 1kb   90064393
+All intra 10kb  59097815
+All intra 15kb  54056105
+All intra 20kb  50744830
+All inter       171432379</code></pre>
+<p>This is categorizing how far apart Hi-C reads are mapping. <code>inter</code> means between sequences. Those are the ones that are useful for scaffolding and &gt; 50% of the total.</p>
+<p>You’re pretty familiar with <code>bam</code> files by this point, so we won’t look closely at them here.</p>
+</section>
+</section>
+<section id="scaffolding-with-yahs" class="level3" data-number="8.4.2">
+<h3 data-number="8.4.2" class="anchored" data-anchor-id="scaffolding-with-yahs"><span class="header-section-number">8.4.2</span> Scaffolding with <code>YaHS</code></h3>
+<p>With our processed alignments, running <code>YaHS</code> is very simple.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># input/output</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="va">HIC</span><span class="op">=</span>../../results/04_assembly/HiC_align/</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="va">ASSEMBLIES</span><span class="op">=</span>../../results/04_assembly/hifiasm_fastas</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="va">OUTDIR</span><span class="op">=</span>../../results/04_assembly/scaffoldedAssemblies</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">${OUTDIR}</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># we're scaffolding both haplotypes separately</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="va">HAPS</span><span class="op">=</span><span class="va">(</span>1 2<span class="va">)</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="va">hap</span><span class="op">=</span><span class="va">${HAPS</span><span class="op">[</span><span class="va">$SLURM_ARRAY_TASK_ID</span><span class="op">]</span><span class="va">}</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># reference contig and </span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="va">FASTA</span><span class="op">=</span><span class="va">${ASSEMBLIES}</span>/Fdiaphanus_hap<span class="va">${hap}</span>.fa</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="va">BAM</span><span class="op">=</span><span class="va">${HIC}</span>/hap<span class="va">${hap}</span>.bam</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co"># run yahs</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="ex">yahs</span> <span class="va">${FASTA}</span> <span class="va">${BAM}</span> <span class="at">-o</span> <span class="va">${OUTDIR}</span>/hap<span class="va">${hap}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>YaHS</code> is remarkably fast and resource efficient, considering that it is parsing a 36G bam file with over 300 million read pairs in it. <code>seff</code>:</p>
+<pre><code>Job ID: 8898303
+Array Job ID: 8898302_0
+Cluster: xanadu
+User/Group: nreid/cbc
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 10
+CPU Utilized: 00:25:20
+CPU Efficiency: 9.95% of 04:14:30 core-walltime
+Job Wall-clock time: 00:25:27
+Memory Utilized: 9.19 GB
+Memory Efficiency: 18.39% of 50.00 GB</code></pre>
+<p><code>YaHS</code> produces a lot of output, but the files marked “final” are all we need to care about:</p>
+<p><code>ll results/04_assembly/scaffoldedAssemblies/*final*</code></p>
+<pre><code>-rw-r--r-- 1 nreid cbc  41K Feb 21 14:18 results/04_assembly/scaffoldedAssemblies/hap1_scaffolds_final.agp
+-rw-r--r-- 1 nreid cbc 1.3G Feb 21 14:18 results/04_assembly/scaffoldedAssemblies/hap1_scaffolds_final.fa
+-rw-r--r-- 1 nreid cbc  45K Feb 21 14:13 results/04_assembly/scaffoldedAssemblies/hap2_scaffolds_final.agp
+-rw-r--r-- 1 nreid cbc 1.3G Feb 21 14:13 results/04_assembly/scaffoldedAssemblies/hap2_scaffolds_final.fa</code></pre>
+<p>The <code>.fa</code> files are our final fasta files. The <a href="https://www.ncbi.nlm.nih.gov/genbank/genome_agp_specification/"><code>.agp</code> files</a> explain how our original contigs have been ordered, oriented (and sometimes split in the case of assembly errors) into the final scaffolds. We’re not going to go into those in detail, but they can be useful in downstream analyses if you see weird discontinuities in statistics calculated across the genome. Those discontinuities may reflect things like structural variation or other interesting biological phenomena, but if they coincide with contig joins, assembly issues may be a more likely explanation.</p>
+<p>So have we seen much improvement?</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load bioawk</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> results/04_assembly/scaffoldedAssemblies/<span class="pp">*</span>fa</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span> <span class="bu">echo</span> <span class="va">$file</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bioawk</span> <span class="at">-c</span> fastx <span class="st">'{print length($seq)}'</span> <span class="va">${file}</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-rg</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 5</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>results/04_assembly/scaffoldedAssemblies/hap1_scaffolds_final.fa
+65720995
+63184880
+62401756
+62368939
+60886621
+results/04_assembly/scaffoldedAssemblies/hap2_scaffolds_final.fa
+64516896
+63288013
+62533455
+62213067
+61373167</code></pre>
+<p>Most definitely! Our top 5 scaffolds for both haplotypes are all &gt; 60mb now!</p>
+<p>The typical killifish chromosome number is 24. Is it obvious that we have a similar number of scaffolds, followed by some very small unassigned contigs? Let’s look at hap1:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">file</span><span class="op">=</span>results/04_assembly/scaffoldedAssemblies/hap1_scaffolds_final.fa</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bioawk</span> <span class="at">-c</span> fastx <span class="st">'{print length($seq)}'</span> <span class="va">${file}</span> <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-rg</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 30</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>65720995
+63184880
+62401756
+62368939
+60886621
+60712699
+60020578
+58360359
+57671870
+57304110
+57296931
+57079034
+56378567
+55432593
+54571977
+53055266
+52890125
+51475775
+50062768
+47234043
+46578514
+46132080
+45283444
+33690216
+2246716
+2109776
+1603000
+1317465
+1270000
+1037890</code></pre>
+<p>It sure looks like it. the 24th largest scaffold is 33.6mb, and the 25th is 2.2mb. We can safely say we’re looking at a chromosome-scale assembly here, albeit with some sequence that has not been assigned to chromosomes. In some species with larger numbers of chromosomes and very highly variable chromosome sizes (like birds), making this assumption based on chromosome size distribution would not be safe. And in fact, without knowledge of the karyotype, we can’t rule out that some of these “chromosomes” are just chromosome arms that failed to be properly joined.</p>
+<p>At any rate, how many “unplaced” scaffolds do we have, and how much of the genome are they?</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="va">file</span><span class="op">=</span>results/04_assembly/scaffoldedAssemblies/hap1_scaffolds_final.fa</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bioawk</span> <span class="at">-c</span> fastx <span class="st">'{print length($seq)}'</span> <span class="va">${file}</span> <span class="kw">|</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span> <span class="at">-rg</span> <span class="kw">|</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +25 <span class="kw">|</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'{n+=$1}END{print n}'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>40993072</code></pre>
+<p>So we have about 41mb of unplaced scaffolds, or about 3% of this haploid assembly Not too shabby! Somehow, in <code>hap2</code> it’s even less, with 23.3mb unplaced, for 1.7% of the assembly.</p>
+</section>
+</section>
+<section id="conclusions" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="conclusions"><span class="header-section-number">8.5</span> Conclusions</h2>
+<p>We’ve assembled and scaffolded our genome. In a typical workflow, we would have done assembly evaluations after assembling and then again after scaffolding. We may also have chosen to try out multiple assemblers and evaluate those assemblies as well. In the course, however, we’re saving all the assembly evaluation stuff for the next chapter.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./03_1_genomeAssemblyKmers.html" class="pagination-link" aria-label="Genome Assembly - first steps">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./04_0_scRNAseq.html" class="pagination-link" aria-label="Single-cell RNAseq">
+        <span class="nav-page-text">Single-cell RNAseq</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

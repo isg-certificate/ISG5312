@@ -3,7 +3,7 @@ title: "More Git"
 editor: source
 ---
 
-# Learning Objectives
+## Learning Objectives
 
 |                           |
 |------------------------------------------------------------------------|
@@ -527,6 +527,12 @@ You can commit the `.gitignore` file to keep it as part of the repository.
 ### Removing and renaming
 
 You can `rm` and `mv` just like you normally do, but it makes more work with Git. If you remove with `git rm` and rename (or move) with `git mv` Git will handle it better and stage the changes for you. 
+
+## Getting help
+
+Please reach out through the teams channel if you need help. The [Pro Git](https://git-scm.com/book/en/v2) book is really nicely written as well. Re-reading sections of it as you get your feet under you will be helpful. 
+
+Getting help with Git is also an ideal use case for LLMs like chatGPT. If you've run into an issue that you don't understand, an LLM can give you suggestions (with an explanation) about how to fix it that you can implement and then immediately check for correctness. It's much less risky than relying on an LLM for something conceptually more complicated and harder to validate the output for, like choosing a parameter in a statistical model that is appropriate for your data. 
 
 ### Git is kind of hard
 

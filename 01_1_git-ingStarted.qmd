@@ -3,7 +3,7 @@ title: "First steps with Git"
 editor: source
 ---
 
-# Learning Objectives
+## Learning Objectives
 
 |                                                              |
 |--------------------------------------------------------------|
@@ -26,6 +26,8 @@ If you're using a **Mac**, you've probably already got it. If not, you can insta
 If you're using **Windows** (and thus probably also WSL2) you may want it installed for *both* systems. See the Linux and Windows instructions [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
 Note that on Xanadu, the base installation of Git is *waaay* out of date. In most cases things will still work fine. Do `git --version` to see what version is currently running (💀). You can `module load git/2.30.0`, however, if you run into problems. 
+
+If you did the chapter on [customizing your shell](https://isg-certificate.github.io/ISG5311/02_5_bonus_bashrc.html) in ISG5311, you can add `module load git/2.30.0` to your `.bashrc` file in your home directory so that the module will be loaded every time you log in. 
 
 ## A brief pause...
 

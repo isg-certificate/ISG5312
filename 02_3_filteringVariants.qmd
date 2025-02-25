@@ -1,0 +1,511 @@
+---
+title: "Filtering and Assessing Variants"
+editor: source
+
+engine: knitr
+---
+
+## Learning Objectives
+
+|                           |
+|------------------------------------------------------------------------|
+| **Learning Objectives:**  |
+| Manipulate the VCF format. |
+| Apply strategies for filtering problematic variants. |
+| Assessing variant call set quality |
+
+
+In this chapter we'll look at ways to extract information from VCF, and apply hard filters to variants.
+
+## Summarizing variants call sets
+
+When we get a VCF file back, we want to calculate some high level summaries to give us a sense of the general characteristics of the variant call set. Some standard statistics are the number of variants, numbers of variants in different categories and the transition/transversion ratio. We may also dig in a little more to look at other features like the depth of coverage, the distribution of quality scores, rates of missing data. 
+
+Some of these we may be able to develop a prior expectations for, like the numbers of variants we expect to detect in a sample of individuals from a population. Across most of the tree of life, you can expect genetic diversity to fall within the window 0.0005-0.01. What this means is that you can expect somewhere between 0.5 and 10 heterozygous sites per 1000bp in a diploid individual (that is not inbred). In humans, this number should be around 0.001, or 1 heterozygous site per 1000bp. What does this mean for a VCF file with variants from multiple individuals? Well, a commonly used estimator of genetic diversity [Watterson's theta](https://en.wikipedia.org/wiki/Watterson_estimator) gives a simple relationship:
+
+$$
+\hat{\theta}_w = \frac{K}{a_n}
+$$
+And
+
+$$
+a_n = \sum_{i=1}^{n-1} \frac{1}{i}
+$$
+
+$\hat{\theta}_w$ is the genetic diversity. $K$ is the number of segregating sites (or variable sites in our VCF file). $a_n$ is a function of the number of alleles we've sampled (in 10 diploid individuals $n = 20$). 
+
+To get a per-site value, divide $\hat{\theta}_w$ by the total number of sites analyzed.
+
+If we replaced $\hat{\theta}_w$ with our expected value (e.g. 0.001 in humans), multiplied by $a_n$, and multiplied by the total number of sites analyzed, that would give us a rough estimate of how many variable sites we should see. 
+
+This is *very* rough. Lots of factors contribute to genetic diversity, and it can change among populations within species and among genomic regions. Nevertheless, having a ballpark sense of how many variants you should see can help you understand if you're on the right track. 
+
+With that very light detour through population genetics out of the way...
+
+For other statistics, we may just need to look at the empirical distributions in our data to get a sense of what "normal" is. 
+
+We used bash tools to extract some pieces of the VCF file to inspect in the previous chapter. Clever bash/awk one-liners are always great for quick inspection, but there are other more effective tools we can use to get a better picture. 
+
+### `bcftools stats`
+
+Let's start with `bcftools stats`. Like `samtools stats`, it will output several tables in one output stream with data from each table prepended by a prefix. We can grab them by grepping out the prefix of interest.  To list out all possible prefixes:
+
+```{bash}
+bcftools stats variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | grep "^#"
+```
+
+Let's start with the summary numbers:
+
+
+```{bash}
+bcftools stats variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | grep "^SN"
+```
+So we've got 71,579 records. We're looking at a 5mb region. That's an average of 1.4 variable sites in every 100bp. That's waaaay too many. We've sampled two independent individuals (you don't expect to discover new variants in the son), so it would yield a Watterson's theta that is almost 8x too high:
+
+$$
+\frac{71,579 / (5*10^6)} {\sum_{i=1}^{3} \frac{1}{i}}  = 0.007808618
+$$
+
+Or in `R` code: `71579 / 5e6 / sum(1/(1:3))` . Freebayes is outputting a lot of junk we'll filter later.
+
+We can apply a filter right now and recalculate the stats:
+
+```{bash}
+bcftools stats -e "QUAL < 30" variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | grep "^SN"
+```
+
+`-e "QUAL < 30"` excludes all variants with quality less than 30. 
+
+Our number of variable sites is a bit high still, leading to a Watterson's theta of `0.002583164`. About twice what we expect. However, we're only looking at 5mb of the genome, and a challenging 5mb at that. We also haven't really thought hard about filtering yet. 
+
+We should point out one last thing here about per-site statistics. Here we are dividing Watterson's theta by 5mb to get genetic diversity *per site*. That assumes that ALL 5mb in our window can be accurately variant-called. We *know* that's not true from our prior evaluation of coverage. Some regions had excess coverage, some had very little. This is a consequence of VCF tracking only sites where variation has been observed! We also are assuming each variant represents one site. This is definitely not true with freebayes! If you want to calculate genetic diversity statistics for real, not just in this rough back-of-the-napkin ballpark kind of way, you need to accurately count up the number of sites *where you could have detected genetic variation if it was there*, and you either need to break down variants into their constituent parts and count only SNPs, or account for the possibility of multiple differences between haplotypes. 
+
+Next let's look at the transition/transversion ratio:
+
+```{bash}
+bcftools stats variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | grep "TSTV"
+```
+
+Transitions are changes between purines, so `A<->G` and `C<->T`. The other four changes are pyrimidines. So if changes are random, you expect a ts/tv ratio of 0.5. The true genome-wide average in most organisms is much higher. In humans it's > 2, though it varies across the genome and among non-coding, synonymous and non-synonymous sites. Here we observe 0.73. We might generally take this to mean our variant call set was full of bad calls (which it currently is!), but again, part of our window is a challenging region of the genome. 
+
+If we apply that quality filter again we get a very different result:
+
+```{bash}
+bcftools stats -e "QUAL < 30" variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | grep "TSTV"
+```
+
+ts/tv = 1.46. Still way below our genome-wide average, but *much* higher. 
+
+### `vt peek`
+
+This is a bit redundant to `bcftools`, but an old, but pretty helpful program called `vt` (installed on Xanadu) can produce a nice summary of a VCF file with the submodule `peek`:
+
+```bash
+vt peek variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+```
+
+```
+peek v0.5
+
+options:     input VCF file            variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+
+
+stats: no. of samples                     :          3
+       no. of chromosomes                 :         59
+
+       ========== Micro variants ==========
+
+       no. of SNP                         :      61009
+           2 alleles                      :           59555 (0.75) [25615/33940]
+           3 alleles                      :            1417 (0.36) [752/2082]
+           4 alleles                      :              37 (0.50) [37/74]
+
+       no. of MNP                         :       1147
+           2 alleles                      :            1137 (1.25) [1305/1040]
+           3 alleles                      :               9 (0.74) [17/23]
+           4 alleles                      :               1 (0.20) [1/5]
+
+       no. of INDEL                       :       2873
+           2 alleles                      :            2573 (0.80) [1143/1430]
+           3 alleles                      :             238 (1.12) [251/225]
+           4 alleles                      :              48 (1.15) [77/67]
+           >=5 alleles                    :              14 (1.07) [29/27]
+
+       no. of SNP/MNP                     :       1877
+           2 alleles                      :            1522 (0.80) [678/844]
+           3 alleles                      :             292 (0.77) [341/443]
+           4 alleles                      :              54 (0.67) [84/126]
+           >=5 alleles                    :               9 (0.35) [12/34]
+
+       no. of SNP/INDEL                   :        537
+           2 alleles                      :             148 (0.78) [65/83] (0.72) [62/86]
+           3 alleles                      :             282 (0.78) [137/176] (0.64) [122/192]
+           4 alleles                      :              84 (0.66) [54/82] (0.62) [55/89]
+           >=5 alleles                    :              23 (0.49) [19/39] (0.59) [16/27]
+
+       no. of MNP/INDEL                   :         99
+           2 alleles                      :              76 (0.46) [61/133] (0.41) [22/54]
+           3 alleles                      :              20 (0.74) [26/35] (0.58) [11/19]
+           4 alleles                      :               3 (0.29) [2/7] (0.40) [2/5]
+
+       no. of SNP/MNP/INDEL               :         16
+           3 alleles                      :               9 (0.50) [12/24] (0.50) [3/6]
+           4 alleles                      :               5 (1.12) [9/8] (2.50) [5/2]
+           >=5 alleles                    :               2 (3.00) [9/3] (0.00) [0/3]
+
+       no. of MNP/CLUMPED                 :       2565
+           2 alleles                      :            2462 (1.04) [2874/2776]
+           3 alleles                      :             100 (0.93) [253/272]
+           4 alleles                      :               3 (0.57) [8/14]
+
+       no. of SNP/MNP/CLUMPED             :        976
+           3 alleles                      :             665 (0.71) [862/1209]
+           4 alleles                      :             246 (0.55) [387/706]
+           >=5 alleles                    :              65 (0.71) [182/257]
+
+       no. of INDEL/CLUMPED               :        372
+           2 alleles                      :             257 (0.77) [112/145]
+           3 alleles                      :              79 (0.72) [51/71]
+           4 alleles                      :              23 (0.59) [22/37]
+           >=5 alleles                    :              13 (0.53) [17/32]
+
+       no. of SNP/INDEL/CLUMPED           :         97
+           3 alleles                      :              34 (1.15) [53/46] (0.54) [14/26]
+           4 alleles                      :              32 (0.81) [66/81] (0.71) [17/24]
+           >=5 alleles                    :              31 (0.52) [58/111] (1.57) [33/21]
+
+       no. of MNP/INDEL/CLUMPED           :          8
+           3 alleles                      :               5 (0.42) [8/19] (1.00) [4/4]
+           4 alleles                      :               3 (0.32) [8/25] (1.00) [3/3]
+
+       no. of SNP/MNP/INDEL/CLUMPED       :          3
+           4 alleles                      :               2 (1.75) [7/4] (0.00) [0/2]
+           >=5 alleles                    :               1 (0.67) [2/3] (0.50) [1/2]
+
+       no. of micro variants              :      71579
+
+       ++++++ Other useful categories +++++
+
+        no. of clumped variants           :       4021
+           2 alleles                      :            2719 (1.01) [3190/3153] (0.77) [112/145]
+           3 alleles                      :             883 (0.75) [1334/1773] (0.68) [69/101]
+           4 alleles                      :             309 (0.62) [567/920] (0.64) [42/66]
+           >=5 alleles                    :             110 (1.22) [469/383] (0.93) [51/55]
+
+        no. of block substitutions        :       6565
+           2 alleles                      :            5121 (1.04) [4857/4660]
+           3 alleles                      :            1066 (0.76) [1473/1947]
+           4 alleles                      :             304 (0.56) [480/851]
+           >=5 alleles                    :              74 (0.67) [194/291]
+
+        no. of complex substitutions      :       1132
+           2 alleles                      :             481 (0.75) [442/593] (0.69) [196/285]
+           3 alleles                      :             429 (0.75) [394/527] (0.64) [205/318]
+           4 alleles                      :             152 (0.80) [237/297] (0.64) [104/162]
+           >=5 alleles                    :              70 (1.88) [315/168] (0.79) [67/85]
+
+
+       ========= General summary ==========
+
+       no. of VCF records                        :      71579
+
+
+Time elapsed: 0.93s
+```
+
+### `bcftools query`
+
+Sometimes we want to pull specific bits of information out of the VCF, read it into R and make plots. This can help us understand our data. There are a few different tools we can use to do this. In R there are two packages `vcfR` and `VariantAnnotation`, but for simplicity, here we'll focus on `bcftools query`. We can use that to extract what we need and then read that into R. This [document](https://samtools.github.io/bcftools/howtos/query.html) gives some details. 
+
+It's fairly straightforward, though format strings do look messy. The syntax is:
+
+```bash
+bcftools query -f <format string> my.vcf.gz
+```
+
+The `format string` can include any of the parts of the VCF file. The main fields can be accessed as `%CHROM` `%POS` etc. Tags from the `INFO` field can be accessed like `%INFO/DP` for the depth tag. For parts of sample genotypes strings, use square brackets and tags from the `FORMAT` field and bcftools will loop over all samples. To extract genotypes, use `[%GT]`. 
+
+When putting tags together to define the output, if you want it to be tab-separated you need to use `\t` in between tags. 
+
+Some examples:
+
+```{bash}
+#| warning: false
+bcftools query --print-header -r chr20:33000000- -f '%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%INFO/DP\t[%GT\t]' variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head
+```
+
+```{bash}
+#| warning: false
+bcftools query --print-header -r chr20:33000000- -f '%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%INFO/DP\t%INFO/AB\t[%GT\t][%DP\t]' variants/results/05_variantCalling/freebayes/freebayes.vcf.gz | head
+```
+This is a very simple way to grab these stats so they can be easily read in and summarized in R. 
+
+Make the file:
+
+```{bash}
+#| warning: false
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+QOUT=variants/results/05_variantCalling/freebayes/freebayes.query.txt.gz
+bcftools query --print-header -r chr20:29400000-34400000 -f '%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t%INFO/DP\t%INFO/AB\t[%GT\t][%DP\t]' ${VCFIN} | gzip >${QOUT}
+```
+
+Read it in:
+
+```{r}
+#| echo: false
+#| output: false
+#| warning: false
+library(tidyverse)
+```
+
+```{r}
+# column names will be super ugly
+df <- read.table("variants/results/05_variantCalling/freebayes/freebayes.query.txt.gz", header=TRUE, comment.char="")
+colnames(df) <- colnames(df) %>% str_remove("^X[.0-9]+")
+
+# filter out multi-allelic loci for simplicity. fix AB so it's numeric (b/c comma-separated for multiallelic loci)
+df <- filter(df, !str_detect(ALT, ",")) %>%
+  mutate(AB=as.numeric(AB))
+```
+
+Make some plots. 
+
+First, allele balance in heterozygotes along our focal window, colored by variant quality. We can see lots of sites with really skewed allele balance (should be around 0.5) have low quality, but not all of them!
+
+```{r}
+ggplot(df, aes(x=POS, y=AB, color=QUAL > 30)) +
+  geom_point(size=0.2)
+```
+
+Now, depth along the chromosome, colored by quality:
+
+```{r}
+#| warning: false
+ggplot(df, aes(x=POS, y=DP, color=QUAL > 30)) +
+  geom_point(size=0.2) +
+  ylim(0,400)
+```
+We could look at the distribution of depth of coverage as a histogram as well:
+
+```{r}
+ggplot(df, aes(x=DP)) +
+  geom_histogram(binwidth=2) +
+  xlim(0,300)
+```
+
+We see a pretty messy distribution. We might consider broader coverage cutoffs, like 50-250 here. 
+
+We can also do a quick summary of missing data rates by site and by individual. In this file, missing genotypes are encoded with `.`
+
+```{r}
+colMeans(df[,8:10]==".")
+```
+
+We can see overall a very low rate of missing data for individuals. Similarly, very few sites have any missing data. This isn't always the case. 
+
+```{r}
+rowSums(df[,8:10]==".") %>% table()
+```
+
+By looking at summaries like these (often for one region or a subsample of our data if we have a huge WGS variant call set), we can get a sense of the distribution of characteristics of our variant calls. We can also see that things like the quality score, allele balance, and depth can all flag variants as questionable, but they don't highlight exactly the same set of questionable variants. Depending on how we plot them, they can also flag regions where weird things might be happening and variant calls might be generally problematic. 
+
+
+## Filtering variants
+
+We've now seen how we can explore some aspects of our data. We can use this information to filter out data we think might be unreliable. What we'll do here is referred to as "hard filtering". We will look at individuals and at sites. We are going to identify a set of thresholds on characteristics we think can help us identify individuals or variants that are likely to be problematic (i.e. that are false positives, or have high rates of genotyping error) and remove data based on those thresholds. We could also "soft filter" (sites only), meaning we would mark sites as not passing (in the FILTER field of the VCF) rather than remove them. 
+
+There are other approaches that can be used, such as [variant quality score recalibration](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR) as implemented by GATK, but those require training sets, which aren't always available, so we won't cover them here. 
+
+When we filter, we are always trying to strike a balance between leaving in too many false positives and badly genotyped sites (or individuals) and throwing out too much good data. How we strike that balance is pretty much always dataset, or at least application dependent. Filtering is often a rather ad hoc procedure. Unless you are working on a very established application, or specific experimental context, deciding how and what to filter may require some data exploration and judgement. 
+
+It's important to note that filtering data can have unintended side-effects. As a general strategy, it's not a great idea to filter on data characteristics that are directly related to the questions you're interested in. If you wanted to calculate inbreeding coefficients for individuals, removing sites that violate Hardy-Weinberg equilibrium would be a really bad idea, as it might completely destroy any signal. Conversely, we have seen people looking to demonstrate genetic divergence between two sampling sites filter loci by how divergent they were between the sampling sites. Lo and behold, there was significant genetic divergence! 
+
+Another thing to be wary of is filtering for extreme values for putatively beneficial characteristics. Having higher depth of coverage certainly improves accuracy of genotype calling, all things being equal, but grabbing the SNPs in the top 1% of the coverage distribution is going to *greatly* enrich for false positives relating to mismapping (as we have seen). 
+
+So let's get to it. 
+
+### Filtering with `bcftools`. 
+
+We're going to lean heavily on `bcftools` here. [Most of the tools](https://samtools.github.io/bcftools/howtos/filtering.html) in `bcftools` accept flags for filtering: `-i/--include` and `-e/--exclude` with filtering. We can set up filtering expressions using tags as we did above in `bcftools query`. 
+
+Below is an example where we filter on allele balance, depth, and variant quality. 
+
+```{bash}
+#| warning: false
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+VCFOUT=variants/results/05_variantCalling/freebayes/freebayes_filter_test.vcf.gz
+bcftools view -r chr20:29400000-34400000 --exclude 'INFO/DP < 50 | INFO/DP > 250 | AB < .25 | AB > 0.75 | QUAL < 30 | AF < 0.1' ${VCFIN} -Oz -o ${VCFOUT}
+```
+
+We used a series of *or* statements (`|`) to remove records that failed at least one. With `bcftools filter` We could have populated the FILTER field, rather than remove them:
+
+```{bash}
+#| warning: false
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+bcftools filter -r chr20:29400000-34400000 --exclude 'INFO/DP < 50 | INFO/DP > 250 | AB < .25 | AB > 0.75 | QUAL < 30 | AF < 0.1' ${VCFIN} -s "lowQual" | bcftools view -H | head
+```
+
+What if we wanted to include/exclude entire predefined regions? Let's get set of target regions together and see how we could do it. For that we'll come back to `bedtools`!
+
+We're going to first create a set of target regions from our coverage map BED file. That file looks like this, with column 4 as the median coverage per 1kb window:
+
+```{bash}
+zcat variants/results/04_alignQC/coverage/coverage_1kb.bed.gz | head
+```
+
+To get a set of target windows, we will first select the windows we want, then merge them together. 
+
+```{bash}
+COV=variants/results/04_alignQC/coverage/coverage_1kb.bed.gz
+TARGETS=variants/results/04_alignQC/coverage/targets.bed.gz
+
+zcat ${COV} |
+awk '$4 > 50 && $4 < 250' |
+bedtools merge -i stdin | 
+gzip >${TARGETS}
+```
+
+Now we can intersect that targets file with the VCF file with `bedtools intersect`. We can even do this in a pipe with our previous filter:
+
+```{bash}
+#| warning: false
+VCFIN=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+TARGETS=variants/results/04_alignQC/coverage/targets.bed.gz
+
+bcftools filter \
+  -r chr20:29400000-34400000 \
+  --exclude 'INFO/DP < 50 | INFO/DP > 250 | AB < .25 | AB > 0.75 | QUAL < 30 | AF < 0.1' \
+  ${VCFIN} |
+bedtools intersect -header -a stdin -b ${TARGETS} |
+bcftools view -H |
+head
+```
+One last common filtering need: we could cut down our data to look *only* at biallelic snps with `bcftools view  -m2 -M2 -v snps`. 
+
+### Filtering with `vcftools`
+
+We won't do it here, but the package [`vcftools`](https://vcftools.github.io/man_latest.html) also has lots of tools for filtering variants. Usefully, it can filter by features that are *not* in the INFO or FORMAT fields, such as the rate of missing data, the number of alleles, the allele frequency, the number of observations of the alternate allele and others. It can also be used to calculate a variety of statistics. Between these two packages, most typical filtering criteria are available. If you need something more complex, you may need specialized software or to write your own filtering script. 
+
+### Filtering our three VCF files
+
+So that we have a consistent set of variants to consider next, let's run the filtering script `scripts/06_filteringAnnotating/01_filterVariants.sh`
+
+It applies the following filters:
+
+```bash
+# freebayes: use AB/AF/DP/QUAL
+bcftools filter \
+  -r chr20:29400000-34400000 \
+  --exclude 'INFO/DP < 50 | INFO/DP > 250 | AB < .25 | AB > 0.75 | QUAL < 30 | AF < 0.1' \
+  ${FREEBAYES} |
+bedtools intersect -header -a stdin -b ${TARGETS} |
+bgzip >${FREEBAYESOUT}
+
+tabix -p vcf ${FREEBAYESOUT}
+
+# gatk: use DP/QUAL (others not available)
+bcftools filter \
+  -r chr20:29400000-34400000 \
+  --exclude 'INFO/DP < 50 | INFO/DP > 250 | QUAL < 30' \
+  ${GATK} |
+bedtools intersect -header -a stdin -b ${TARGETS} |
+bgzip >${GATKOUT}
+
+tabix -p vcf ${GATKOUT}
+
+# bcftools: use DP/QUAL (others not available)
+bcftools filter \
+  -r chr20:29400000-34400000 \
+  --exclude 'INFO/DP < 50 | INFO/DP > 250 | QUAL < 30' \
+  ${BCFTOOLS} |
+bedtools intersect -header -a stdin -b ${TARGETS} |
+bgzip >${BCFTOOLSOUT}
+
+tabix -p vcf ${BCFTOOLSOUT}
+```
+
+## Assessing variant call set quality
+
+There are a number of ways we can go about this. We'll look at the numbers and types of variants, the transition/transversion ratio, and because we have a known pedigree for our samples, we can count up the rate of violations of Mendelian inheritance (i.e. the number of sites where offspring genotypes are inconsistent with their parents, like Father=AA Mother=BB, Child=AA). 
+
+### Total numbers of variants:
+
+Let's do `bcftools stats` for both pre- and post-filtered VCF files (focusing on just our region). First pre-filter:
+
+```{bash}
+PRE=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+
+bcftools stats -r chr20:29400000-34400000 $PRE | grep ^SN
+```
+
+Now post-filter: 
+
+```{bash}
+POST=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+
+bcftools stats -r chr20:29400000-34400000 $POST | grep ^SN
+```
+
+We have *dramatically* cut down our number of sites. Part of this is that we also exclude a bit of our initial 5mb with the targets file (it's now 4226000, per the targets file), but we have also removed tons of false positives. So our Watterson's theta is down near 0.001 where it should be (for humans), versus 0.007. Again, this is a *very* rough way of calculating this value as a sanity check, not how you should approach it if you needed to know the real number to report in a publication. 
+
+### ts/tv 
+
+Next we can look at our ts/tv ratio. First pre-filter:
+
+```{bash}
+PRE=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+
+bcftools stats -r chr20:29400000-34400000 $PRE | grep TS
+```
+
+Then post-filter:
+
+```{bash}
+POST=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+
+bcftools stats -r chr20:29400000-34400000 $POST | grep TS
+```
+
+We see a pretty dramatic shift, from 0.67 before filtering to 2.04 after filtering. And in fact, if we limit our focus to the region away from the centromere (chr20:32400000-34400000) it will rise a bunch more. 
+
+```{bash}
+POST=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+
+bcftools stats -r chr20:32400000-34400000 $POST | grep TS
+```
+
+Remember that this is a *very* rough way of evaluating variant quality and ts/tv values are different among species and regions of the genome. There's no perfect target to hit here. 
+
+### Mendelian violations
+
+If we have a pedigree, we can also look at rates of violation of Mendelian inheritance. `bcftools` has a plugin that can do this (note also that `vt` has a really nice module `profile_mendelian` that produces a nice report). The plugin `+mendelian2` can also filter variants by the presence of Mendelian errors, but you should be careful with this. Even in a great dataset, you expect some rate of genotyping error and if you have a big enough pedigree, you could carelessly throw out tons of good data on account of what is really a pretty small error rate. 
+
+For our 
+
+```{bash}
+PRE=variants/results/05_variantCalling/freebayes/freebayes.vcf.gz
+bcftools +mendelian2 -r chr20:29400000-34400000 -p son,dad,mom -m c ${PRE}
+```
+This gives us a Mendelian error rate of `1300 / (1300 + 55364) = 0.02294226`. Not too bad for zero filtering! In fact, it's weirdly low! We could investigate further extracting our low-quality sites and looking at the distribution of genotypes. It could be there are lots of parent1:AB parent2:AA offspring:AA where allele B is a false positive. `vt` would give us a bit more detailed of a report as well. 
+
+Let's look at post-filter data:
+
+```{bash}
+POST=variants/results/05_variantCalling/freebayes/freebayes_filtered.vcf.gz
+bcftools +mendelian2 -r chr20:29400000-34400000 -p son,dad,mom -m c ${POST}
+```
+
+Now our Mendelian error rate is `0.001684592`! Much better!
+
+```{bash}
+POST=variants/results/05_variantCalling/gatk/gatk_filtered.vcf.gz
+bcftools +mendelian2 -r chr20:29400000-34400000 -p son,dad,mom -m c ${POST}
+```
+
+### Other checks
+
+Depending on the type of study, there are other statistics you can look at. Deviations from Hardy-Weinberg equilibrium is a big one, but only useful in the context of a population sample, and you may expect deviations under certain breeding systems or sampling regimes. You can use functional annotations (do you see an unreasonable number of alleles that disrupt proteins?). You can also zoom and look at the underlying data for a region of interest in IGV. If you have a large set of "known" variants, you could ask whether you have discovered an unreasonably large set of new variants. 
+
+## Conclusion
+
+In this chapter we've seen ways we can summarize variant call sets, filter them and check their overall quality. In the next chapter we'll cover comparing variant call sets and annotating them. 

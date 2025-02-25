@@ -3,9 +3,15 @@ title: "Genome Assembly"
 editor: source
 ---
 
-# Learning Objectives
+## Learning Objectives
 
 |                           |
 |------------------------------------------------------------------------|
 | **Learning Objectives:**  |
-| FIRST OBJECTIVE   |
+| Conduct quality control analysis of raw data specific to genome assembly. |
+| Estimate genome size from unassembled reads. |
+| Assemble a genome sequence. |
+| Scaffold a genome sequence using Hi-C data. |
+| Estimate the completeness, correctness, and contiguity of an assembled genome.|
+
+In this module we'll go over the essentials of a genome assembly workflow. We'll cover QC steps (pretty sparse here) and do some initial estimation of some features of the genome using k-mers. We will then assemble a haplotype phased genome using PacBio HiFi data and Hi-C data from Arima. We'll scaffold the assembly using the Hi-C data and do some QC steps on the assembly. 

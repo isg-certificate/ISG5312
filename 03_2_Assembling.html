@@ -584,25 +584,25 @@ Memory Efficiency: 57.65% of 20.00 GB</code></pre>
 <section id="combine-r1r2-and-mark-duplicates" class="level4" data-number="8.4.1.3">
 <h4 data-number="8.4.1.3" class="anchored" data-anchor-id="combine-r1r2-and-mark-duplicates"><span class="header-section-number">8.4.1.3</span> Combine R1/R2 and mark duplicates</h4>
 <p>Finally, we’re going to combine the R1/R2 reads into a single bam file, mark duplicates and sort.</p>
-<pre><code># get locations
-COMBINER=$(which two_read_bam_combiner.pl)
-STATS=$(which get_stats.pl)
-SAMTOOLS=$(which samtools)
-
-# min mapQ
-MAPQ_FILTER=10
-
-# combine R1/R2 into a single bam, sort, mark duplicates
-perl ${COMBINER} ${INDIR}/${hap}_R1.bam ${INDIR}/${hap}_R2.bam ${SAMTOOLS} ${MAPQ_FILTER} | 
-    samtools view -Sh -t ${FAIDX} - | 
-    samblaster | 
-    samtools sort -T ${INDIR}/${hap}.tmp -@ 8 -o ${INDIR}/${hap}.bam -
-
-# index bam file
-samtools index ${INDIR}/${hap}.bam
-
-# get statistics
-perl ${STATS} ${INDIR}/${hap}.bam &gt; ${INDIR}/${hap}.bam.stats</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get locations</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="va">COMBINER</span><span class="op">=</span><span class="va">$(</span><span class="fu">which</span> two_read_bam_combiner.pl<span class="va">)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="va">STATS</span><span class="op">=</span><span class="va">$(</span><span class="fu">which</span> get_stats.pl<span class="va">)</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="va">SAMTOOLS</span><span class="op">=</span><span class="va">$(</span><span class="fu">which</span> samtools<span class="va">)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># min mapQ</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="va">MAPQ_FILTER</span><span class="op">=</span>10</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># combine R1/R2 into a single bam, sort, mark duplicates</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">perl</span> <span class="va">${COMBINER}</span> <span class="va">${INDIR}</span>/<span class="va">${hap}</span>_R1.bam <span class="va">${INDIR}</span>/<span class="va">${hap}</span>_R2.bam <span class="va">${SAMTOOLS}</span> <span class="va">${MAPQ_FILTER}</span> <span class="kw">|</span> </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samtools</span> view <span class="at">-Sh</span> <span class="at">-t</span> <span class="va">${FAIDX}</span> <span class="at">-</span> <span class="kw">|</span> </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samblaster</span> <span class="kw">|</span> </span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">samtools</span> sort <span class="at">-T</span> <span class="va">${INDIR}</span>/<span class="va">${hap}</span>.tmp <span class="at">-@</span> 8 <span class="at">-o</span> <span class="va">${INDIR}</span>/<span class="va">${hap}</span>.bam <span class="at">-</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co"># index bam file</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> index <span class="va">${INDIR}</span>/<span class="va">${hap}</span>.bam</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># get statistics</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="fu">perl</span> <span class="va">${STATS}</span> <span class="va">${INDIR}</span>/<span class="va">${hap}</span>.bam <span class="op">&gt;</span> <span class="va">${INDIR}</span>/<span class="va">${hap}</span>.bam.stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This step also takes 4-5 hours. <code>seff</code>:</p>
 <pre><code>Job ID: 8897661
 Array Job ID: 8897661_0

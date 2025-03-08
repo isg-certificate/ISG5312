@@ -347,7 +347,7 @@ Memory Efficiency: 57.65% of 20.00 GB
 
 Finally, we're going to combine the R1/R2 reads into a single bam file, mark duplicates and sort. 
 
-```
+```bash
 # get locations
 COMBINER=$(which two_read_bam_combiner.pl)
 STATS=$(which get_stats.pl)

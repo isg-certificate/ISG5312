@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>12&nbsp; Clustering, annotation, and differential expression – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./05_0_workflows.html" rel="next">
+<link href="./04_2_seuratPart1.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04_0_scRNAseq.html">Single-cell RNAseq</a></li><li class="breadcrumb-item"><a href="./04_3_seuratPart2.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./03_0_genomeAssembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Genome Assembly</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_1_genomeAssemblyKmers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_2_Assembling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_3_assemblyQC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Assembly QC</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./04_0_scRNAseq.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single-cell RNAseq</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_1_snRNAseq_seqdata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">QC, mapping, and counting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_2_seuratPart1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_3_seuratPart2.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">12.1</span> Learning Objectives</a></li>
+  <li><a href="#cell-clustering" id="toc-cell-clustering" class="nav-link" data-scroll-target="#cell-clustering"><span class="header-section-number">12.2</span> Cell clustering</a></li>
+  <li><a href="#cell-annotation" id="toc-cell-annotation" class="nav-link" data-scroll-target="#cell-annotation"><span class="header-section-number">12.3</span> Cell annotation</a>
+  <ul class="collapse">
+  <li><a href="#clustering-and-annotation-conclusion" id="toc-clustering-and-annotation-conclusion" class="nav-link" data-scroll-target="#clustering-and-annotation-conclusion"><span class="header-section-number">12.3.1</span> Clustering and annotation conclusion</a></li>
+  </ul></li>
+  <li><a href="#differential-expression" id="toc-differential-expression" class="nav-link" data-scroll-target="#differential-expression"><span class="header-section-number">12.4</span> Differential expression</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">12.5</span> Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04_0_scRNAseq.html">Single-cell RNAseq</a></li><li class="breadcrumb-item"><a href="./04_3_seuratPart2.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">12.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Cluster cells into groups</td>
+</tr>
+<tr class="odd">
+<td>Annotate cell types</td>
+</tr>
+<tr class="even">
+<td>Use visualizations to explore and validate findings</td>
+</tr>
+<tr class="odd">
+<td>Conduct differential expression analysis on cell populations</td>
+</tr>
+</tbody>
+</table>
+<p>In the last chapter we introduced Seurat and how it stores data. We saw how to do some initial QC, normalization, dimensionality reduction, and integration of data sets from different samples or experimental treatments.</p>
+<p>In this chapter we’re going to learn how to cluster cells into putative cell types, how to annotate those types and how to do a differential expression analysis within cell types across treatments. There’s <em>lots</em> more exciting and interesting stuff you can do with single-cell data, including incorporating other types of data (ATAC-seq), spatial analyses, and trajectory analyses. This is a huge and changing field and unfortunately we don’t have time to get too deeply into it!</p>
+</section>
+<section id="cell-clustering" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="cell-clustering"><span class="header-section-number">12.2</span> Cell clustering</h2>
+<p>In the previous chapter we briefly did cell clustering, but did not discuss it. Here we’ll go over it in a little more detail. A core aim in many studies using scRNAseq is to assign cells to categories and then (frequently) annotate with known cell type identities. The first step here involves identifying groups of similar cells. We saw in the last chapter how technical and (and perhaps also biological) variation across datasets could potentially confound this clustering, and how integration can help mitigate the effects of that variation.</p>
+<p>Now, using our integrated “reduction” we’re going to cluster the cells. There are two steps. First, Seurat generates a K-nearest neighbor (KNN) graph. The graph has cells as nodes, and connects each cell to it’s <em>K</em> nearest neighbors. Seurat processes this graph into a variant called a <em>shared</em> nearest neighbor (SNN) graph. Second, Seurat will try to partition that graph into groups of cells, by default using the <a href="https://en.wikipedia.org/wiki/Louvain_method">Louvain algorithm</a>. As with every other step, there are multiple methods and folks have attempted to <a href="https://f1000research.com/articles/7-1141">sort out which is best</a>.</p>
+<p>We’ll do the first step with this command:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindNeighbors</span>(sobj, <span class="at">reduction =</span> <span class="st">"integrated.dr"</span>, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">75</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The graph will be stored here <code>sobj@graphs$SCT_snn</code>, but we don’t need to look at it ourselves.</p>
+<p>In the next step we partition the graph into clusters.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindClusters</span>(sobj, <span class="at">resolution =</span> <span class="fl">0.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note we set a <code>resolution</code> parameter here. It controls how finely the cells are partitioned. We used <code>2</code> as this value in the last chapter. Clusters will be added to the <code>sobj@meta.data</code> table. Do `colnames(sobj@meta.data) to see what we’ve got there currently.</p>
+<p>Now let’s look at the result of this clustering (and the last chapter) in a UMAP plot:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"umap.integrated"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"SCT_snn_res.2"</span>, <span class="st">"SCT_snn_res.0.6"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig11.png" class="img-fluid"></p>
+<p>We have far fewer groups with <code>0.6</code> than we did with <code>2</code>. It’s also a heck of a lot less messy. What’s the “best” resolution? There probably isn’t one.</p>
+<p>Let’s try a variety of resolutions:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindClusters</span>(sobj, <span class="at">resolution =</span> <span class="fu">seq</span>(<span class="fl">0.1</span>, <span class="fl">1.4</span>, <span class="at">by=</span><span class="fl">0.2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We can make a plot (<a href="https://sib-swiss.github.io/single-cell-training/day2/day2-3_clustering.html">credit for this idea</a>) using <a href="https://github.com/lazappi/clustree">clustree</a> (<code>install.packages("clustree")</code>).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">clustree</span>(sobj<span class="sc">@</span>meta.data[,<span class="fu">grep</span>(<span class="st">"SCT_snn_res"</span>, <span class="fu">colnames</span>(sobj<span class="sc">@</span>meta.data))], <span class="at">prefix =</span> <span class="st">"SCT_snn_res."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig12.png" class="img-fluid"></p>
+<p>So again, what’s the best resolution? Cells may not always fall into perfectly discrete groups, and discrete-ish variation may also be hierarchical such that different resolutions really are revealing biological variation at different levels. Here we’ll go with <code>0.6</code> moving forward. The clusters look relatively clean in the UMAP (vs 2.0). In the above diagram these clusters are relatively stable from 0.5-0.9. When we get higher we start to see lots of clusters that are not subdivisions, but mixtures of clusters at higher levels. That seems like it might be an indicator that more continuous variation is being partitioned messily.</p>
+<p>If we had strong prior information, we could make sure that expected cell types were separating cleanly (we will do this to some extent in the next step with annotation).</p>
+<p>Finally, before moving on, we’ll set the default grouping:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">SetIdent</span>(sobj, <span class="at">value =</span> sobj<span class="sc">$</span>SCT_snn_res.<span class="fl">0.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="cell-annotation" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="cell-annotation"><span class="header-section-number">12.3</span> Cell annotation</h2>
+<p>The general idea behind cell type annotation is that cell types have identifying expression patterns. These patterns may be quite limited, in the form of a handful of “marker genes” that are thought to distinguish a given cell type, or they may be inferred from more comprehensive data. This could take the form of comparing current clusters against an existing clustered, annotated scRNA-seq dataset, or using a classifier trained on one ore more existing datasets.</p>
+<p>In this paper, there is no existing annotated <em>M. pharaonis</em> dataset, so the authors compile a list of marker genes from other studies of gene expression in insect brains (surely mostly <em>Drosophila</em> ) and use those.</p>
+<p>Let’s create a list object:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>litgenes <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">Neurons=</span><span class="fu">c</span>(<span class="st">"Syt1"</span>, <span class="st">"nSyb"</span>), <span class="co"># "Glaz" in original paper, but not in data</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Glia=</span><span class="fu">c</span>(<span class="st">"fne"</span>, <span class="st">"bdl"</span>, <span class="st">"repo"</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">kenyoncells=</span><span class="fu">c</span>(<span class="st">"Pka-C1"</span>, <span class="st">"trio"</span>), <span class="co">#PCLepsilon in original, but missing from data</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">opticlobe=</span><span class="fu">c</span>(<span class="st">"Octbeta1R"</span>, <span class="st">"Drgx"</span>, <span class="st">"ort"</span>, <span class="st">"Ih"</span>, <span class="st">"qvr"</span>, <span class="st">"bt"</span>, <span class="st">"ct"</span>, <span class="st">"VGlut"</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">PR=</span><span class="fu">c</span>(<span class="st">"ninaB"</span>, <span class="st">"ninaC"</span>, <span class="st">"trp"</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">OPN=</span><span class="fu">c</span>(<span class="st">"Sulf1"</span>, <span class="st">"acj6"</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">MN=</span><span class="fu">c</span>(<span class="st">"Vmat"</span>, <span class="st">"DAT"</span>, <span class="st">"Ddc"</span>, <span class="st">"ple"</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">AST=</span><span class="fu">c</span>(<span class="st">"Gs1"</span>, <span class="st">"Gat"</span>, <span class="st">"moody"</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">EG=</span><span class="fu">c</span>(<span class="st">"Tsf1"</span>, <span class="st">"CG8745"</span>, <span class="st">"e"</span>, <span class="st">"Idgf4"</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SG=</span><span class="fu">c</span>(<span class="st">"Mdr49"</span>, <span class="st">"vkg"</span>, <span class="st">"Tret1-1"</span>, <span class="st">"Indy"</span>),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">CG=</span><span class="fu">c</span>(<span class="st">"wrapper"</span>, <span class="st">"zyd"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We have “neurons” and “glia”, but also subtypes within this group. We can visualize the expression of genes on the UMAP plot:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(sobj, litgenes<span class="sc">$</span>kenyoncells, <span class="at">ncol=</span><span class="dv">3</span>, <span class="at">reduction=</span><span class="st">"umap.integrated"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig13.png" class="img-fluid"></p>
+<p>We can see high expression concentrated for these two genes that are markers for Kenyon cells in the large cluster on the left, suggesting those cells are likely Kenyon cells.</p>
+<p>If we don’t have <em>a priori</em> markers we’re looking for, we can also extract markers conserved across our samples for each cluster like this:</p>
+<pre><code>gids &lt;- levels(Idents(sobj))
+sobj &lt;- PrepSCTFindMarkers(sobj)
+markers &lt;- lapply(gids, FUN=function(x){FindConservedMarkers(sobj, ident.1 = x, grouping.var = "Replicate", verbose = FALSE, assay="SCT")})</code></pre>
+<p>First we get a list of group IDs (just numbers at this point). Then we get our SCTransform normalized counts ready, then for each group ID we run <code>FindConservedMarkers()</code>.</p>
+<p>This is going to identify sets of genes that are significantly differentially expressed in each cell cluster compared to the others. Since “compared to the others” means this is essentially an average, identified genes won’t necessarily be unique to the group, but may be shared by a small number of other groups. If you specifically want to identify markers that separate pairs of clusters you can supply two cluster IDs.</p>
+<p>Let’s pull out a table with the top 5 markers for each cell type. Each table will have the log2 fold change for each potential marker gene for each replicate, so we’ll average them.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>topmarkers <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">28</span>){</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    FCs <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"FC"</span>, <span class="fu">colnames</span>(markers[[i]]))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(markers[[i]],<span class="at">aveLog2FC=</span><span class="fu">rowMeans</span>(markers[[i]][,FCs])) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(aveLog2FC <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">group=</span>gids[i]) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(aveLog2FC,group) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">head</span>(<span class="at">n=</span><span class="dv">5</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    topmarkers <span class="ot">&lt;-</span> <span class="fu">rbind</span>(topmarkers,tmp)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note that many of our literature-based marker genes don’t show up here:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(litgenes) <span class="sc">%in%</span> <span class="fu">rownames</span>(topmarkers) <span class="sc">%&gt;%</span> <span class="fu">table</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>FALSE  TRUE 
+   23    14 </code></pre>
+<p>In part that’s because some of them don’t seem to show as strong of a pattern as we might like (do the FeaturePlot for the generic “Neuron” markers), but for some (like Pka-C1 in Kenyon cells) it’s probably because there just happen to be stronger markers, or ones that are specific to a subcluster:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(sobj, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"CG5235"</span>, <span class="st">"Pharaoh-ant-17423"</span>), <span class="at">reduction=</span><span class="st">"umap.integrated"</span>, <span class="at">label=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig14.png" class="img-fluid"> Now, there is a function <code>AddModuleScore()</code> that we could use to score cells by their expression at a given set of genes. We could then average those scores across cells to get an idea of which clusters should be given which identities. That might help for our literature-based genes.</p>
+<p>Here we’re just going to make a dot plot, and manually match up the cells with their literature-based markers as best we can. The dot plot visually displays the average expression by cell group for a given set of genes. There is an analogous figure in the paper. It’s a bit cleaner though:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(sobj, <span class="at">features =</span> allmarkers ,<span class="at">cols=</span><span class="fu">c</span>(<span class="st">"azure2"</span>, <span class="st">"firebrick1"</span>), <span class="at">dot.scale =</span> <span class="dv">8</span>) <span class="sc">+</span> <span class="fu">RotatedAxis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig15.png" class="img-fluid"> The first five genes are meant to generally distinguish neurons and glia. We can see that they largely do, with 7,12,16 and 22 having generally higher expression for the two glial genes and the rest having generally higher expression for the two neuronal genes. They correspond to astrocytes (AST), ensheathing glia (EG), cortex glia (CG), and surface glia (SG). Those designations are backed up by their expression for cell-type-specific markers as well.</p>
+<p>There may be a much better way to do this, but we can go through and manually make assignments to the cell types in the paper based on the literature genes like this:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>celltypes <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">"0"</span> <span class="ot">=</span> <span class="st">"Neuron1"</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">"1"</span> <span class="ot">=</span> <span class="st">"Neuron2"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">"2"</span> <span class="ot">=</span> <span class="st">"Neuron3"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">"3"</span> <span class="ot">=</span> <span class="st">"Neuron-KC1"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="st">"4"</span> <span class="ot">=</span> <span class="st">"Neuron-KC2"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">"5"</span> <span class="ot">=</span> <span class="st">"Glia1"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">"6"</span> <span class="ot">=</span> <span class="st">"Neuron-KC3"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">"7"</span> <span class="ot">=</span> <span class="st">"Glia-EG"</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">"8"</span> <span class="ot">=</span> <span class="st">"Neuron4"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="st">"9"</span> <span class="ot">=</span> <span class="st">"Neuron-OL1"</span>,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="st">"10"</span> <span class="ot">=</span> <span class="st">"Neuron-OL2"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="st">"11"</span> <span class="ot">=</span> <span class="st">"Neuron5"</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="st">"12"</span> <span class="ot">=</span> <span class="st">"Glia-SG"</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="st">"13"</span> <span class="ot">=</span> <span class="st">"Neuron6"</span>,</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="st">"14"</span> <span class="ot">=</span> <span class="st">"Neuron-OPN"</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="st">"15"</span> <span class="ot">=</span> <span class="st">"Neuron-MN"</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="st">"16"</span> <span class="ot">=</span> <span class="st">"Glia-AST1"</span>,</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="st">"17"</span> <span class="ot">=</span> <span class="st">"Neuron-OL3"</span>,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="st">"18"</span> <span class="ot">=</span> <span class="st">"Neuron7"</span>,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="st">"19"</span> <span class="ot">=</span> <span class="st">"Neuron8"</span>,</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="st">"20"</span> <span class="ot">=</span> <span class="st">"Neuron9"</span>,</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="st">"21"</span> <span class="ot">=</span> <span class="st">"Neuron10"</span>,</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="st">"22"</span> <span class="ot">=</span> <span class="st">"Glia-CG"</span>,</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="st">"23"</span> <span class="ot">=</span> <span class="st">"Neuron11"</span>,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="st">"24"</span> <span class="ot">=</span> <span class="st">"Neuron12"</span>,</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="st">"25"</span> <span class="ot">=</span> <span class="st">"Neuron13"</span>,</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="st">"26"</span> <span class="ot">=</span> <span class="st">"Neuron14"</span>,</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="st">"27"</span> <span class="ot">=</span> <span class="st">"Neuron-PR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We have lots of clusters of generic neurons that aren’t explored in the paper. With this <code>celltypes</code> vector in hand, we can translate our clusters into cell type labels:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>ctypevec <span class="ot">&lt;-</span> celltypes[<span class="fu">as.character</span>(sobj<span class="sc">$</span>SCT_snn_res.<span class="fl">0.6</span>)]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ctypevec) <span class="ot">&lt;-</span> <span class="fu">names</span>(sobj<span class="sc">$</span>SCT_snn_res.<span class="fl">0.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And add it to the seurat object:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sobj<span class="sc">$</span>cell_type <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(ctypevec)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># set the levels so they order nicely</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>sobj<span class="sc">$</span>cell_type <span class="ot">&lt;-</span> <span class="fu">factor</span>(sobj<span class="sc">$</span>cell_type, <span class="at">levels=</span><span class="fu">sort</span>(<span class="fu">unique</span>(sobj<span class="sc">$</span>cell_type)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And set the cell type as the group identities.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(sobj) <span class="ot">&lt;-</span> sobj<span class="sc">$</span>cell_type</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And remake the dot plot!</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(sobj, <span class="at">features =</span> allmarkers ,<span class="at">cols=</span><span class="fu">c</span>(<span class="st">"azure2"</span>, <span class="st">"Red"</span>), <span class="at">dot.scale =</span> <span class="dv">8</span>) <span class="sc">+</span> <span class="fu">RotatedAxis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig16.png" class="img-fluid"> Still a bit messy, but much nicer. If we wanted to look at the markers that we find from the data itself we can do that as well. Let’s first add the cell types to our <code>topmarkers</code> object and then order it. Then make the plot. It’s super messy because we have included to many genes! It could use a little refinement.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>topmarkers<span class="sc">$</span>celltypes <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(celltypes[topmarkers<span class="sc">$</span>group])</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>topmarkers <span class="ot">&lt;-</span> <span class="fu">arrange</span>(topmarkers, celltypes)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">DotPlot</span>(sobj, <span class="at">features =</span> <span class="fu">rownames</span>(topmarkers) ,<span class="at">cols=</span><span class="fu">c</span>(<span class="st">"azure2"</span>, <span class="st">"Red"</span>), <span class="at">dot.scale =</span> <span class="dv">8</span>) <span class="sc">+</span> <span class="fu">RotatedAxis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig17.png" class="img-fluid"></p>
+<p>And we can also remake our UMAP plot (or the <code>FeaturePlot()</code>) and add our labels:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"umap.integrated"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"cell_type"</span>), <span class="at">label=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig18.png" class="img-fluid"> And finally we can remake our table of cell numbers per type for each replicate:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(sobj<span class="sc">$</span>cell_type,sobj<span class="sc">$</span>Replicate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>             Male-1 Male-4 Worker-2 Worker-3
+  Glia-AST1     248    403      158      180
+  Glia-CG        53     75       44       71
+  Glia-EG       507    847      332      457
+  Glia-SG       229    292      258      333
+  Glia1         413    870      974     1165
+  Neuron-KC1    926   1118      657     1120
+  Neuron-KC2    686    460     1181     1305
+  Neuron-KC3    453    305     1044     1090
+  Neuron-MN     237    196      275      292
+  Neuron-OL1    705    755      133      187
+  Neuron-OL2    698    744       97      127
+  Neuron-OL3    392    335       24       19
+  Neuron-OPN    150    175      378      364
+  Neuron-PR      14     15        1        0
+  Neuron1      2587   2956     1263     1724
+  Neuron10       52     49       95       97
+  Neuron11       39     45       69       83
+  Neuron12       37     15       68       67
+  Neuron13        9      6        8       17
+  Neuron14        5     12        7       11
+  Neuron2      1192   1043      936     1088
+  Neuron3      1143   1019      876     1060
+  Neuron4       515    527      444      475
+  Neuron5       178    187      487      475
+  Neuron6       235    286      273      302
+  Neuron7       201    157      148      166
+  Neuron8        92    162      157      199
+  Neuron9        86     62       98       99</code></pre>
+<p>Just eyeballing it, it seems like there might be real differences in Kenyon cell (KC) and optic lobe (OL) neuron numbers between the two phenotypes. The full dataset with more replicates and a statistical method like <a href="https://sccoda.readthedocs.io/en/latest/"><code>scCODA</code></a> would be a better place to start with formally testing that, as the paper does (it does indeed find that optic lobe neurons are more abundant in males):</p>
+<blockquote class="blockquote">
+<p>By contrast, male brains had the highest abundances not only in all OL clusters, but also for two of the three astrocyte clusters, while they had the lowest abundances in OPNs and almost all KC-related clusters. These results clearly indicate that Monomorium males rely heavily on visually guided behaviour</p>
+</blockquote>
+<section id="clustering-and-annotation-conclusion" class="level3" data-number="12.3.1">
+<h3 data-number="12.3.1" class="anchored" data-anchor-id="clustering-and-annotation-conclusion"><span class="header-section-number">12.3.1</span> Clustering and annotation conclusion</h3>
+<p>If you’re looking at our workflow up until this point and saying, “Gee, we seem to have made an awful lot of somewhat arbitrary decisions. Many of those decisions seem like they might have had non-trivial impacts on our results so far.” then you would be 100% correct! There are more sophisticated options for some of these steps, particularly for cell type annotation, but they require reference data may not be available for all organisms, tissues or life stages. It’s appropriate to approach analyses like this with a lot of caution, and to ask if big important results might be contingent on subjective choices during the analysis.</p>
+</section>
+</section>
+<section id="differential-expression" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="differential-expression"><span class="header-section-number">12.4</span> Differential expression</h2>
+<p>The last step we’ll cover with single-cell data is testing for differential expression between cells of the same cell type across experimental groups. Above we showed how you can use <code>FindMarkers()</code> to effectively do differential expression between cell types within samples (we did a single cell type compared to all others, but you can do pairwise comparisons as well).</p>
+<p>Here we’re going to use a popular approach referred to as <strong>pseudobulk</strong> differential expression analysis. In this approach we aggregate the counts for each cell type for each sample into a single expression profile. We then use the machinery of classical differential expression analysis (in this case the DESeq2 model we applied last semester when doing bulk RNA-seq).</p>
+<p>This gets around one of the fundamental weaknesses of bulk differential expression analysis: changes in cell type composition across experimental groups are confounded with changes in gene expression. That is to say, bulk DE analysis may still detect “differential expression” if cell type composition changes across treatments even if cell type expression profiles don’t.</p>
+<p>The first step here is to aggregate the counts across cells within types and samples. Seurat has a function for this. Note that we are using the <code>RNA</code> assay, that is, our raw count data, not a normalized or transformed version of it. You’ll remember from last semester count-based DE models need the raw data to be valid.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>aggregate_sobj <span class="ot">&lt;-</span> <span class="fu">AggregateExpression</span>(sobj, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"cell_type"</span>, <span class="st">"Replicate"</span>), <span class="at">assays=</span><span class="st">"RNA"</span>, <span class="at">return.seurat =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># list new "cell" names</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">Cells</span>(aggregate_sobj) <span class="sc">%&gt;%</span> <span class="fu">head</span>(., <span class="at">n=</span><span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>[1] "Glia-AST1_Male-1"   "Glia-AST1_Male-4"   "Glia-AST1_Worker-2"
+[4] "Glia-AST1_Worker-3" "Glia-CG_Male-1"     "Glia-CG_Male-4"    
+[7] "Glia-CG_Worker-2"   "Glia-CG_Worker-3"  </code></pre>
+<p>The <code>Cells()</code> command just lists the names of the new “cells” in the object we’ve created. So you can see for the first two cell types we’ve output above we now have a vector of aggregated counts for each of four samples.</p>
+<p>We could export this data to a matrix and bring it into DESeq2 manually. Seurat provides this functionality as well, so we’ll just use its functions. We would want to export the data and run DESeq2 manually if we had a more complex experiment (if we had interactions to test, for example), but we are just doing a pairwise comparison here.</p>
+<p>First lets add categories to our expression profiles (by just stripping the sample number off the current titles) and set those as the profile identities.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create new categories</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Idents</span>(aggregate_sobj) <span class="ot">&lt;-</span> <span class="fu">Cells</span>(aggregate_sobj) <span class="sc">%&gt;%</span> <span class="fu">str_remove</span>(<span class="st">"-[0-9]"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we can run a differential expression analysis. We’re going to look at one of the Kenyon cell groups that showed a likely abundance difference between males and workers (we did not formally test for it).</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># test for differential expression between workers and males for Neuron-KC2 group. </span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>KC2DE <span class="ot">&lt;-</span> <span class="fu">FindMarkers</span>(<span class="at">object =</span> aggregate_sobj, <span class="at">ident.1 =</span> <span class="st">"Neuron-KC2_Male"</span>, <span class="at">ident.2 =</span> <span class="st">"Neuron-KC2_Worker"</span>, <span class="at">test.use =</span> <span class="st">"DESeq2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>converting counts to integer mode
+gene-wise dispersion estimates
+mean-dispersion relationship
+final dispersion estimates</code></pre>
+<p>This will output a simple data frame (which does not have all the info DESeq2 usually provides):</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(KC2DE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>                         p_val avg_log2FC pct.1 pct.2    p_val_adj
+AstA              1.868479e-44  -5.701030     1     1 2.927159e-40
+Pharaoh-ant-05017 3.806350e-28   1.159425     1     1 5.963027e-24
+nord              4.497848e-27   3.176323     1     1 7.046329e-23
+Pharaoh-ant-03468 3.749170e-25   1.171522     1     1 5.873449e-21
+zld               4.363376e-22  -4.335117     1     1 6.835665e-18
+Drep1             3.773811e-20  -3.516470     1     1 5.912052e-16</code></pre>
+<p>There are lots of DE genes, perhaps some of them are junk, but the top ones look cool!</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>( KC2DE<span class="sc">$</span>p_val_adj <span class="sc">&lt;</span> <span class="fl">0.05</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>[1] 221</code></pre>
+<p>Let’s make some feature plots with a few of these genes:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(sobj, <span class="at">features =</span> <span class="st">"AstA"</span>, <span class="at">reduction=</span><span class="st">"umap.integrated"</span>, <span class="at">label=</span><span class="cn">TRUE</span>, <span class="at">split.by=</span><span class="st">"Phenotype"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig19.png" class="img-fluid"></p>
+<p><code>AstA</code> is a neuropeptide that modulates growth, sexual development and feeding behavior. If we look closely, it seems like the KC2 group cells expressing it in workers are not very common in males, so perhaps this is a case again of differential cell abundance (of a cell type we have lumped with another) rather than differential gene expression? This gene also seems to be expressed in the Neuron9 group, but in both phenotypes.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(sobj, <span class="at">features =</span> <span class="st">"Pharaoh-ant-05017"</span>, <span class="at">reduction=</span><span class="st">"umap.integrated"</span>, <span class="at">label=</span><span class="cn">TRUE</span>, <span class="at">split.by=</span><span class="st">"Phenotype"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig20.png" class="img-fluid"></p>
+<p>In this case, we have an unannotated gene that seems to be widely expressed in neurons in general, but downregulated in the KC2 group in workers.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FeaturePlot</span>(sobj, <span class="at">features =</span> <span class="st">"nord"</span>, <span class="at">reduction=</span><span class="st">"umap.integrated"</span>, <span class="at">label=</span><span class="cn">TRUE</span>, <span class="at">split.by=</span><span class="st">"Phenotype"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig21.png" class="img-fluid"></p>
+<p>Lastly we have the gene <code>nord</code>, which appears to be expressed primarily in kenyon cell groups KC1 and KC2 in males and hardly anywhere else. A brief search on this gene suggests its known in <em>Drosophila</em> as a regulator (inhibitor) of bone morphogenetic protein signaling. BMP is involved in lots of developmental processes, including brain development, but a quick search didn’t reveal much more detail about processes it might be involved with here.</p>
+</section>
+<section id="conclusion" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">12.5</span> Conclusion</h2>
+<p>To wrap up, in this module we’ve seen how single-cell RNA-seq data is structured. How we can use Seurat to process it, visualize it, and cluster cells into putative cell types. We’ve manually annotated cell types using a defined set of marker genes and done pseudo-bulk differential expression. These steps are foundational to lots of scRNA-seq studies, but there are more applications we didn’t discuss at all. Some examples:</p>
+<ul>
+<li><a href="https://www.nature.com/articles/s41587-019-0071-9">Trajectory analysis</a> attempts to infer where cells are on a developmental “trajectory”.</li>
+<li><a href="https://www.nature.com/articles/s41586-018-0414-6">RNA velocity analysis</a> tries to predict the future gene expression state of cells by comparing abundance of spliced and unspliced RNA, assuming that unspliced transcripts will shortly comprise the expressed transcripts.</li>
+<li><a href="https://www.nature.com/articles/s41596-020-0292-x">Cell-cell communication analysis</a> takes in expression data and a repository of receptors and ligands and single-cell expression data and tries to infer which cell types have complementary expression patterns for these genes potentially indicating they are signaling to each other.</li>
+<li><a href="https://link.springer.com/article/10.1186/s13073-022-01075-1">Spatial transcriptomics</a> integrates single-cell expression data with information on the physical location of cells in tissues.</li>
+<li><a href="https://www.nature.com/articles/s41576-023-00580-2">“Multi”-omics</a> incorporates data types beyond gene expression, such as proteomic, metabolomic, and epigenomic information.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./04_2_seuratPart1.html" class="pagination-link" aria-label="Normalization, dimension reduction and integration">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./05_0_workflows.html" class="pagination-link" aria-label="Pipeline development with Nextflow">
+        <span class="nav-page-text">Pipeline development with Nextflow</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>11&nbsp; Normalization, dimension reduction and integration – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./04_3_seuratPart2.html" rel="next">
+<link href="./04_1_snRNAseq_seqdata.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04_0_scRNAseq.html">Single-cell RNAseq</a></li><li class="breadcrumb-item"><a href="./04_2_seuratPart1.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./03_0_genomeAssembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Genome Assembly</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_1_genomeAssemblyKmers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_2_Assembling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_3_assemblyQC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Assembly QC</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./04_0_scRNAseq.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single-cell RNAseq</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_1_snRNAseq_seqdata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">QC, mapping, and counting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_2_seuratPart1.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_3_seuratPart2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline development with Nextflow</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">12</span> Learning Objectives</a>
+  <ul class="collapse">
+  <li><a href="#the-count-matrix" id="toc-the-count-matrix" class="nav-link" data-scroll-target="#the-count-matrix"><span class="header-section-number">12.1</span> The count matrix</a></li>
+  <li><a href="#getting-set-up-with-seurat" id="toc-getting-set-up-with-seurat" class="nav-link" data-scroll-target="#getting-set-up-with-seurat"><span class="header-section-number">12.2</span> Getting set up with <code>Seurat</code></a>
+  <ul class="collapse">
+  <li><a href="#subsetting-the-data" id="toc-subsetting-the-data" class="nav-link" data-scroll-target="#subsetting-the-data"><span class="header-section-number">12.2.1</span> Subsetting the data</a></li>
+  </ul></li>
+  <li><a href="#understanding-the-data" id="toc-understanding-the-data" class="nav-link" data-scroll-target="#understanding-the-data"><span class="header-section-number">12.3</span> Understanding the data</a>
+  <ul class="collapse">
+  <li><a href="#the-count-data" id="toc-the-count-data" class="nav-link" data-scroll-target="#the-count-data"><span class="header-section-number">12.3.1</span> The count data</a></li>
+  <li><a href="#per-cell-metadata" id="toc-per-cell-metadata" class="nav-link" data-scroll-target="#per-cell-metadata"><span class="header-section-number">12.3.2</span> Per cell metadata</a></li>
+  <li><a href="#gene-features" id="toc-gene-features" class="nav-link" data-scroll-target="#gene-features"><span class="header-section-number">12.3.3</span> Gene features</a></li>
+  </ul></li>
+  <li><a href="#analysis-outline" id="toc-analysis-outline" class="nav-link" data-scroll-target="#analysis-outline"><span class="header-section-number">12.4</span> Analysis outline</a></li>
+  <li><a href="#initial-qc" id="toc-initial-qc" class="nav-link" data-scroll-target="#initial-qc"><span class="header-section-number">12.5</span> Initial QC</a></li>
+  <li><a href="#normalization" id="toc-normalization" class="nav-link" data-scroll-target="#normalization"><span class="header-section-number">12.6</span> Normalization</a></li>
+  <li><a href="#dimensionality-reduction" id="toc-dimensionality-reduction" class="nav-link" data-scroll-target="#dimensionality-reduction"><span class="header-section-number">12.7</span> Dimensionality reduction</a>
+  <ul class="collapse">
+  <li><a href="#pca" id="toc-pca" class="nav-link" data-scroll-target="#pca"><span class="header-section-number">12.7.1</span> PCA</a></li>
+  <li><a href="#umap" id="toc-umap" class="nav-link" data-scroll-target="#umap"><span class="header-section-number">12.7.2</span> UMAP</a></li>
+  </ul></li>
+  <li><a href="#integration" id="toc-integration" class="nav-link" data-scroll-target="#integration"><span class="header-section-number">12.8</span> Integration</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">12.9</span> Conclusion</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04_0_scRNAseq.html">Single-cell RNAseq</a></li><li class="breadcrumb-item"><a href="./04_2_seuratPart1.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Learning Objectives</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Conduct quality control analysis of raw data specific to single-cell RNA-seq.</td>
+</tr>
+<tr class="odd">
+<td>Normalize cell counts</td>
+</tr>
+<tr class="even">
+<td>Integrate data from multiple samples</td>
+</tr>
+<tr class="odd">
+<td>Use visualizations to explore and validate findings</td>
+</tr>
+</tbody>
+</table>
+<p>In the previous chapter we explored raw single-cell RNAseq data. We covered how our library is structured with cell barcodes, UMIs and the implications for 3’ sequencing data. We saw how we can use STARsolo to process the reads, assigning them to cells and deduplicating them by UMI. We explored the output files and their structure as well. This may seem like getting into the data in excessively gritty detail, especially as the next analysis steps are pretty complex, but it can be helpful.</p>
+<p>Imagine a case where you have inserted a gene construct into an organism you’re studying and you want to see in which cells it is expressed. You’ve added the construct to your reference genome and a corresponding entry in the GTF file. You process the data down to the gene x cell count matrix, but discover there appears to be no expression from your construct. Why? Is there really no expression? Has something gone wrong with the mapping or counting? Understanding the data and processing steps well enough to spot check the data and output files for each step can help work out enigmas like this.</p>
+<p>In this chapter we’re going to move forward and analyze the gene x cell count matrix. As we saw in the last chapter, the total size of this raw dataset is 4.2TB. As the authors have kindly provided their count matrix in FigShare, we’re going to go ahead and use that rather than churn through all that data.</p>
+<p>Additionally, although we strive to use full datasets in this course so that students experience the challenges of working with full datasets, in this case we’re going to work with only 4 of their 17 samples. The reason for this is we’re going to work in RStudio, and the 200k cells they provide requires more memory than most students will have on their local machines, and getting RStudio working on the Xanadu cluster is a bit fiddly.</p>
+<p>If you <em>want</em> to analyze the full dataset on Xanadu, you can follow <a href="https://github.com/CBC-UCONN/FAQ/wiki/How-to-run-R-studio-off-the-Xanadu-cluster%3F">this guidance</a> for running the RStudio GUI on a compute node. Be warned that while the instructions work, they are confusing, somewhat complicated, and poorly formatted (we’re working on a new version!). We recommend trying it only after you get this working on your local machine.</p>
+<section id="the-count-matrix" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="the-count-matrix"><span class="header-section-number">12.1</span> The count matrix</h2>
+<p>Using STARsolo we produced a count matrix in sparse format. That means that essentially it left out all zero count cells to save space. The data provided by Li et al.&nbsp;are in a standard square matrix format with a header giving the information for each cell. Let’s look at the first 20 lines and 5 columns:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> data/Li_etal_2022/Mpha.umi.geneMatrix.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 20 <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-f</span> 1-5 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>#   CellID  CATGGCAGCGTATTACTCTC_3_1_3  TTCTCACTCCGTGTCACGAG_3_1_3  TCGTGACAAGACAGTTCATT_3_1_3
+#   Library Gyne_R4_C3  Gyne_R4_C3  Gyne_R4_C3
+#   Phenotype   Gyne    Gyne    Gyne
+#   Replicate   Gyne-1  Gyne-1  Gyne-1
+#   ClusterID   19  1   0
+#   nGene   1998    1999    1945
+#   nUMI    5471    4642    4507
+Pharaoh_ant_01665   Ocho    0   0   0
+Pharaoh_ant_05704   Pharaoh_ant_05704   0   0   0
+Pharaoh_ant_00162   Pharaoh_ant_00162   0   0   0
+Pharaoh_ant_04035   Pharaoh_ant_04035   0   0   0
+Pharaoh_ant_18340   CG5188  0   0   0
+Pharaoh_ant_10781   Not10   0   0   0
+Pharaoh_ant_10338   chif    0   0   3
+Pharaoh_ant_09487   fsd 0   0   0
+Pharaoh_ant_08623   Pharaoh_ant_08623   0   0   0
+Pharaoh_ant_13653   kappaB-Ras  0   0   0
+Pharaoh_ant_09673   Pharaoh_ant_09673   0   0   0
+Pharaoh_ant_20261 Pharaoh_ant_20261 0   0   0
+Pharaoh_ant_06035 Pharaoh_ant_06035 0   0   0</code></pre>
+<p>The first 7 lines beginning with <code>#</code> are header lines. Following that is the count table. The first two columns of the header are <code>#</code> and the type of data in the row. The first two columns of the count table are the gene ID from the GTF, and the gene symbol, if one is given. The rest of the columns in the header are metadata for the cell in that column, and the rest of the columns in the count matrix are the counts for each cell. So:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 27%">
+<col style="width: 27%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>#</td>
+<td>CellID</td>
+<td>CATGGCAGCGTATTACTCTC_3_1_3</td>
+<td>TTCTCACTCCGTGTCACGAG_3_1_3</td>
+</tr>
+<tr class="even">
+<td>#</td>
+<td>Library</td>
+<td>Gyne_R4_C3</td>
+<td>Gyne_R4_C3</td>
+</tr>
+<tr class="odd">
+<td>#</td>
+<td>Phenotype</td>
+<td>Gyne</td>
+<td>Gyne</td>
+</tr>
+<tr class="even">
+<td>#</td>
+<td>Replicate</td>
+<td>Gyne-1</td>
+<td>Gyne-1</td>
+</tr>
+<tr class="odd">
+<td>#</td>
+<td>ClusterID</td>
+<td>19</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>#</td>
+<td>nGene</td>
+<td>1998</td>
+<td>1999</td>
+</tr>
+<tr class="odd">
+<td>#</td>
+<td>nUMI</td>
+<td>5471</td>
+<td>4642</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_01665</td>
+<td>Ocho</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Pharaoh_ant_05704</td>
+<td>Pharaoh_ant_05704</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_00162</td>
+<td>Pharaoh_ant_00162</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Pharaoh_ant_04035</td>
+<td>Pharaoh_ant_04035</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_18340</td>
+<td>CG5188</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Pharaoh_ant_10781</td>
+<td>Not10</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_10338</td>
+<td>chif</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Pharaoh_ant_09487</td>
+<td>fsd</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_08623</td>
+<td>Pharaoh_ant_08623</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Pharaoh_ant_13653</td>
+<td>kappaB-Ras</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_09673</td>
+<td>Pharaoh_ant_09673</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Pharaoh_ant_20261</td>
+<td>Pharaoh_ant_20261</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Pharaoh_ant_06035</td>
+<td>Pharaoh_ant_06035</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>We can see that for each cell we are helpfully given the cell barcode, the library the cell came from, the replicate, the phenotype, how many genes have non-zero counts, and the total number of UMIs from the cell.</p>
+</section>
+<section id="getting-set-up-with-seurat" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="getting-set-up-with-seurat"><span class="header-section-number">12.2</span> Getting set up with <code>Seurat</code></h2>
+<p>We’re going to analyze our data with the R package <code>Seurat</code>. You can find the documentation for Seurat <a href="https://satijalab.org/seurat/">here</a>. There have been major changes to the workflows over the years. Documentation and tutorials persist for older versions and different approaches to the data, so be aware of that. In ISG5302 you will be assigned to read <a href="https://www.biorxiv.org/content/10.1101/2024.04.04.588111v2">this paper</a> to get a sense of how this can impact the outcome of analysis. It seems particularly salient in the current era of single-cell analysis, but it’s certainly a general issue in computational biology.</p>
+<p>In any case, this material proceeds assuming version <code>5.2.0</code>. The instructions for installation can be found <a href="https://satijalab.org/seurat/articles/install_v5">here</a>. You may run into problems with dependencies failing to be installed and the entire installation then failing. Try installing failed dependencies from CRAN or bioconductor individually and then re-trying the Seurat installation. It may also be helpful to make sure you’re updated to the <a href="https://www.r-project.org">latest version of R</a></p>
+<section id="subsetting-the-data" class="level3" data-number="12.2.1">
+<h3 data-number="12.2.1" class="anchored" data-anchor-id="subsetting-the-data"><span class="header-section-number">12.2.1</span> Subsetting the data</h3>
+<p>As we mentioned above, we’re going to work with a subset of the data. You can find that subset on Xanadu here: <code>/core/cbc/gdafiles/ISG5312/scRNAseq_data/fourSampleSubset.Rds</code>. In this section we’ll show you how we created that subset, but you can just download it and get started with the next section.</p>
+<p>The paths assume the work directory is in a subdirectory of <code>/scripts</code>.</p>
+<p>Load the following packages:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>First we’ll read in just the count data (skipping the 7 metadata lines with <code>skip =7</code>). We’re using <code>fread</code> from the <code>data.table</code> package because it’s faster.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>expr_matrix <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../../data/Li_etal_2022/Mpha.umi.geneMatrix.gz"</span>, <span class="at">skip=</span><span class="dv">7</span>, <span class="at">tmpdir=</span><span class="st">"."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The first two columns are gene identifiers, so we’ll pull those out:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gene_ids <span class="ot">&lt;-</span> expr_matrix[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we’ll grab the metadata from the first 7 lines.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>meta_data <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../../data/Li_etal_2022/Mpha.umi.geneMatrix.gz"</span>, <span class="at">nrows=</span><span class="dv">7</span>, <span class="at">tmpdir=</span><span class="st">"."</span>, <span class="at">header=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’re going to convert the metadata to a data frame and remove the first column (it was just <code>#</code>s) and add rownames (the first non-# column).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>meta_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(meta_data[, <span class="sc">-</span><span class="dv">1</span>]) </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(meta_data) <span class="ot">&lt;-</span> meta_data[, <span class="dv">1</span>]  <span class="co"># Use first column as column names</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we’ll remove the first column (we used it as rownames) transpose the data frame and convert the UMI and gene counts to numeric:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>meta_data <span class="ot">&lt;-</span> <span class="fu">t</span>(meta_data[, <span class="sc">-</span><span class="dv">1</span>]) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    meta_data[,<span class="dv">6</span>] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(meta_data[,<span class="dv">6</span>])</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    meta_data[,<span class="dv">7</span>] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(meta_data[,<span class="dv">7</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Next we’ll create a matrix of counts with gene symbols as row names and cell barcodes as column names.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>expr_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(expr_matrix[,<span class="dv">3</span><span class="sc">:</span><span class="dv">206369</span>])</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(expr_matrix) <span class="ot">&lt;-</span> gene_ids[,<span class="dv">2</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(expr_matrix) <span class="ot">&lt;-</span> meta_data[,<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Seurat does not want any <code>_</code>s in gene names, so we need to do a quick conversion:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>gene_ids[,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">str_replace</span>(gene_ids[,<span class="dv">1</span>], <span class="st">"_"</span>, <span class="st">"-"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>gene_ids[,<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">str_replace</span>(gene_ids[,<span class="dv">2</span>], <span class="st">"_"</span>, <span class="st">"-"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we’re going to create a Seurat object with our count matrix:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">CreateSeuratObject</span>(<span class="at">counts =</span> expr_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And add the metadata:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">AddMetaData</span>(seurat_obj, <span class="at">metadata =</span> meta_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we can subset the object. We’re going to pick four samples, two workers and two males:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>wm <span class="ot">&lt;-</span> meta_data<span class="sc">$</span>Replicate <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Worker-2"</span>, <span class="st">"Worker-3"</span>, <span class="st">"Male-1"</span>, <span class="st">"Male-4"</span>) <span class="sc">%&gt;%</span> <span class="fu">which</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This line gives a vector of cells that belong to any of these four samples, as identified by the “Replicate” column of the metadata object.</p>
+<p>Now we’ll save this as an <code>Rds</code> file (an R object saved to a file that can be easily loaded up later):</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(seurat_obj[,wm], <span class="at">file =</span> <span class="st">"../../data/Li_etal_2022/fourSampleSubset.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We did this manually here, but Seurat also has helper functions for loading data from common pipelines such as Cell Ranger from <a href="https://satijalab.org/seurat/reference/read10x">10X genomics</a>.</p>
+</section>
+</section>
+<section id="understanding-the-data" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="understanding-the-data"><span class="header-section-number">12.3</span> Understanding the data</h2>
+<p>In keeping with previous modules (and the way we approached analysis in RStudio last semester), we recommend you <a href="https://github.com/isg-certificate/scRNAseq">clone the project directory</a>, create a subdirectory in <code>/scripts</code>, e.g.&nbsp;<code>/scripts/04_Seurat</code> and start a new RStudio project there. Download the <code>fourSampleSubset.Rds</code> object from Xanadu at this location: <code>/core/cbc/gdafiles/ISG5312/scRNAseq_data/fourSampleSubset.Rds</code>, and put it in <code>data/Li_etal_2022/</code>.</p>
+<p>We’ll assume paths relative to that location.</p>
+<p>Let’s start by loading up some packages:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And now we can load up the R object you downloaded:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../../data/Li_etal_2022/fourSampleSubset.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We now have an object of class:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(sobj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>attr(,"package")
+[1] "SeuratObject"</code></pre>
+<p>You may remember from last semester that DESeq2 stored all the inputs and outputs of various analyses in an S4 type object. Seurat is similar, and the <code>SeuratObject</code> class is just as difficult to parse.</p>
+<p>To refresh, S4 objects have <em>slots</em>. You access them with <code>@</code>. They may also have bits of data you can access with <code>$</code> as with lists and data frames.</p>
+<p>As we move through the analysis, new slots will appear and be populated with outputs of various classes, some of which will be more S4 objects, so we’ll generally be updating the existing object rather than creating a new one by <code>sobj &lt;- some_analysis(sobj)</code>.</p>
+<p>At the top level we have these slots (<code>str()</code> displays the structure of R objects):</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(sobj, <span class="at">max.level=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Formal class 'Seurat' [package "SeuratObject"] with 13 slots
+  ..@ assays      :List of 1
+  ..@ meta.data   :'data.frame':    48256 obs. of  10 variables:
+  ..@ active.assay: chr "RNA"
+  ..@ active.ident: Factor w/ 1 level "SeuratProject": 1 1 1 1 1 1 1 1 1 1 ...
+  .. ..- attr(*, "names")= chr [1:48256] "GCGCGTACGCGATTCAGAGA_4_2_1" "CTTCCGCGCGCGGACGGATT_4_2_1" "ATACCTCCATCGCCTCATCT_4_2_1" "GCGGAGCCATGTTCGCGCGC_4_2_1" ...
+  ..@ graphs      : list()
+  ..@ neighbors   : list()
+  ..@ reductions  : list()
+  ..@ images      : list()
+  ..@ project.name: chr "SeuratProject"
+  ..@ misc        : list()
+  ..@ version     :Classes 'package_version', 'numeric_version'  hidden list of 1
+  ..@ commands    : list()
+  ..@ tools       : list()</code></pre>
+<section id="the-count-data" class="level3" data-number="12.3.1">
+<h3 data-number="12.3.1" class="anchored" data-anchor-id="the-count-data"><span class="header-section-number">12.3.1</span> The count data</h3>
+<p>The counts we’ve loaded in here are deeply buried in <code>sobj@assays$RNA@layers$counts</code>. So:</p>
+<ul>
+<li><code>sobj@assays</code> is a list with one element <code>RNA</code>.</li>
+<li><code>sobj@assays$RNA</code> is a SeuratObject (with 8 slots).</li>
+<li><code>sobj@assays$RNA@layers</code> is a list with one element, <code>counts</code></li>
+<li><code>sobj@assays@RNA@layers$counts</code> is an object of class <code>dgCMatrix</code>, a sparse matrix object.</li>
+</ul>
+<p>This is just to give you a sense of how this object is structured. We will typically use Seurat functions to do analysis and manipulate this object, and we won’t necessarily need to dig into it directly.</p>
+<p>Structuring an analysis around objects this way has pros and cons.</p>
+<p>Pros: - You can pretty simply and quickly do very complicated analyses without deeply understanding them. - You can avoid filling up your working directory with endless confusingly named intermediate objects.</p>
+<p>Cons: - You can pretty simply and quickly do very complicated analyses without deeply understanding them. - When you have problems you may have no clue where the intermediate analysis products are and how you might extract and investigate them. - Endless specialized helper functions for extracting bits of info can be hard to remember if you’re not doing this exact type of analysis frequently (you can find many of these functions <a href="https://satijalab.org/seurat/articles/essential_commands.html">here</a>.</p>
+</section>
+<section id="per-cell-metadata" class="level3" data-number="12.3.2">
+<h3 data-number="12.3.2" class="anchored" data-anchor-id="per-cell-metadata"><span class="header-section-number">12.3.2</span> Per cell metadata</h3>
+<p>Per-cell metadata is stored in <code>sobj@meta.data</code>.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(sobj<span class="sc">@</span>meta.data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>'data.frame':   48256 obs. of  10 variables:
+ $ orig.ident  : Factor w/ 1 level "SeuratProject": 1 1 1 1 1 1 1 1 1 1 ...
+ $ nCount_RNA  : num  4794 4791 4726 4553 4544 ...
+ $ nFeature_RNA: int  1902 1703 1908 1912 1891 1972 1901 1961 1952 1834 ...
+ $ CellID      : chr  "GCGCGTACGCGATTCAGAGA_4_2_1" "CTTCCGCGCGCGGACGGATT_4_2_1" "ATACCTCCATCGCCTCATCT_4_2_1" "GCGGAGCCATGTTCGCGCGC_4_2_1" ...
+ $ Library     : chr  "Worker_R2_C7" "Worker_R2_C7" "Worker_R2_C7" "Worker_R2_C7" ...
+ $ Phenotype   : chr  "Worker" "Worker" "Worker" "Worker" ...
+ $ Replicate   : chr  "Worker-3" "Worker-3" "Worker-3" "Worker-3" ...
+ $ ClusterID   : chr  "19" "19" "9" "19" ...
+ $ nGene       : num  1902 1703 1908 1912 1891 ...
+ $ nUMI        : num  4794 4791 4726 4553 4544 ...</code></pre>
+<p>Each individual column of that table can also be accessed with <code>$</code> like this:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sobj<span class="sc">$</span>Replicate <span class="sc">%&gt;%</span> <span class="fu">table</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>.
+  Male-1   Male-4 Worker-2 Worker-3 
+   12082    13116    10485    12573 </code></pre>
+<p>So we can see we’ve got between 10,485 and 12573 cells per sample. The original study’s cluster IDs are in there as <code>ClusterID</code>. We will produce new ones as we go along.</p>
+</section>
+<section id="gene-features" class="level3" data-number="12.3.3">
+<h3 data-number="12.3.3" class="anchored" data-anchor-id="gene-features"><span class="header-section-number">12.3.3</span> Gene features</h3>
+<p>The gene names can be extracted with</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Features</span>(sobj) <span class="sc">%&gt;%</span> head</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>[1] "Ocho"              "Pharaoh-ant-05704" "Pharaoh-ant-00162"
+[4] "Pharaoh-ant-04035" "CG5188"            "Not10"            </code></pre>
+</section>
+</section>
+<section id="analysis-outline" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="analysis-outline"><span class="header-section-number">12.4</span> Analysis outline</h2>
+<p>Several steps are common to most applications of single-cell RNA sequencing.</p>
+<ol type="1">
+<li>Initial quality control of the count data and filtering of cells.</li>
+<li>Normalization across cells <em>within samples</em> to account for technical effects such as sequencing depth variation among cells.</li>
+<li>Dimensionality reduction.</li>
+<li>Integration of data <em>across samples</em> to account for technical variation between samples without erasing biological variation.</li>
+<li>Clustering of cells into cell types.</li>
+<li>Annotation of clusters.</li>
+<li>Downstream analyses such as differential expression, differential cell abundance and more.</li>
+</ol>
+<p>It should be noted that none of these steps are trivial. We will walk through an example of each of them, but for every step there are multiple methods available, multiple benchmarking papers comparing methods, and often no obvious agreement about which methods are superior. In this chapter we’ll cover steps 1-4 and Do steps 5-7 in the next chapter.</p>
+</section>
+<section id="initial-qc" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="initial-qc"><span class="header-section-number">12.5</span> Initial QC</h2>
+<p>At this point in a typical analysis, some QC has been done during counting. We can do a bit more here. We look for a couple main things:</p>
+<ol type="1">
+<li>Percentage of mitochondrial DNA. Stressed or damaged cells tend to produce higher amounts of mtDNA transcripts (since we’re looking at single-<em>nucleus</em> RNAseq we should expect very little mitochondrial RNA). These cells are probably not reflective of the underlying biology we are interested in, so we remove cells with excessive mtDNA.</li>
+</ol>
+<ul>
+<li>Authors often set a maximum threshold of 5-10% for single-<em>cell</em> RNAseq. Our dataset has already been filtered for a maximum of 1%.</li>
+</ul>
+<ol start="2" type="1">
+<li>Total UMI counts / total gene features with counts.</li>
+</ol>
+<ul>
+<li>Cell barcodes with very low UMI counts may not be useful for analysis. They may also come from droplets that did not have real cells in them, but perhaps only background RNA.</li>
+<li>Cell barcodes with very high UMI counts, or high numbers of genes with non-zero counts may represent <strong>doublets</strong> or <strong>multiplets</strong>. These are droplets (or wells) that had <em>more than one cell</em> in them. For obvious reasons we want to exclude these. Note that <a href="https://github.com/chris-mcginnis-ucsf/DoubletFinder">there are more rigorous ways</a> of <a href="https://github.com/plger/scDblFinder">finding doublets</a> than this simple filtering approach.</li>
+<li>Our dataset has had cells removed with &lt; 200 features or &gt; 2000 features. Note that this is a far cry from bulk RNAseq where we routinely expect individual samples to have 15-20k features with usable data.</li>
+</ul>
+<p>We can explore the data with a few types of plots.</p>
+<p>First, let’s calculate the percentage of mtDNA in each cell and add it to our per-cell metadata:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>sobj[[<span class="st">"percent.mt"</span>]] <span class="ot">&lt;-</span> <span class="fu">PercentageFeatureSet</span>(sobj, <span class="at">pattern =</span> <span class="st">"Mitochondria"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>PercentageFeatureSet()</code> is a helper function that does exactly what it sounds like. <code>pattern=</code> allows us to match a pattern in the gene names. In our dataset there is a single “gene” that encompasses all mitochondrial expression and it’s called “Mitochondria”. That’s not generally true! For other datasets you’ll have to sort this out slightly differently.</p>
+<p>Now we can make a violin plot showing our (already filtered distributions):</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VlnPlot</span>(sobj, <span class="at">features =</span> <span class="fu">c</span>(<span class="st">"nFeature_RNA"</span>, <span class="st">"nCount_RNA"</span>, <span class="st">"percent.mt"</span>), <span class="at">ncol =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig1.png" class="img-fluid"></p>
+<p>We can also make scatterplots of various per-cell metadata:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>plot1 <span class="ot">&lt;-</span> <span class="fu">FeatureScatter</span>(sobj, <span class="at">feature1 =</span> <span class="st">"nCount_RNA"</span>, <span class="at">feature2 =</span> <span class="st">"percent.mt"</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> <span class="fu">FeatureScatter</span>(sobj, <span class="at">feature1 =</span> <span class="st">"nCount_RNA"</span>, <span class="at">feature2 =</span> <span class="st">"nFeature_RNA"</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>plot1 <span class="sc">+</span> plot2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig2.png" class="img-fluid"></p>
+<p>Since our data have already been filtered, we don’t need to remove any more cells, but note that we demonstrated that we can use the <code>sobj[rows,columns]</code> syntax to subset a SeuratObject in the “Subsetting the data” section.</p>
+</section>
+<section id="normalization" class="level2" data-number="12.6">
+<h2 data-number="12.6" class="anchored" data-anchor-id="normalization"><span class="header-section-number">12.6</span> Normalization</h2>
+<p>In this experiment we have four levels at which technical or biological variation can negatively impact analyses: - At the top we have different experimental groups (castes). - Within groups we have multiple replicates, - Within replicates we have multiple libraries. - Within libraries we have multiple cells.</p>
+<p>At the bottom level (which may be the only level in some experiments) variation in library preparation of single cells within droplets (or wells) may vary. You can think of this level of variation as being analogous to the level at which we do normalization in bulk RNA-seq for a batch of sequenced samples. There we are trying to account for changes in sequencing depth and transcript composition to make expression profiles comparable across samples. We want to do the same thing here. In scRNA-seq this is referred to as <strong>normalization</strong>,</p>
+<p>The cells from one library can be thought of as a single batch. Where in bulk RNA-seq if we needed to sequence samples in multiple batches, we would try to split replicates from different treatments up across batches to avoid confounding technical and experimental factors, we cannot really do this in scRNAseq. All the cells from a given library are sequenced in a single batch. All the cells from a given replicate may are prepared for sequencing together (even if they are split across libraries). This creates a kind of unavoidable technical confounding that we will address <em>later</em> in the analysis. This type of confounding effects only some analyses.</p>
+<p>So at this step in the analysis, we will do normalization. We’re going to skip a layer of complexity here, and assume that libraries from the same replicate are comparable enough that we can pool them for normalization, so we will normalize the count data <em>across cells within samples</em>.</p>
+<p>Seurat implements a couple ways to normalize cells. There has been <a href="https://www.nature.com/articles/s41592-023-01814-1">considerable</a> <a href="https://link.springer.com/article/10.1186/s13059-021-02584-9">work</a> in this area. We are going to use the <a href="https://link.springer.com/article/10.1186/s13059-019-1874-1"><code>sctransform</code> method</a>. It normalizes the counts using a general linear model assuming a negative binomial distribution. It tries to remove the effect of cell sequencing depth on the counts and is flexible enough to include other covariates as needed (such as percent mtDNA).</p>
+<p>To do the normalization, we’re first going to <em>split</em> the dataset by replicate. That way, when we apply the normalization procedure it will be run on each replicate independently.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sobj[[<span class="st">"RNA"</span>]] <span class="ot">&lt;-</span> <span class="fu">split</span>(sobj[[<span class="st">"RNA"</span>]], <span class="at">f =</span> sobj<span class="sc">$</span>Replicate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>What did we do to the <code>RNA</code> assay?</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>sobj<span class="sc">@</span>assays<span class="sc">$</span>RNA</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Assay (v5) data with 15666 features for 48256 cells
+First 10 features:
+ Ocho, Pharaoh-ant-05704, Pharaoh-ant-00162, Pharaoh-ant-04035, CG5188,
+Not10, chif, fsd, Pharaoh-ant-08623, kappaB-Ras 
+Layers:
+ counts.Worker-3, counts.Worker-2, counts.Male-1, counts.Male-4 </code></pre>
+<p>We divided it into 4 layers. Now we can run <code>SCTransform()</code></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">SCTransform</span>(sobj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You’ll see messages like this repeated for each of the four replicates:</p>
+<pre><code>Running SCTransform on assay: RNA
+Running SCTransform on layer: counts.Worker-3
+vst.flavor='v2' set. Using model with fixed slope and excluding poisson genes.
+Variance stabilizing transformation of count matrix of size 10510 by 12573
+Model formula is y ~ log_umi
+Get Negative Binomial regression parameters per gene
+Using 2000 genes, 5000 cells
+Found 155 outliers - those will be ignored in fitting/regularization step
+
+Second step: Get residuals using fitted parameters for 10510 genes
+Computing corrected count matrix for 10510 genes
+Calculating gene attributes
+Wall clock passed: Time difference of 19.15511 secs
+Determine variable features
+Centering data matrix
+  |======================================================================| 100%
+Getting residuals for block 1(of 3) for Worker-3 dataset
+Getting residuals for block 2(of 3) for Worker-3 dataset
+Getting residuals for block 3(of 3) for Worker-3 dataset
+Centering data matrix
+  |======================================================================| 100%
+Finished calculating residuals for Worker-3</code></pre>
+<p>After running this, we’ll see we have a new element added to the list <code>sobj@assays</code>: <code>SCT</code>.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">str</span>(sobj<span class="sc">@</span>assays, <span class="at">max.level=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>List of 2
+ $ RNA:Formal class 'Assay5' [package "SeuratObject"] with 8 slots
+ $ SCT:Formal class 'SCTAssay' [package "Seurat"] with 9 slots</code></pre>
+<p>That assay is now the “active” assay (check <code>sobj@active.assay</code>) that will be used by default in the next steps.</p>
+</section>
+<section id="dimensionality-reduction" class="level2" data-number="12.7">
+<h2 data-number="12.7" class="anchored" data-anchor-id="dimensionality-reduction"><span class="header-section-number">12.7</span> Dimensionality reduction</h2>
+<p>We have measured expression across 11,618 genes (variables) in 48,256 cells (observations). We know from the paper that we have &gt; 20 cell types represented in the full dataset. This is a very complex dataset. For many downstream analysis goals, we want to try to simplify the data by considering it in a lower dimension space. Many of the 11k genes will have correlated expression patterns, suggesting that a smaller set of variables could be used to represent the data.</p>
+<p>We will look at two types of dimensionality reduction here, <em>principal components analysis</em> (PCA) and <em>uniform manifold approximation and projection</em> (UMAP).</p>
+<section id="pca" class="level3" data-number="12.7.1">
+<h3 data-number="12.7.1" class="anchored" data-anchor-id="pca"><span class="header-section-number">12.7.1</span> PCA</h3>
+<p>We’ve seen PCA before (in ISG5311). It’s a widely used method in statistics that creates a set of synthetic variables that explain variation in our data. Without getting deeply into it, the synthetic variables, or principal components (PCs) are connected to the data in a relatively straightforward way. For each PC we know how much of the total variance in the data it explains. For each original variable, we can determine its <em>loading</em> on the PC, which is a measure of its correlation with the PC. So in PCA we can get a clear understanding of which genes contribute to a PC, and how important the PC is in explaining observed variation in the data.</p>
+<p>How many PCs do we need to sufficiently explain a given dataset? That’s highly dependent on the data and application, and we’ll explore it below.</p>
+<p>Seurat has a nice wrapper function we can use. We’ll tell it to extract 75 PCs:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">RunPCA</span>(sobj, <span class="at">npcs=</span><span class="dv">75</span>, <span class="at">reduction.name=</span><span class="st">"pca"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The results will be stored here: <code>sobj@reductions$pca</code>. We will add more reductions as we go along.</p>
+<p>We could explore the object itself, but Seurat has some functions for explore it as well.</p>
+<p>First, we can make an “elbow plot”. These plots are often used to determine how many PCs should be included in downstream analysis. Let’s have a look:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ElbowPlot</span>(sobj, <span class="at">ndims =</span> <span class="dv">75</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig3.png" class="img-fluid"></p>
+<p>The PCs are shown in order of how important they are. The y-axis is the standard deviation of the PC. The greater the standard deviation, the more variation is explained (if we extracted all PCs, % variance explained would be <code>pve &lt;- (stdev^2) / (sum(stdev^2))</code>).</p>
+<p>You can see that subsequent PCs explain ever diminishing amounts of variation in the data. In these plots, people look for an “elbow” or kink in that plot such that the PCs to the left explain big chunks of variation and subsequent PCs to the right explain obviously less. It’s a qualitative sort of decision, and in this particular plot there isn’t really an obvious “elbow”.</p>
+<p>In the documentation for the SCTransform normalization method, the Seurat authors <a href="https://satijalab.org/seurat/articles/sctransform_vignette.html#perform-dimensionality-reduction-by-pca-and-umap-embedding">suggest that you can safely include lots of PCs in downstream analyses</a>.</p>
+<p>Next we’ll look at loadings for the top 15 genes for the first 4 PCs:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">VizDimLoadings</span>(sobj, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">reduction =</span> <span class="st">"pca"</span>, <span class="at">nfeatures=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig4.png" class="img-fluid"> We can see in this plot genes with top loadings can be positively or negatively associated with the PC.</p>
+<p>We can make a classic PCA bi-plots like this:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">PCs 1&amp;2</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">PCs 3&amp;4</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">PCs 5&amp;6</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="sourceCode" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"pca"</span>, <span class="at">group.by=</span><span class="st">"Phenotype"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig5.png" class="img-fluid"></p>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="sourceCode" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"pca"</span>, <span class="at">group.by=</span><span class="st">"Phenotype"</span>, <span class="at">dims=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig6.png" class="img-fluid"></p>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"pca"</span>, <span class="at">group.by=</span><span class="st">"Phenotype"</span>, <span class="at">dims=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig7.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<p>We colored the cells (points) by phenotype. We can see some seeming separation by phenotype, but it’s not clear this stage if this represents biological or technical batch variation. PC biplots often, but not always, show this sort of L or triangular shape.</p>
+<p>One difficulty here is that while the PCs are interpretable and useful in downstream analysis (e.g.&nbsp;in clustering), the data are still very high dimensional, and so these visualizations are not helpful in a qualitative sense (compare with <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2735096/">this classic PCA visualization</a> of human genetic variation in Europe).</p>
+</section>
+<section id="umap" class="level3" data-number="12.7.2">
+<h3 data-number="12.7.2" class="anchored" data-anchor-id="umap"><span class="header-section-number">12.7.2</span> UMAP</h3>
+<p>Another form of dimension reduction is UMAP. UMAP is <em>extremely</em> popular (along with tSNE). It collapses the dimensionality of the data much further so that we get much cleaner and more striking visualizations. The main issue with UMAP, however, is that to cram the high dimensional data into a 2-dimensional plot, there is necessarily a lot of distortion of the underlying data. The main takeaway here is that while UMAP (and tSNE) make awesome looking figures, we have to be very careful about how we interpret them. Let’s make a plot.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">RunUMAP</span>(sobj, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">75</span>, <span class="at">reduction =</span> <span class="st">"pca"</span>, <span class="at">reduction.name =</span> <span class="st">"umap.unintegrated"</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co"># there's lots of output messages but we'll suppress those...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The output is placed here <code>sobj@reductions$umap.unintegrated</code>. Note that we are using the PCA as input to the UMAP algorithm, not the original count data.</p>
+<p>And now we can make the plot. Note that we tell <code>DimPlot</code> which specific reduction to use (named above) and we’re doing the plot twice, coloring points by replicate and by the cluster ID (cell type) from the original study.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"umap.unintegrated"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"Replicate"</span>, <span class="st">"ClusterID"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig8.png" class="img-fluid"></p>
+<p>A few points: - We clearly see some more interesting looking structure. This is where UMAP gets sketchy. We can more clearly see structure than by plotting PCs, but the distances between clusters don’t mean much anymore. Tightly clustered points are indeed more similar to each other, but longer distances become distorted such that clusters of cells on opposite sides of the plot are not necessarily the most differentiated from each other. This means you can in some sense use UMAP to validate your clustering, and to stand in awe of your cool data, but you shouldn’t take it too much further. - We see in the left panel clusters that correspond largely to particular samples or phenotypes. This is not really what we expect. We expect the different phenotypes to have different quantities of brain cell types, but not completely unique brain cell types. This is probably a result of either batch effects or differential expression among phenotypes within cell types. We will see this change when we do “integration” later on. - Our cluster IDs from the original study are similarly a bit messy. This is probably in part a result of the above issues, but it may also be in part because we cut the dataset to 1/4 its original size and we may not have the power to distinguish some of the rarer cell types.</p>
+<p>We’ll talk about clustering in the next chapter, but let’s generate clusters from this unintegrated PCA and remake the plot:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindNeighbors</span>(sobj, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">75</span>, <span class="at">reduction =</span> <span class="st">"pca"</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindClusters</span>(sobj, <span class="at">resolution =</span> <span class="dv">2</span>, <span class="at">cluster.name =</span> <span class="st">"unintegrated_clusters"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"umap.unintegrated"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"Replicate"</span>, <span class="st">"unintegrated_clusters"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig9.png" class="img-fluid"> To get a sense of how cell type frequencies differ across samples we can do:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">Idents</span>(sobj),sobj<span class="sc">$</span>Replicate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>     Male-1 Male-4 Worker-2 Worker-3
+  0     600    806      581      822
+  1    1488    655      118      150
+  2     235    435      674      863
+  3     108   1773       93      233
+  4     861   1011       87      173
+  5      25     31      830     1110
+  6     106     71      859      790
+  7     748    764       60       74
+  8     780    634       60      103
+  9      68    105      646      757
+  10    951    610        4        8
+  11     74      9      702      779
+  12     81      3      654      801
+  13    807    594       41       85
+  14    711    743        0        2
+  15    160    182      508      482
+  16    528     80      395      317
+  17    445    394      227      243
+  18    282    324      327      351
+  19    131    470      236      407
+  20     88     45      449      581
+  21    314    565       67      115
+  22    108    149      330      361
+  23    246    397      116      133
+  24    187    169      250      274
+  25     14     29      386      382
+  26    148    177      197      244
+  27    398    350        4        3
+  28    129    203      141      175
+  29    121    124      140      234
+  30    119    191      107      135
+  31    120    103      120      179
+  32    106     82      106      126
+  33    150    144       54       64
+  34    116    200        6       19
+  35     76     53       91       92
+  36     49     33      104      108
+  37     37    100       58       73
+  38     51     72       39       69
+  39     54     60       47       54
+  40     49     33       67       62
+  41     25     27       67       75
+  42     37     14       68       68
+  43     50     36       48       48
+  44     48      5       69       56
+  45     22     18       43       51
+  46      5      3       73       48
+  47      0      4       36       60
+  48      1      4       42       51
+  49     10     10       23       24
+  50      9      8       11       32
+  51      4     12       13       12
+  52      2      2       11       15</code></pre>
+<p>This really reinforces how profoundly different these look prior to integration. If we do the same for the original cell types (<code>table(sobj$ClusterID,sobj$Replicate)</code>), identified after integration, we see differences are not so drastic.</p>
+<pre><code>   Male-1 Male-4 Worker-2 Worker-3
+  0     992    815      703      847
+  1     813    606      654      774
+  10    383    302      287      329
+  11    158    203      490      511
+  12    193    364      277      215
+  13    721    606       39       76
+  14    166    103      403      479
+  15    566    588       85       99
+  16    721    743        0        0
+  17    119    307      268      328
+  18    190    155      301      340
+  19    124    135      340      350
+  2     637    842      557      653
+  20    364    455       23       26
+  21    109    211      257      306
+  22    157    251      136      218
+  23    191    163      153      277
+  24     35     72      240      267
+  25    544    515        5        3
+  26     58     14      236      279
+  27    326    333        5        6
+  28    235    201       99      122
+  29    108    182      163      199
+  3     158    351      689      779
+  30     71    136      214      204
+  31      7      0      232      254
+  32    143    158      132      190
+  33     62     30      342      314
+  34    116    138      127      137
+  35     59     45      259      287
+  36    225    293       69       88
+  37    108    136       68      132
+  38     93     68      109      126
+  39     54    108       51       73
+  4     460    603      298      526
+  40    188    214        5       14
+  41     39     35       49       46
+  42     19     25        0        0
+  5     102    238      916     1137
+  6     850   1109      145      159
+  7     663    561      327      384
+  8     391    333      381      571
+  9     364    369      351      448</code></pre>
+</section>
+</section>
+<section id="integration" class="level2" data-number="12.8">
+<h2 data-number="12.8" class="anchored" data-anchor-id="integration"><span class="header-section-number">12.8</span> Integration</h2>
+<p>Now that we’ve done the initial normalization and PCA, we can do integration. Integration will attempt to remove batch effects across samples. This is meant to make cells from the same cell type cluster together.</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do integration</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">IntegrateLayers</span>(<span class="at">object =</span> sobj, <span class="at">method =</span> CCAIntegration, <span class="at">normalization.method =</span> <span class="st">"SCT"</span>, <span class="at">verbose =</span> F, <span class="at">orig.reduction =</span> <span class="st">"pca"</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="co"># rejoin the layers we created above</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>sobj[[<span class="st">"RNA"</span>]] <span class="ot">&lt;-</span> <span class="fu">JoinLayers</span>(sobj[[<span class="st">"RNA"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We are using the method “CCAIntegration”. CCA stands for <em>canonical correlation analysis</em>. As with the other steps, there are <a href="https://link.springer.com/article/10.1186/s13059-019-1850-9">multiple methods and much discussion over which are best</a>. Four are available in this function (see <code>?IntegrateLayers</code>). We are also specifying that we want the method to use the SCTransform normalization we did above.</p>
+<p>Integration is time and memory-intensive. This step takes ~2hrs on an M1 macbook air.</p>
+<p>The output will be a new “reduction” <code>sobj@reductions$integrated.dr</code>. With the new reduction, we can generate new clusters and a new UMAP.</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">RunUMAP</span>(sobj, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">75</span>, <span class="at">reduction =</span> <span class="st">"integrated.dr"</span>, <span class="at">reduction.name =</span> <span class="st">"umap.integrated"</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindNeighbors</span>(sobj, <span class="at">reduction =</span> <span class="st">"integrated.dr"</span>, <span class="at">dims =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">75</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>sobj <span class="ot">&lt;-</span> <span class="fu">FindClusters</span>(sobj, <span class="at">resolution =</span> <span class="dv">2</span>, <span class="at">cluster.name=</span><span class="st">"integrated_clusters"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And then check the UMAP plot:</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(sobj, <span class="at">reduction =</span> <span class="st">"umap.integrated"</span>, <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">"Replicate"</span>, <span class="st">"integrated_clusters"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/scRNAseq_fig10.png" class="img-fluid"></p>
+<p>We can see much more mixing of replicates within cell types here.</p>
+<p>And when we make that table of cell cluster counts per replicate we’ll see much more even representation for more clusters. How similar proportions <em>should</em> be across phenotypes is of course a biological question the paper is trying to address, so it’s worth noting the outcome is clearly sensitive to the methods applied.</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">Idents</span>(sobj),sobj<span class="sc">$</span>Replicate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>     Male-1 Male-4 Worker-2 Worker-3
+  0     599    802      496      661
+  1     652    746      438      579
+  2     761    623      426      517
+  3     238    603      517      849
+  4     263    527      645      719
+  5     391    260      707      795
+  6     501    946      200      437
+  7     712    764      130      185
+  8     718    523      183      324
+  9     566    551      279      311
+  10    222    156      681      634
+  11    700    739      106      130
+  12    472    307      424      467
+  13    528    457      275      328
+  14    283    186      477      577
+  15    369    309      282      281
+  16    320    564      139      217
+  17    369    175      314      310
+  18    149    169      405      397
+  19    151    186      383      370
+  20    231    280      265      300
+  21    120    280      268      372
+  22    252    414      163      184
+  23    238    196      276      293
+  24    214    235      253      295
+  25    193    102      259      258
+  26    392    336       25       19
+  27    198    158      151      166
+  28    104    166      163      202
+  29    116    209      113      148
+  30    103    178      108      141
+  31    113     84      145      185
+  32    164    237       34       74
+  33    165     95      122      124
+  34     87     64       99      101
+  35     85     92       76       94
+  36     43     87       61       79
+  37     49     72       44       71
+  38     54     32       60       68
+  39     34     40       55       67
+  40     37     15       69       67
+  41     31     51       18       20
+  42     24     14       26       32
+  43      7      7       43       36
+  44     18     29       23       21
+  45     13     12       29       23
+  46      9      6        8       17
+  47      5      5       13       17
+  48      5     12        8       11
+  49     14     15        1        0</code></pre>
+</section>
+<section id="conclusion" class="level2" data-number="12.9">
+<h2 data-number="12.9" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">12.9</span> Conclusion</h2>
+<p>We are going to leave off here in this chapter. We have seen how to read our data into Seurat in R, and looked it how it s stored. We have done some initial QC, normalized the data using SCTransform, performed dimensionality reduction (PCA and UMAP) and done integration across our samples. We have shown how integration can strongly impact how cells cluster.</p>
+<p>In the next chapter we’ll talk more about generating cell clusters, annotating them, and downstream analyses like differential expression analysis across samples for a single cell cluster.</p>
+<p><em>You may want to save your seurat object with <code>saveRDS(sobj, file="path/to/mySeuratObj.Rds")</code></em></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./04_1_snRNAseq_seqdata.html" class="pagination-link" aria-label="QC, mapping, and counting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">QC, mapping, and counting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./04_3_seuratPart2.html" class="pagination-link" aria-label="Clustering, annotation, and differential expression">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>13&nbsp; Running an established pipeline – ISG 5312 - Genomic Data Analysis in Practice II</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./05_0_workflows.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./05_0_workflows.html">Pipeline development with Nextflow</a></li><li class="breadcrumb-item"><a href="./05_1_nextflowPart1.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Running an established pipeline</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">ISG 5312 - Genomic Data Analysis in Practice II</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./01_0_IntroToGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Git</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_1_git-ingStarted.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">First steps with Git</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_2_moreGit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">More Git</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./02_0_variantDetection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Variant Detection and Genotyping</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_1_qc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Variant calling - First Steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_2_variantCalling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Variant Calling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_3_filteringVariants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Filtering and Assessing Variants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_4_assessingAnnotating.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comparing and Annotating Variants</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./03_0_genomeAssembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Genome Assembly</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_1_genomeAssemblyKmers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Genome Assembly - first steps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_2_Assembling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Assembling the genome</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_3_assemblyQC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Assembly QC</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./04_0_scRNAseq.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single-cell RNAseq</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_1_snRNAseq_seqdata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">QC, mapping, and counting</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_2_seuratPart1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Normalization, dimension reduction and integration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_3_seuratPart2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Clustering, annotation, and differential expression</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./05_0_workflows.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pipeline development with Nextflow</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_1_nextflowPart1.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Running an established pipeline</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">13.1</span> Learning Objectives</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><span class="header-section-number">13.2</span> The data</a></li>
+  <li><a href="#the-rnaseq-pipeline" id="toc-the-rnaseq-pipeline" class="nav-link" data-scroll-target="#the-rnaseq-pipeline"><span class="header-section-number">13.3</span> The <code>rnaseq</code> pipeline</a></li>
+  <li><a href="#running-the-pipeline" id="toc-running-the-pipeline" class="nav-link" data-scroll-target="#running-the-pipeline"><span class="header-section-number">13.4</span> Running the pipeline</a>
+  <ul class="collapse">
+  <li><a href="#monitoring-the-pipeline" id="toc-monitoring-the-pipeline" class="nav-link" data-scroll-target="#monitoring-the-pipeline"><span class="header-section-number">13.4.1</span> Monitoring the pipeline</a></li>
+  </ul></li>
+  <li><a href="#the-output" id="toc-the-output" class="nav-link" data-scroll-target="#the-output"><span class="header-section-number">13.5</span> The output</a>
+  <ul class="collapse">
+  <li><a href="#the-main-output" id="toc-the-main-output" class="nav-link" data-scroll-target="#the-main-output"><span class="header-section-number">13.5.1</span> The main output</a></li>
+  <li><a href="#pipeline-run-summaries" id="toc-pipeline-run-summaries" class="nav-link" data-scroll-target="#pipeline-run-summaries"><span class="header-section-number">13.5.2</span> Pipeline run summaries</a></li>
+  </ul></li>
+  <li><a href="#the-work-directory" id="toc-the-work-directory" class="nav-link" data-scroll-target="#the-work-directory"><span class="header-section-number">13.6</span> The work directory</a></li>
+  <li><a href="#the-pipeline-code" id="toc-the-pipeline-code" class="nav-link" data-scroll-target="#the-pipeline-code"><span class="header-section-number">13.7</span> The pipeline code</a></li>
+  <li><a href="#the-containers" id="toc-the-containers" class="nav-link" data-scroll-target="#the-containers"><span class="header-section-number">13.8</span> The containers</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">13.9</span> Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./05_0_workflows.html">Pipeline development with Nextflow</a></li><li class="breadcrumb-item"><a href="./05_1_nextflowPart1.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Running an established pipeline</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Running an established pipeline</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">13.1</span> Learning Objectives</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Learning Objectives:</strong></td>
+</tr>
+<tr class="even">
+<td>Run an existing Nextflow Pipeline</td>
+</tr>
+<tr class="odd">
+<td>Monitor pipeline progress</td>
+</tr>
+<tr class="even">
+<td>Evaluate the pipeline run statistics</td>
+</tr>
+<tr class="odd">
+<td>Identify components of a pipeline and its outputs</td>
+</tr>
+</tbody>
+</table>
+<p>In this chapter we’re going to explore the workflow language Nextflow from the perspective of a pipeline that has already been developed. We’re going to look at the <a href="https://nf-co.re/rnaseq/3.18.0"><code>rnaseq</code></a> pipeline from the <a href="https://nf-co.re"><code>nf-core</code></a> project, a “global community effort to collect a curated set of open-source analysis pipelines built using Nextflow”.</p>
+<p>The general philosophy of nf-core is to develop and maintain a set of general, reusable, portable pipelines applicable to particular types of data analysis. For a given application, such as bulk RNA-seq, or <a href="https://nf-co.re/genomeassembler/1.0.1/">genome assembly</a> they aim to create a single pipeline which may take many different types of data as input, and allow different pieces of software to be specified for particular steps in the workflow. This contrasts with other pipelines you might find out in the wild, which may be developed to execute a very focused analysis, or tailored to a specific resource.</p>
+<p>In this chapter the goal is to see how Nextflow works, how it integrates with SLURM, and some ways to explore how it ran. In the next chapter you will look at writing actual nextflow code.</p>
+</section>
+<section id="the-data" class="level2" data-number="13.2">
+<h2 data-number="13.2" class="anchored" data-anchor-id="the-data"><span class="header-section-number">13.2</span> The data</h2>
+<p>To provide a familiar backdrop, we’re going to revisit the test data set from ISG5311: the data on the transcriptomic basis of pollution tolerance in <em>Fundulus heteroclitus</em>.</p>
+<blockquote class="blockquote">
+<p>Reid, Noah M., et al.&nbsp;“The genomic landscape of rapid repeated evolutionary adaptation to toxic pollution in wild fish.” Science 354.6317 (2016): 1305-1308.</p>
+</blockquote>
+<p>To review, this study compared 4 killifish populations that have evolved tolerance to a class of very nasty industrial pollutants (dioxin-like compounds) and 4 that are sensitive. The transcriptomic part of the study was an experiment exposing fish embryos to a model toxicant, PCB-126 and a control (DMSO) and sequencing RNA extracted from the whole RNA.</p>
+<p>As in ISG5311, we’re going to work with just one pair of populations, Elizabeth River and King’s Creek. As usual, you can find a git repository with scripts for this chapter <a href="https://github.com/isg-certificate/rnaseq_nf">here</a>. Clone it to get started.</p>
+<p>Because this is all old hat by now, we won’t go over all the details but you’ll need:</p>
+<ul>
+<li>The raw fastq files</li>
+<li>The reference genome</li>
+<li>The reference genome GTF file.</li>
+</ul>
+<p>To get those you can run <code>scripts/01_getData/01_downloadSRA.sh</code> and <code>scripts/01_getData/02_getGenome.sh</code>. They are essentially the same scripts for downloading the same data we used last semester. If you’ve still got that data around (though you’ve probably deleted it due to space constraints at this point), you could just symlink it to the appropriate directories instead of running the scripts.</p>
+</section>
+<section id="the-rnaseq-pipeline" class="level2" data-number="13.3">
+<h2 data-number="13.3" class="anchored" data-anchor-id="the-rnaseq-pipeline"><span class="header-section-number">13.3</span> The <code>rnaseq</code> pipeline</h2>
+<p>If you visit the <a href="https://nf-co.re/rnaseq/3.18.0"><code>rnaseq</code></a> page, you’ll find details on what it does and how it runs. Note that the main end point is the <em>count data</em> (and a lot of QC). This pipeline does not do differential expression analysis or other downstream analyses of RNA-seq data. If you check out their very nice “subway” map of the pipeline you can get a sense of how complex it is.</p>
+<p><a href="https://nf-co.re/rnaseq/3.18.0"><img src="https://raw.githubusercontent.com/nf-core/rnaseq/3.18.0/docs/images/nf-core-rnaseq_metro_map_grey_animated.svg" class="img-fluid"></a></p>
+<p>You will likely recognize some of the steps here. A downside of a pipeline like this is that it’s not always entirely clear which options you should choose, or where the particular outputs you want will be located. For this pipeline, there are at least four paths to generating counts (2 full alignment and quantification options and 2 pseudo-aligment and quantification options).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In this case, the option to quantify using HISAT2 mappings and htseq-count as we did last semester is not even an option. In fact, the pipeline docs suggest it is incorrect to quantify in this way (and they provide a few citations). The pipeline instead requires that data be mapped against a transcriptome (either provided, inferred from the GTF file, or assembled from the mapped reads using <code>stringtie</code>). For gene-level quantification, it combines counts across transcripts. While there is some evidence this can be beneficial, it’s not not at all clear that this more complex approach would be superior for a non-model organism with very little evidence backing the existence of multiple transcripts.</p>
+</div>
+</div>
+</section>
+<section id="running-the-pipeline" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="running-the-pipeline"><span class="header-section-number">13.4</span> Running the pipeline</h2>
+<p>We’re going to run the pipeline using the default approach. It will align to the reference genome using STAR, project the alignments to the transcriptome implied by the GTF annotation file, and quantify expression using salmon.</p>
+<p>To get started we need a sample sheet to tell the pipeline about our data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> rnaseq_nf/metadata/samplesheet.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sample,fastq_1,fastq_2,strandedness
+SRR12475446,../../data/fastq/SRR12475446_1.fastq.gz,../../data/fastq/SRR12475446_2.fastq.gz,auto
+SRR12475447,../../data/fastq/SRR12475447_1.fastq.gz,../../data/fastq/SRR12475447_2.fastq.gz,auto
+SRR12475448,../../data/fastq/SRR12475448_1.fastq.gz,../../data/fastq/SRR12475448_2.fastq.gz,auto
+SRR12475449,../../data/fastq/SRR12475449_1.fastq.gz,../../data/fastq/SRR12475449_2.fastq.gz,auto
+SRR12475450,../../data/fastq/SRR12475450_1.fastq.gz,../../data/fastq/SRR12475450_2.fastq.gz,auto
+SRR12475451,../../data/fastq/SRR12475451_1.fastq.gz,../../data/fastq/SRR12475451_2.fastq.gz,auto
+SRR12475452,../../data/fastq/SRR12475452_1.fastq.gz,../../data/fastq/SRR12475452_2.fastq.gz,auto
+SRR12475453,../../data/fastq/SRR12475453_1.fastq.gz,../../data/fastq/SRR12475453_2.fastq.gz,auto
+SRR12475454,../../data/fastq/SRR12475454_1.fastq.gz,../../data/fastq/SRR12475454_2.fastq.gz,auto</code></pre>
+</div>
+</div>
+<p>Here we provide a sample name, paths to the input data, and the strandedness of the library (“auto” means infer from the data). If you have multiple sequence runs per sample, you can put them on separate lines with the same sample name and they’ll be combined.</p>
+<p>Let’s look at the script <code>scripts/02_runNF/01_runNF.sh</code> and then submit it. First, the header:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=runNF</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -n 1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -N 1</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -c 2</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=10G</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --partition=general</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --qos=general</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-type=ALL</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-user=first.last@uconn.edu</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -o %x_%j.out</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -e %x_%j.err</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Pretty typical SLURM header. You will probably notice that these resources seem really skimpy. That’s because we are going to tell Nextflow to use SLURM as its <code>executor</code>. That means this job will only manage the pipeline. All the heavy computing will be submitted <em>by this job</em> as separate batch jobs. It will monitor those jobs and when they complete, submit subsequent jobs that depend on them.</p>
+<p>We’ll see more about how that works in a moment, but for now what this means is that only pipeline runs with huge numbers of tasks to manage need more resources than this.</p>
+<p>As usual, we’re going to load our software module next and create an output directory. We’re going to <code>cd</code> to that directory to run nextflow just to keep things cleaner.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load nextflow/24.10.5</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">OUTDIR</span><span class="op">=</span>../../results/nfcoreRNAseq</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">${OUTDIR}</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">${OUTDIR}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And finally we run the pipeline:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">SAMPLESHEET</span><span class="op">=</span>../../metadata/samplesheet.csv</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">GENOME</span><span class="op">=</span>../../genome/Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.dna_sm.toplevel.fa</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="va">GTF</span><span class="op">=</span>../../genome/Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.112.gtf</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># use xanadu profile from: https://nf-co.re/configs/xanadu/</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">nextflow</span> run nf-core/rnaseq <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--input</span> <span class="va">${SAMPLESHEET}</span> <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--outdir</span> out <span class="dt">\</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">--fasta</span> <span class="va">${GENOME}</span> <span class="dt">\</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">--gtf</span> <span class="va">${GTF}</span> <span class="dt">\</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">-profile</span> xanadu <span class="dt">\</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">-with-trace</span> trace.txt <span class="dt">\</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">-with-report</span> report.html <span class="dt">\</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">-with-timeline</span> timeline.html <span class="dt">\</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">-with-dag</span> dag.png</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We provide our sample sheet, the name of an output directory (<code>out</code>), our genome, GTF file, and some options.</p>
+<p>The most important option here is <code>-profile xanadu</code>. This is an institutional profile <a href="https://nf-co.re/configs/xanadu/">uploaded to nf-core</a>. When we use this option, nextflow goes to the nf-core website and grabs this configuration file. The main thing this configuration file does is tell nextflow how SLURM works on Xanadu. It says, for example, that it should never request more than 2TB of memory or 64 CPUs. It says it should use SLURM to submit tasks, and which partition and QOS to use, depending on the memory required by the task. It also tells nextflow to wait 2 seconds in between job submissions (SLURM can be overwhelmed by thousands of simultaneous submissions).</p>
+<p>Importantly, the configuration says that nextflow should use Singularity to run software in the pipeline. For this nf-core pipeline, that means that Nextflow will automatically download singularity containers and run each task using those containers. So we don’t need to have everything the pipeline needs installed locally already. That would be a huge challenge for a pipeline like this, which may depend on very specific software version numbers.</p>
+<p>The <code>-with-*</code> options all ask nextflow to produce some files summarizing the run. They can be pretty helpful in understanding the resource usage of each step.</p>
+<section id="monitoring-the-pipeline" class="level3" data-number="13.4.1">
+<h3 data-number="13.4.1" class="anchored" data-anchor-id="monitoring-the-pipeline"><span class="header-section-number">13.4.1</span> Monitoring the pipeline</h3>
+<p>Go ahead and submit this job. Watch it for a while. Keep typing <code>squeue -u $USER</code> and checking the <code>runNF_&lt;jobID&gt;.out</code> file.</p>
+<p>It should first spit out some of the basic input parameters. It will also give you a “run name” like this:</p>
+<pre><code>Launching `https://github.com/nf-core/rnaseq` [stupefied_brenner] DSL2 - revision: b96a75361a [master]</code></pre>
+<p><code>stupefied_brenner</code> refers to this run of the pipeline. You can re-run the pipeline from this directory multiple times and the intermediate results and log files will be saved and accessible using the run name.</p>
+<p>Then it will start printing messages like this:</p>
+<pre><code>executor &gt;  slurm (14)
+[-        ] NFC…:PREPARE_GENOME:GTF_FILTER | 0 of 1
+[-        ] NFC…SEQ:PREPARE_GENOME:GTF2BED -
+[-        ] NFC…OME:MAKE_TRANSCRIPTS_FASTA -
+[-        ] NFC…ENOME:CUSTOM_GETCHROMSIZES | 0 of 1
+[-        ] NFC…GENOME:STAR_GENOMEGENERATE -
+[-        ] NFC…_SETSTRANDEDNESS:CAT_FASTQ -
+[d4/f72bbe] NFC…NESS:FQ_LINT (SRR12475449) | 0 of 20
+[a6/e79128] NFC…ALORE:FASTQC (SRR12475447) | 0 of 20
+[1c/ee8099] NFC…E:TRIMGALORE (SRR12475448) | 0 of 20
+[-        ] NFC…ESS:FQ_LINT_AFTER_TRIMMING -
+[-        ] NFC…PLE_FQ_SALMON:SALMON_INDEX -
+[-        ] NFC…PLE_FQ_SALMON:FQ_SUBSAMPLE -
+[-        ] NFC…PLE_FQ_SALMON:SALMON_QUANT -
+[-        ] NFC…ASEQ:ALIGN_STAR:STAR_ALIGN -
+[-        ] NFC…ATS_SAMTOOLS:SAMTOOLS_SORT -
+[-        ] NFC…TS_SAMTOOLS:SAMTOOLS_INDEX -
+[-        ] NFC…TS_SAMTOOLS:SAMTOOLS_STATS -
+[-        ] NFC…SAMTOOLS:SAMTOOLS_FLAGSTAT -
+[-        ] NFC…SAMTOOLS:SAMTOOLS_IDXSTATS -
+[-        ] NFC…Y_STAR_SALMON:SALMON_QUANT -
+Plus 31 more processes waiting for tasks…</code></pre>
+<p>These are tasks in the pipeline that need to be run. <code>0 of 20</code> indicates that the task will be run 20 times (in this case on each of our 20 samples). Unfortunately, the task names are pretty long and get truncated in this view, so it’s not exactly clear what they are (more in a moment).</p>
+<p>The bits inside the brackets, e.g.&nbsp;<code>d4/f72bbe</code> refer to subdirectories of the <code>work</code> directory where a given task is being executed. This bit refers to: <code>results/nfcoreRNAseq/work/d4/f72bbe8221d954524068746746c00a/</code>. The <code>f72bbe</code> is just the first few letters of <code>f72bbe8221d954524068746746c00a</code>. Just enough to identify it (and be able to tab-complete it if you want to visit the directory). More on the work directory below.</p>
+<p>If you keep looking at <code>squeue -u $USER</code> you should see tons of jobs being submitted by nextflow. Some will go very quickly, others will take a few minutes. If enough resources are available, the entire pipeline should complete in about two hours.</p>
+<p>A couple points you should be aware of:</p>
+<ul>
+<li>If a task gets killed, nextflow has options to have it automatically restarted a few times (they’re enabled in this pipeline).</li>
+<li>If the entire pipeline gets killed (e.g.&nbsp;if the main job for <code>stupefied_brenner</code> had been interrupted) you can add the option <code>-resume</code> to the nextflow call, and it will start back up where it left off on the last run, using any completed intermediate results.</li>
+<li>If you don’t do <code>-resume</code> everything will be computed fresh.</li>
+</ul>
+</section>
+</section>
+<section id="the-output" class="level2" data-number="13.5">
+<h2 data-number="13.5" class="anchored" data-anchor-id="the-output"><span class="header-section-number">13.5</span> The output</h2>
+<p>We are writing output to <code>results/nfcoreRNAseq/</code>. When it completes you should see this:</p>
+<pre><code>results/nfcoreRNAseq/
+├── dag.png
+├── .nextflow
+├── .nextflow.log
+├── out
+├── report.html
+├── timeline.html
+├── trace.txt
+└── work
+
+3 directories, 6 files</code></pre>
+<section id="the-main-output" class="level3" data-number="13.5.1">
+<h3 data-number="13.5.1" class="anchored" data-anchor-id="the-main-output"><span class="header-section-number">13.5.1</span> The main output</h3>
+<p><code>out</code> is our main output directory (we named it that). It contains all our results. The output only contains things the pipeline authors specifically decided to “publish” there. Intermediate outputs will be found in the work directory. The output directory looks like this:</p>
+<pre><code>out/
+├── fastqc
+├── fq_lint
+├── multiqc
+├── pipeline_info
+├── star_salmon
+└── trimgalore
+
+6 directories, 0 files</code></pre>
+<p>The aim here is not to get deep into the specifics of this RNA-seq pipeline, so we won’t poke around much in there. The documentation for the pipeline explains where all the outputs are for each step. Note, however, that <code>out/pipeline_info/nf_core_rnaseq_software_mqc_versions.yml</code> lists the software versions that were used in the pipeline!</p>
+</section>
+<section id="pipeline-run-summaries" class="level3" data-number="13.5.2">
+<h3 data-number="13.5.2" class="anchored" data-anchor-id="pipeline-run-summaries"><span class="header-section-number">13.5.2</span> Pipeline run summaries</h3>
+<p>The <code>-with-*</code> options above produced some useful files. Let’s look at <code>trace.txt</code> first.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> results/nfcoreRNAseq/trace.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>task_id hash    native_id   name    status  exit    submit  duration    realtime    %cpu    peak_rss    peak_vmem   rchar   wchar
+6   55/110763   9024468 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FQ_LINT (SRR12475446) COMPLETED   0   2025-03-15 16:10:54.701 5s  0ms 43.3%   1.5 MB  4.3 MB  6.1 MB  1.9 KB
+4   4a/7c58d3   9024469 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FASTQ_FASTQC_UMITOOLS_TRIMGALORE:FASTQC (SRR12475446) COMPLETED   0   2025-03-15 16:10:55.333 34.7s   4s165.9%    239 MB  40.3 GB 15.6 MB 3.7 MB
+3   a9/7441c6   9024478 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FASTQ_FASTQC_UMITOOLS_TRIMGALORE:TRIMGALORE (SRR12475446) COMPLETED   0   2025-03-15 16:10:59.763 35.3s   9s  168.2%  261.3 MB    9.1 GB  125.6 MB    55.9 MB
+1   5f/a153d4   9024499 NFCORE_RNASEQ:PREPARE_GENOME:GTF_FILTER (Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.dna_sm.toplevel.fa)  COMPLETED   0   2025-03-15 16:11:10.289 35.1s   7s84.9% 16.5 MB 25.2 MB 1.3 GB  306.8 MB
+2   ec/ab7eff   9024498 NFCORE_RNASEQ:PREPARE_GENOME:CUSTOM_GETCHROMSIZES (Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.dna_sm.toplevel.fa)    COMPLETED   0   2025-03-15 16:11:09.775 35.6s   4s  96.6%   3.1 MB  10.7 MB 993.1 MB    531.6 KB
+18  1b/53b1e8   9024466 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FQ_LINT (SRR12475451) COMPLETED   0   2025-03-15 16:10:53.846 1m 2s   33s 99.7%   73 MB   79.8 MB 1.5 GB  1.9 KB
+63  cf/feddf1   9024521 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FQ_LINT_AFTER_TRIMMING (SRR12475446)  COMPLETED   0   2025-03-15 16:11:35.719 19.9s   0ms 93.4%   3.3 MB  10.3 MB 5.8 MB  1.9 KB
+27  67/964c05   9024462 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FQ_LINT (SRR12475468) COMPLETED   0   2025-03-15 16:10:51.776 1m 9s   58s 99.9%   73.1 MB 79.8 MB 1.9 GB  1.9 KB
+8   4b/771f6f   9024459 NFCORE_RNASEQ:RNASEQ:FASTQ_QC_TRIM_FILTER_SETSTRANDEDNESS:FQ_LINT (SRR12475448) COMPLETED   0   2025-03-15 16:10:51.426 1m 9s   48s 99.5%   73.2 MB 80 MB   2.1 GB  1.9 KB```</code></pre>
+<p>It’s tab-delimited, so a bit hard to follow here, but this gives a lot of useful info for each task in the pipeline. It also gives the “hash” that can be used to check out the work directory for each step.</p>
+<p>Next, you should download and look at the html and png files locally.</p>
+<ul>
+<li><code>dag.png</code>: The pipeline can be thought of as a “directed acyclic graph” (DAG). Each task in the pipeline (e.g.&nbsp;alignment) is a node, and edges connect the nodes directionally to define the flow of data through the whole thing. Open <code>dag.png</code> in an image viewer to get a sense of how complex this pipeline is.</li>
+<li><code>timeline.html</code>: this file is a visual summary of the timeline of the pipeline run. it gives the relative start time, wall time used, and memory usage for each task in the pipeline.</li>
+<li><code>report.hml</code>: this file summarizes tasks by task type (and also has all the info from trace.txt plus some). That last table with the trace info also lists the singularity container used, and the SLURM job ID (column “native_id”).</li>
+</ul>
+<p>Finally, we have <code>.nextflow.log</code>. This file contains information that largely overlaps with all the above stuff. Importantly it’s the easiest place to find the SLURM job id for a given task, aside from report.html. Just grep the hash (e.g.&nbsp;<code>a9/178e26</code> and look for <code>jobID</code>)</p>
+</section>
+</section>
+<section id="the-work-directory" class="level2" data-number="13.6">
+<h2 data-number="13.6" class="anchored" data-anchor-id="the-work-directory"><span class="header-section-number">13.6</span> The work directory</h2>
+<p>The work directory is a bit of a bear. It’s where all the individual tasks are completed. Individual task “hashes” like <code>a9/178e26</code> refer to subdirectories in <code>work</code>, like <code>work/a9/178e26fcb8a8dbb490d3f90b409c70/</code>. What’s in these subdirectories? Let’s examine this one, a salmon quantification task for sample <code>SRR12475449</code> (your path will be different, but you should be able to figure out the directory from <code>trace.txt</code> or <code>.nextflow.log</code>).</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> work/a9/178e26fcb8a8dbb490d3f90b409c70/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>.
+├── .command.begin
+├── .command.err
+├── .command.log
+├── .command.out
+├── .command.run
+├── .command.sh
+├── .command.trace
+├── deseq2_pca_header.txt -&gt; /home/FCAM/nreid/.nextflow/assets/nf-core/rnaseq/workflows/rnaseq/assets/multiqc/deseq2_pca_header.txt
+├── .exitcode
+├── Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.dna_sm.toplevel.filtered.gtf -&gt; /home/FCAM/nreid/cert/ISG5312/ch13/rnaseq_nf/results/nfcoreRNAseq/work/5f/a153d47879e6087abc54dba11af3d4/Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.dna_sm.toplevel.filtered.gtf
+├── genome.transcripts.fa -&gt; /home/FCAM/nreid/cert/ISG5312/ch13/rnaseq_nf/results/nfcoreRNAseq/work/32/7e26c8d4011f27c316d5047926105d/genome.transcripts.fa
+├── SRR12475449
+├── SRR12475449.Aligned.toTranscriptome.out.bam -&gt; /home/FCAM/nreid/cert/ISG5312/ch13/rnaseq_nf/results/nfcoreRNAseq/work/ff/125f7740267685ea070ee7c00331da/SRR12475449.Aligned.toTranscriptome.out.bam
+├── SRR12475449_meta_info.json
+└── versions.yml
+
+1 directory, 14 files</code></pre>
+<p>Notice there are some dot-files (e.g.&nbsp;<code>.command.*</code>) and some input and output files. The way nextflow works is that for each task a new work directory is created. All the necessary input files (often generated by previous steps) are <em>symlinked</em> into the directory. So here we’ve got our GTF file, our transcriptome fasta (inferred from the GTF) and our transcriptome-aligned BAM file as input. Symlinking puts all the necessary files in this work directory. Then scripts, intended to be run in this directory are created and run.</p>
+<p>The <code>.command.*</code> files are pretty important.</p>
+<ul>
+<li><code>.command.sh</code> is the actual program script. When things are going wrong, it’s often useful to look at this.</li>
+<li><code>.command.run</code> is the SLURM batch script used to run <code>.command.sh</code>. It’s rarely helpful to look at this as it contains a large amount of challenging shell script.</li>
+<li><code>.command.out</code> and <code>.command.err</code>. The standard out and standard error files. Sometimes these can be pretty helpful to look at.</li>
+</ul>
+<p>The core of <code>.command.sh</code> is our program call, in this case:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">salmon</span> quant <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">--geneMap</span> Fundulus_heteroclitus.Fundulus_heteroclitus-3.0.2.dna_sm.toplevel.filtered.gtf <span class="dt">\</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">--threads</span> 6 <span class="dt">\</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--libType</span><span class="op">=</span>IU <span class="dt">\</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">-t</span> genome.transcripts.fa <span class="dt">\</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">-a</span> SRR12475449.Aligned.toTranscriptome.out.bam <span class="dt">\</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>     <span class="dt">\</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> SRR12475449</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We also have our output. In this case it’s mainly the directory <code>SRR12475449</code>. It contains the files with gene and transcript-level expression profiles (along with some other info). Ultimately this directory is published to the output directory (<code>out/star_salmon/SRR12475449</code>).</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>After a single pipeline run there are something like 740 work subdirectories here, each containing at least 10 files. Every time you re-run the pipeline it will create new work subdirectories. If you decide you want to use a different parameter, you will get a whole new set of work subdirectories. If you cancel the pipeline run and restart without <code>-resume</code> you will get new work subdirectories. Furthermore, each of the files in the output directory <em>also</em> exist in the work directory. They were simply copied from <code>work</code> to <code>out</code>. And the intermediate files created by each step in the pipeline are not cleaned up by default.</p>
+<p>All this is to say nextflow can create <em>a huge number of files</em> and <em>use a ton of space</em>. It’s a good idea to delete the work directory as soon as is reasonable. Sometimes there will be so many files to remove it will take an hour or more to delete it. For linux, removing large numbers of tiny files is much harder than removing a small number of very big files, so nextflow work directories can be a real annoyance.</p>
+</div>
+</div>
+</section>
+<section id="the-pipeline-code" class="level2" data-number="13.7">
+<h2 data-number="13.7" class="anchored" data-anchor-id="the-pipeline-code"><span class="header-section-number">13.7</span> The pipeline code</h2>
+<p>When we ran <code>nextflow run nf-core/rnaseq &lt;...&gt;</code> we didn’t actually point to a local copy of the pipeline code itself. <code>nf-core/rnaseq</code> is by default interpreted as a GitHub <code>user/repository</code> (e.g.&nbsp;http://github.com/nf-core/rnaseq). The pipeline code is then downloaded and stored in a hidden directory in your <code>$HOME</code>: <code>~/.nextflow/assets/nf-core/rnaseq/</code>. For subsequent runs of the pipeline, that pipeline will be run. It’s possible to specify versions of the pipeline, or force the code to be updated to the latest.</p>
+<p>For <code>rnaseq</code>, the actual pipeline directory looks like this:</p>
+<pre><code>├── assets
+├── bin
+├── CHANGELOG.md
+├── CITATIONS.md
+├── CODE_OF_CONDUCT.md
+├── conf
+├── docs
+├── LICENSE
+├── main.nf
+├── modules
+├── modules.json
+├── nextflow.config
+├── nextflow_schema.json
+├── nf-test.config
+├── README.md
+├── subworkflows
+├── tests
+├── tower.yml
+└── workflows
+
+8 directories, 11 files</code></pre>
+<p><code>main.nf</code> is the starting point. Other key parts of the pipeline that define its structure are in <code>workflows/</code>, <code>submodules/</code> and <code>modules/</code>. We won’t get into this in much detail now, but the basic building blocks of a nextflow pipeline are the modules. Let’s go look at the salmon quantification module that built the work directory we examined above.</p>
+<p>It can be found here <code>modules/nf-core/salmon/quant/main.nf</code></p>
+<p>There’s a lot there because nf-core pipelines are fairly complex. But the key components are the <code>input:</code> block <code>output:</code> block and the actual code, a multi-line code block bounded by <code>"""</code>. The key part of the code block, corresponding to the section of <code>.command.sh</code> that we examined above is this:</p>
+<pre><code>    salmon quant \\
+        --geneMap $gtf \\
+        --threads $task.cpus \\
+        --libType=$strandedness \\
+        $reference \\
+        $input_reads \\
+        $args \\
+        -o $prefix</code></pre>
+<p>You can see that this mirrors how we have been organizing code and using variables to both make it easier to read, and reuse in loops or arrays.</p>
+</section>
+<section id="the-containers" class="level2" data-number="13.8">
+<h2 data-number="13.8" class="anchored" data-anchor-id="the-containers"><span class="header-section-number">13.8</span> The containers</h2>
+<p>Finally, we mentioned above that each program in this run was run inside a container. Where are those containers stored? On Xanadu we have set up a shared nextflow container cache directory: <code>/isg/shared/databases/nfx_singularity_cache/</code>. You may have noticed that defined in the <a href="https://nf-co.re/configs/xanadu/">institutional profile</a>.</p>
+<p>In the module file above, the container URL is listed as <code>https://depot.galaxyproject.org/singularity/salmon:1.10.3--h6dccd9a_2</code> and we find the corresponding container <code>/isg/shared/databases/nfx_singularity_cache/depot.galaxyproject.org-singularity-salmon-1.10.3--h6dccd9a_2.img</code>.</p>
+<p>And (in an interactive session) we can test it out:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load singularity/3.10.0</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> exec /isg/shared/databases/nfx_singularity_cache/depot.galaxyproject.org-singularity-salmon-1.10.3--h6dccd9a_2.img salmon quant <span class="at">--help-alignment</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Which prints the usage:</p>
+<pre><code>Quant
+==========
+Perform dual-phase, alignment-based estimation of
+transcript abundance from RNA-seq reads
+
+salmon quant options:
+
+
+alignment input options:
+  --discardOrphans                      [alignment-based mode only] : Discard 
+                                        orphan alignments in the input .  If 
+                                        this flag is passed, then only paired 
+                                        alignments will be considered toward 
+                                        quantification estimates.  The default 
+                                        behavior is to consider orphan 
+                                        alignments if no valid paired mappings 
+                                        exist.
+&lt;...&gt;</code></pre>
+<p>The container used for each step can be found in <code>report.html</code> or in the code for the relevant module.</p>
+</section>
+<section id="conclusion" class="level2" data-number="13.9">
+<h2 data-number="13.9" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">13.9</span> Conclusion</h2>
+<p>In essence, nextflow boils down to a convenient way to automatically write, run, monitor, and summarize a collection of scripts that make up a workflow. Hopefully at this point in the course, you can see how this mirrors in many ways our strategy for organizing code and results in a project directory.</p>
+<p>Whether doing an analysis yourself, running a pre-existing pipeline, or developing a formal pipeline from scratch is optimal is extremely context dependent. Prepackaged, containerized pipelines like those from nf-core can be fantastically convenient. If you don’t know what you’re doing and run into trouble, however, the complexity can make them challenging to understand and troubleshoot. They may also come with design choices built in that are suboptimal for your particular situation.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./05_0_workflows.html" class="pagination-link" aria-label="Pipeline development with Nextflow">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Pipeline development with Nextflow</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
